@@ -1,0 +1,40 @@
+<div [class]="containerClasses()">
+  <!-- Icon -->
+  <mat-icon [class]="iconClasses()">{{ icon() }}</mat-icon>
+  
+  <!-- Content -->
+  <div class="flex-1 min-w-0">
+    @if (title()) {
+      <h3 [class]="titleClasses()">{{ title() }}</h3>
+    }
+    <p [class]="messageClasses()">{{ message() }}</p>
+    
+    @if (details()) {
+      <p [class]="detailsClasses()">{{ details() }}</p>
+    }
+  </div>
+  
+  <!-- Actions -->
+  @if (showRetry() || dismissible()) {
+    <div class="flex items-center gap-2">
+      @if (showRetry()) {
+        <button 
+          mat-icon-button
+          (click)="onRetry()"
+          [disabled]="retrying()"
+          class="text-current">
+          <mat-icon>{{ retrying() ? 'hourglass_empty' : 'refresh' }}</mat-icon>
+        </button>
+      }
+      
+      @if (dismissible()) {
+        <button 
+          mat-icon-button
+          (click)="onDismiss()"
+          class="text-current">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+  }
+</div>

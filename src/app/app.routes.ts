@@ -8,15 +8,41 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./features/dashboard/dashboard-modern.component').then(c => c.DashboardModernComponent)
+    loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent)
   },
   {
     path: 'beneficios',
-    loadChildren: () => import('./features/beneficios/beneficios.routes').then(m => m.BENEFICIOS_ROUTES)
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/beneficios/beneficios-list/beneficios-list.component').then(c => c.BeneficiosListComponent)
+      },
+      {
+        path: 'novo',
+        loadComponent: () => import('./features/beneficios/beneficio-form/beneficio-form.component').then(c => c.BeneficioFormComponent)
+      },
+      {
+        path: 'editar/:id',
+        loadComponent: () => import('./features/beneficios/beneficio-form/beneficio-form.component').then(c => c.BeneficioFormComponent)
+      },
+      {
+        path: ':id',
+        loadComponent: () => import('./features/beneficios/beneficio-detail/beneficio-detail.component').then(c => c.BeneficioDetailComponent)
+      }
+    ]
   },
   {
     path: 'transferencias',
-    loadChildren: () => import('./features/transferencias/transferencias.routes').then(m => m.TRANSFERENCIAS_ROUTES)
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/transferencias/transferencia-list/transferencia-list.component').then(c => c.TransferenciaListComponent)
+      },
+      {
+        path: 'nova',
+        loadComponent: () => import('./features/transferencias/transferencia-form/transferencia-form.component').then(c => c.TransferenciaFormComponent)
+      }
+    ]
   },
   {
     path: '**',

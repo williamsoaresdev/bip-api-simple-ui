@@ -1,160 +1,206 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { 
+  Component, 
+  OnInit, 
+  ChangeDetectionStrategy, 
+  signal, 
+  computed, 
+  inject 
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
 
+// Material Design Imports
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
 
-import { BeneficioService } from '@core/services';
-import { Beneficio } from '@core/models';
-import { LoadingComponent, ErrorMessageComponent, ConfirmationDialogComponent } from '@shared/components';
+// Core Services and Models
+import { BeneficioService } from '@core/services/beneficio.service';
+import { Beneficio } from '@core/models/beneficio.model';
 
 @Component({
-    selector: 'bip-beneficio-detail',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    templateUrl: './beneficio-detail.component.html',
-    styleUrl: './beneficio-detail.component.scss',
-    imports: [
-        CommonModule,
-        RouterLink,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatChipsModule,
-        LoadingComponent,
-        ErrorMessageComponent
-    ]
+  selector: 'bip-beneficio-detail',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule
+  ],
+  templateUrl: './beneficio-detail.component.html',
+  styleUrl: './beneficio-detail.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BeneficioDetailComponent implements OnInit, OnDestroy {
-  beneficio?: Beneficio;
-  beneficioId?: number;
-  
-  private destroy$ = new Subject<void>();
+export class BeneficioDetailComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly beneficioService = inject(BeneficioService);
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    public beneficioService: BeneficioService
-  ) {}
+  readonly beneficio = signal<Beneficio | null>(null);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly beneficioId = signal<string | null>(null);
+
+  readonly pageTitle = computed(() => {
+    const beneficio = this.beneficio();
+    return beneficio ? `Benefício: ${beneficio.nome}` : 'Detalhes do Benefício';
+  });
+
+  readonly statusColor = computed(() => {
+    const beneficio = this.beneficio();
+    return beneficio?.ativo ? 'success' : 'inactive';
+  });
+
+  readonly statusLabel = computed(() => {
+    const beneficio = this.beneficio();
+    return beneficio?.ativo ? 'Ativo' : 'Inativo';
+  });
+
+  readonly createdDate = computed(() => {
+    const beneficio = this.beneficio();
+    return beneficio?.createdAt ? new Date(beneficio.createdAt) : null;
+  });
+
+  readonly updatedDate = computed(() => {
+    const beneficio = this.beneficio();
+    return beneficio?.updatedAt ? new Date(beneficio.updatedAt) : null;
+  });
 
   ngOnInit(): void {
-    this.beneficioId = Number(this.route.snapshot.paramMap.get('id'));
-    
-    if (!this.beneficioId || isNaN(this.beneficioId)) {
-      this.snackBar.open('ID do benefício inválido', 'Fechar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      this.router.navigate(['/beneficios']);
-      return;
-    }
-
-    this.loadBeneficio();
+    this.initializeComponent();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  loadBeneficio(): void {
-    if (!this.beneficioId) return;
-
-    this.beneficioService.buscarPorId(this.beneficioId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (beneficio: Beneficio) => {
-          this.beneficio = beneficio;
-        },
-        error: (error) => {
-          this.snackBar.open(error || 'Erro ao carregar benefício', 'Fechar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+  private initializeComponent(): void {
+    this.route.params
+      .pipe(takeUntilDestroyed())
+      .subscribe(params => {
+        const id = params['id'];
+        if (id) {
+          this.beneficioId.set(id);
+          this.loadBeneficio(id);
+        } else {
+          this.error.set('ID do benefício não fornecido');
         }
       });
   }
 
-  confirmarExclusao(): void {
-    if (!this.beneficio) return;
+  private loadBeneficio(id: string): void {
+    this.loading.set(true);
+    this.error.set(null);
 
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Confirmar Exclusão',
-        message: `Tem certeza que deseja excluir o benefício "${this.beneficio.nome}"?`,
-        details: 'Esta ação não pode ser desfeita.',
-        confirmText: 'Excluir',
-        cancelText: 'Cancelar',
-        type: 'danger'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((result: boolean) => {
-      if (result) {
-        this.excluirBeneficio();
-      }
-    });
+    this.beneficioService.getBeneficioById(id)
+      .pipe(
+        catchError(error => {
+          this.error.set('Erro ao carregar benefício: ' + error.message);
+          return of(null);
+        }),
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed()
+      )
+      .subscribe(response => {
+        if (response?.data) {
+          this.beneficio.set(response.data);
+        }
+      });
   }
 
-  private excluirBeneficio(): void {
-    if (!this.beneficio) return;
+  onEdit(): void {
+    const id = this.beneficioId();
+    if (id) {
+      this.router.navigate(['/beneficios', id, 'editar']);
+    }
+  }
 
-    this.beneficioService.remover(this.beneficio.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Benefício excluído com sucesso!', 'Fechar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+  onDelete(): void {
+    const beneficio = this.beneficio();
+    if (!beneficio) return;
+
+    // Here would open a confirmation dialog
+    // For now, just navigate back
+    if (confirm(`Tem certeza que deseja excluir o benefício "${beneficio.nome}"?`)) {
+      this.deleteBeneficio();
+    }
+  }
+
+  private deleteBeneficio(): void {
+    const id = this.beneficioId();
+    if (!id) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.beneficioService.deleteBeneficio(id)
+      .pipe(
+        catchError(error => {
+          this.error.set('Erro ao excluir benefício: ' + error.message);
+          return of(null);
+        }),
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed()
+      )
+      .subscribe(result => {
+        if (result) {
           this.router.navigate(['/beneficios']);
-        },
-        error: (error: string) => {
-          this.snackBar.open(error || 'Erro ao excluir benefício', 'Fechar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
         }
       });
   }
 
-  getDaysActive(): number {
-    if (!this.beneficio?.criadoEm) return 0;
-    
-    const created = new Date(this.beneficio.criadoEm);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - created.getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  onBack(): void {
+    this.router.navigate(['/beneficios']);
   }
 
-  getRelativeDate(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) {
-      return 'ontem';
-    } else if (diffDays < 7) {
-      return `há ${diffDays} dias`;
-    } else if (diffDays < 30) {
-      const weeks = Math.ceil(diffDays / 7);
-      return `há ${weeks} semana${weeks > 1 ? 's' : ''}`;
-    } else if (diffDays < 365) {
-      const months = Math.ceil(diffDays / 30);
-      return `há ${months} mês${months > 1 ? 'es' : ''}`;
-    } else {
-      const years = Math.ceil(diffDays / 365);
-      return `há ${years} ano${years > 1 ? 's' : ''}`;
+  onToggleStatus(): void {
+    const beneficio = this.beneficio();
+    if (!beneficio) return;
+
+    const newStatus = !beneficio.ativo;
+    const action = newStatus ? 'ativar' : 'desativar';
+
+    if (confirm(`Tem certeza que deseja ${action} este benefício?`)) {
+      this.updateBeneficioStatus(newStatus);
     }
+  }
+
+  private updateBeneficioStatus(ativo: boolean): void {
+    const id = this.beneficioId();
+    const beneficio = this.beneficio();
+    if (!id || !beneficio) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    const updateData = {
+      ...beneficio,
+      ativo
+    };
+
+    this.beneficioService.updateBeneficio(id, updateData as any)
+      .pipe(
+        catchError(error => {
+          this.error.set('Erro ao atualizar status: ' + error.message);
+          return of(null);
+        }),
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed()
+      )
+      .subscribe(response => {
+        if (response?.data) {
+          this.beneficio.set(response.data);
+        }
+      });
+  }
+
+  onCopy(): void {
+    const beneficio = this.beneficio();
+    if (!beneficio) return;
+
+    // Navigate to form with current beneficio data for copying
+    this.router.navigate(['/beneficios/novo'], {
+      state: { copyFrom: beneficio }
+    });
   }
 }

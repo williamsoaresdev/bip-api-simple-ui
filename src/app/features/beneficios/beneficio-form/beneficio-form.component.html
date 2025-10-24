@@ -1,21 +1,18 @@
-<div class="bip-page-container">
-  <!-- 🎯 Modern Page Header with Signals -->
-  <div class="bip-page-header">
-    <div class="bip-header-content">
-      <h1 class="bip-page-title">
-        <mat-icon class="bip-page-icon">{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
+<div class="form-container">
+  <!-- Page Header -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1>
+        <mat-icon>{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
         {{ formTitle() }}
       </h1>
-      <p class="bip-page-subtitle">
-        {{ formSubtitle() }}
-      </p>
+      <p>{{ formSubtitle() }}</p>
     </div>
     
-    <div class="bip-page-actions">
+    <div class="header-actions">
       <button 
         mat-stroked-button 
         (click)="onCancel()" 
-        class="bip-btn-secondary"
         [disabled]="loading()">
         <mat-icon>arrow_back</mat-icon>
         Voltar
@@ -23,237 +20,185 @@
     </div>
   </div>
 
-  <!-- 🔄 Loading State - Modern Control Flow -->
+  <!-- Loading State -->
   @if (loading()) {
-    <div class="bip-loading-container">
-      <mat-spinner diameter="48"></mat-spinner>
-      <p>{{ isEditMode() ? 'Carregando benefício...' : 'Processando...' }}</p>
-    </div>
-  }
-
-  <!-- ❌ Error State - Modern Control Flow -->
-  @if (error()) {
-    <div class="bip-message-container error">
-      <mat-icon>error_outline</mat-icon>
-      <div>
-        <h3>Erro no formulário</h3>
-        <p>{{ error() }}</p>
-      </div>
-    </div>
-  }
-
-  <!-- 📋 Form Content - Modern Control Flow -->
-  @if (!loading()) {
-    <div class="bip-form-layout">
-      <!-- Main Form -->
-      <div class="bip-form-container">
-        <mat-card class="bip-card-form">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>info</mat-icon>
-              Informações do Benefício
-            </mat-card-title>
-            <mat-card-subtitle>
-              Preencha todos os campos obrigatórios marcados com *
-            </mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content>
-            <form [formGroup]="beneficioForm" (ngSubmit)="onSubmit()">
-              <!-- Nome do Benefício -->
-              <div class="bip-form-group">
-                <mat-form-field class="bip-form-field" appearance="outline">
-                  <mat-label>Nome do Benefício *</mat-label>
-                  <input 
-                    matInput 
-                    formControlName="nome"
-                    placeholder="Ex: Vale Alimentação, Auxílio Transporte"
-                    maxlength="100"
-                    #nomeInput>
-                  <mat-icon matSuffix>card_giftcard</mat-icon>
-                  <mat-hint align="end">{{ nomeInput.value.length || 0 }}/100</mat-hint>
-                  
-                  <!-- 🚀 Advanced Error Handling -->
-                  @if (nomeControl.hasError('required') && nomeControl.touched) {
-                    <mat-error>
-                      <mat-icon>error</mat-icon>
-                      Nome é obrigatório
-                    </mat-error>
-                  }
-                  @if (nomeControl.hasError('minlength')) {
-                    <mat-error>
-                      <mat-icon>warning</mat-icon>
-                      Nome deve ter pelo menos 3 caracteres
-                    </mat-error>
-                  }
-                  @if (nomeControl.hasError('nomeJaExiste')) {
-                    <mat-error>
-                      <mat-icon>content_copy</mat-icon>
-                      Este nome já existe no sistema
-                    </mat-error>
-                  }
-                  @if (formState().validationState.suggestions['nomeDetalhe']) {
-                    <mat-hint class="bip-suggestion">
-                      💡 {{ formState().validationState.suggestions['nomeDetalhe'].message }}
-                    </mat-hint>
-                  }
-                </mat-form-field>
-              </div>
-
-              <!-- Valor Inicial -->
-              <div class="bip-form-group">
-                <mat-form-field class="bip-form-field" appearance="outline">
-                  <mat-label>Valor Inicial *</mat-label>
-                  <input 
-                    matInput 
-                    type="text"
-                    formControlName="valorInicial"
-                    placeholder="100,50 ou 1000,75"
-                    (input)="formatarValor($event)"
-                    (blur)="validarValor()"
-                    maxlength="15">
-                  <span matTextPrefix>R$ </span>
-                  <mat-icon matSuffix>attach_money</mat-icon>
-                  <mat-hint>Digite com vírgula para centavos (ex: 100,50)</mat-hint>
-                  
-                  <!-- 🚀 Modern Error Handling -->
-                  @if (beneficioForm.controls.valorInicial.hasError('required') && beneficioForm.controls.valorInicial.touched) {
-                    <mat-error>Valor é obrigatório</mat-error>
-                  }
-                  @if (beneficioForm.controls.valorInicial.hasError('min')) {
-                    <mat-error>Valor deve ser maior que zero</mat-error>
-                  }
-                  @if (beneficioForm.controls.valorInicial.hasError('invalid')) {
-                    <mat-error>Formato de valor inválido</mat-error>
-                  }
-                </mat-form-field>
-              </div>
-
-              <!-- Descrição -->
-              <div class="bip-form-group">
-                <mat-form-field class="bip-form-field" appearance="outline">
-                  <mat-label>Descrição (Opcional)</mat-label>
-                  <textarea 
-                    matInput 
-                    formControlName="descricao"
-                    placeholder="Descreva o benefício, suas características ou condições de uso..."
-                    rows="4"
-                    maxlength="500"
-                    #descricaoInput>
-                  </textarea>
-                  <mat-icon matSuffix>description</mat-icon>
-                  <mat-hint align="end">{{ descricaoInput.value.length || 0 }}/500</mat-hint>
-                  
-                  @if (beneficioForm.controls.descricao.hasError('maxlength')) {
-                    <mat-error>Descrição não pode ter mais que 500 caracteres</mat-error>
-                  }
-                </mat-form-field>
-              </div>
-            </form>
-          </mat-card-content>
-
-          <!-- Form Actions -->
-          <mat-card-actions class="bip-form-actions">
-            <button 
-              type="button" 
-              mat-stroked-button 
-              (click)="onCancel()"
-              [disabled]="loading()"
-              class="bip-btn-secondary">
-              <mat-icon>cancel</mat-icon>
-              Cancelar
-            </button>
-
-            <button 
-              type="submit" 
-              mat-raised-button 
-              color="primary"
-              (click)="onSubmit()"
-              [disabled]="!isFormValid() || loading()"
-              class="bip-btn-primary">
-              @if (loading()) {
-                <mat-spinner diameter="20"></mat-spinner>
-                {{ isEditMode() ? 'Atualizando...' : 'Criando...' }}
-              } @else {
-                <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
-                {{ submitButtonText() }} Benefício
-              }
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-
-      <!-- 👁️ Preview Sidebar - Modern Conditional Rendering -->
-      @if (beneficioForm.controls.nome.value; as nomeBeneficio) {
-        <div class="bip-preview-container">
-          <mat-card class="bip-preview-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>preview</mat-icon>
-                Prévia do Benefício
-              </mat-card-title>
-              <mat-card-subtitle>Como ficará após salvar</mat-card-subtitle>
-            </mat-card-header>
-
-            <mat-card-content>
-              <div class="bip-preview-content">
-                <!-- Preview Header -->
-                <div class="bip-preview-header">
-                  <div class="bip-preview-avatar">
-                    <mat-icon>card_giftcard</mat-icon>
-                  </div>
-                  <div class="bip-preview-title">
-                    <h3>{{ nomeBeneficio || 'Nome do benefício' }}</h3>
-                    <span class="bip-preview-id">
-                      {{ isEditMode() ? '#' + beneficioId() : 'Novo benefício' }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Preview Details -->
-                <div class="bip-preview-details">
-                  <div class="bip-preview-item">
-                    <mat-icon class="bip-preview-icon">account_balance_wallet</mat-icon>
-                    <div class="bip-preview-text">
-                      <label>Saldo Inicial</label>
-                      <p class="bip-preview-valor">{{ valorFormatado() }}</p>
-                    </div>
-                  </div>
-
-                  @if (beneficioForm.controls.descricao.value; as descricao) {
-                    <div class="bip-preview-item">
-                      <mat-icon class="bip-preview-icon">description</mat-icon>
-                      <div class="bip-preview-text">
-                        <label>Descrição</label>
-                        <p>{{ descricao }}</p>
-                      </div>
-                    </div>
-                  }
-
-                  <div class="bip-preview-item">
-                    <mat-icon class="bip-preview-icon">schedule</mat-icon>
-                    <div class="bip-preview-text">
-                      <label>{{ isEditMode() ? 'Última Atualização' : 'Data de Criação' }}</label>
-                      <p>{{ dataAtual() | date:'dd/MM/yyyy HH:mm' }}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Preview Actions -->
-                <div class="bip-preview-actions">
-                  <div class="bip-preview-tip">
-                    <small>
-                      <strong>💡 Dica:</strong><br>
-                      Verifique todos os dados antes de salvar. 
-                      {{ isEditMode() ? 'As alterações serão aplicadas imediatamente.' : 'O benefício estará disponível após o cadastro.' }}
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
+    <div class="loading-container">
+      <mat-card>
+        <div class="loading-content">
+          <mat-icon>hourglass_empty</mat-icon>
+          <p>{{ isEditMode() ? 'Carregando benefício...' : 'Processando...' }}</p>
         </div>
-      }
+      </mat-card>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-container">
+      <mat-card>
+        <div class="error-content">
+          <mat-icon color="warn">error</mat-icon>
+          <h3>Erro no formulário</h3>
+          <p>{{ error() }}</p>
+        </div>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Form Content -->
+  @if (!loading()) {
+    <div class="form-layout">
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            Informações do Benefício
+          </mat-card-title>
+          <mat-card-subtitle>
+            Preencha todos os campos obrigatórios marcados com *
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="beneficioForm" (ngSubmit)="onSubmit()">
+            <!-- Nome do Benefício -->
+            <div class="form-group">
+              <mat-form-field appearance="outline">
+                <mat-label>Nome do Benefício *</mat-label>
+                <input 
+                  matInput 
+                  formControlName="nome"
+                  placeholder="Ex: Vale Alimentação, Auxílio Transporte"
+                  maxlength="100">
+                <mat-icon matSuffix>card_giftcard</mat-icon>
+                
+                @if (beneficioForm.get('nome')?.hasError('required') && beneficioForm.get('nome')?.touched) {
+                  <mat-error>Nome é obrigatório</mat-error>
+                }
+                @if (beneficioForm.get('nome')?.hasError('minlength')) {
+                  <mat-error>Nome deve ter pelo menos 3 caracteres</mat-error>
+                }
+                @if (beneficioForm.get('nome')?.hasError('maxlength')) {
+                  <mat-error>Nome não pode ter mais que 100 caracteres</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Valor -->
+            <div class="form-group">
+              <mat-form-field appearance="outline">
+                <mat-label>Valor *</mat-label>
+                <input 
+                  matInput 
+                  type="number"
+                  formControlName="valor"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01">
+                <span matTextPrefix>R$ </span>
+                <mat-icon matSuffix>attach_money</mat-icon>
+                
+                @if (beneficioForm.get('valor')?.hasError('required') && beneficioForm.get('valor')?.touched) {
+                  <mat-error>Valor é obrigatório</mat-error>
+                }
+                @if (beneficioForm.get('valor')?.hasError('min')) {
+                  <mat-error>Valor deve ser maior que zero</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Categoria -->
+            <div class="form-group">
+              <mat-form-field appearance="outline">
+                <mat-label>Categoria *</mat-label>
+                <mat-select formControlName="categoria">
+                  <mat-option value="alimentacao">Vale Alimentação</mat-option>
+                  <mat-option value="transporte">Vale Transporte</mat-option>
+                  <mat-option value="refeicao">Vale Refeição</mat-option>
+                  <mat-option value="combustivel">Vale Combustível</mat-option>
+                  <mat-option value="saude">Assistência Médica</mat-option>
+                  <mat-option value="educacao">Auxílio Educação</mat-option>
+                  <mat-option value="outros">Outros</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>category</mat-icon>
+                
+                @if (beneficioForm.get('categoria')?.hasError('required') && beneficioForm.get('categoria')?.touched) {
+                  <mat-error>Categoria é obrigatória</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Descrição -->
+            <div class="form-group">
+              <mat-form-field appearance="outline">
+                <mat-label>Descrição (Opcional)</mat-label>
+                <textarea 
+                  matInput 
+                  formControlName="descricao"
+                  placeholder="Descreva o benefício..."
+                  rows="4"
+                  maxlength="500">
+                </textarea>
+                <mat-icon matSuffix>description</mat-icon>
+                
+                @if (beneficioForm.get('descricao')?.hasError('maxlength')) {
+                  <mat-error>Descrição não pode ter mais que 500 caracteres</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Status -->
+            <div class="form-group">
+              <div class="toggle-field">
+                <mat-slide-toggle formControlName="ativo">
+                  Benefício ativo
+                </mat-slide-toggle>
+                <mat-icon matTooltip="Define se o benefício está disponível para uso">info</mat-icon>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
+
+        <!-- Form Actions -->
+        <mat-card-actions class="form-actions">
+          <button 
+            type="button" 
+            mat-stroked-button 
+            (click)="onCancel()"
+            [disabled]="submitting()">
+            <mat-icon>cancel</mat-icon>
+            Cancelar
+          </button>
+
+          <button 
+            type="button" 
+            mat-stroked-button 
+            (click)="onReset()"
+            [disabled]="submitting() || (!hasChanges() && isEditMode())">
+            <mat-icon>refresh</mat-icon>
+            Resetar
+          </button>
+
+          <button 
+            type="submit" 
+            mat-raised-button 
+            color="primary"
+            (click)="onSubmit()"
+            [disabled]="!canSubmit()">
+            @if (submitting()) {
+              <ng-container>
+                <mat-icon>hourglass_empty</mat-icon>
+                {{ submitButtonText() }}
+              </ng-container>
+            } @else {
+              <ng-container>
+                <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
+                {{ submitButtonText() }}
+              </ng-container>
+            }
+          </button>
+        </mat-card-actions>
+      </mat-card>
     </div>
   }
 </div>

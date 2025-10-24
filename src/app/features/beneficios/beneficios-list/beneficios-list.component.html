@@ -1,0 +1,192 @@
+<div class="beneficios-list-container">
+  <!-- Header -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-info">
+        <h1>
+          <mat-icon>card_giftcard</mat-icon>
+          Benefícios
+        </h1>
+        <p>Gerencie os benefícios disponíveis</p>
+      </div>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="navigateToCreate()">
+        <mat-icon>add</mat-icon>
+        Novo Benefício
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (beneficioService.isLoading()) {
+    <div class="loading-section">
+      <mat-card>
+        <div class="loading-content">
+          <mat-icon>hourglass_empty</mat-icon>
+          <span>Carregando benefícios...</span>
+        </div>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (beneficioService.hasError()) {
+    <div class="error-section">
+      <mat-card>
+        <div class="error-content">
+          <mat-icon color="warn">error</mat-icon>
+          <div class="error-text">
+            <h3>Erro ao carregar benefícios</h3>
+            <p>{{ beneficioService.error() }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon" color="primary">inventory</mat-icon>
+          <div class="stat-info">
+            <div class="stat-label">Total de Benefícios</div>
+            <div class="stat-value">{{ beneficioService.totalBeneficios() }}</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon" color="accent">check_circle</mat-icon>
+          <div class="stat-info">
+            <div class="stat-label">Benefícios Ativos</div>
+            <div class="stat-value">{{ beneficioService.beneficiosAtivos().length }}</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon" color="warn">payments</mat-icon>
+          <div class="stat-info">
+            <div class="stat-label">Valor Total</div>
+            <div class="stat-value">{{ valorTotalBeneficios() | currency:'BRL':'symbol':'1.2-2' }}</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Benefícios Table -->
+  @if (!beneficioService.isLoading() && !beneficioService.hasError()) {
+    <div class="table-section">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>list</mat-icon>
+            Lista de Benefícios
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          @if (beneficioService.beneficios().length > 0) {
+            <table mat-table [dataSource]="beneficioService.beneficios()" class="beneficios-table">
+              <!-- Nome Column -->
+              <ng-container matColumnDef="nome">
+                <th mat-header-cell *matHeaderCellDef>Nome</th>
+                <td mat-cell *matCellDef="let beneficio">
+                  <div class="beneficio-info">
+                    <div class="beneficio-name">{{ beneficio.nome }}</div>
+                    @if (beneficio.descricao) {
+                      <div class="beneficio-description">{{ beneficio.descricao }}</div>
+                    }
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Categoria Column -->
+              <ng-container matColumnDef="categoria">
+                <th mat-header-cell *matHeaderCellDef>Categoria</th>
+                <td mat-cell *matCellDef="let beneficio">
+                  <mat-chip>{{ beneficio.categoria }}</mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Valor Column -->
+              <ng-container matColumnDef="valor">
+                <th mat-header-cell *matHeaderCellDef>Valor</th>
+                <td mat-cell *matCellDef="let beneficio">
+                  {{ beneficio.valor | currency:'BRL':'symbol':'1.2-2' }}
+                </td>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let beneficio">
+                  <mat-chip [color]="beneficio.ativo ? 'accent' : 'warn'">
+                    {{ beneficio.ativo ? 'Ativo' : 'Inativo' }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Data Column -->
+              <ng-container matColumnDef="updatedAt">
+                <th mat-header-cell *matHeaderCellDef>Última Atualização</th>
+                <td mat-cell *matCellDef="let beneficio">
+                  {{ beneficio.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Ações</th>
+                <td mat-cell *matCellDef="let beneficio">
+                  <div class="action-buttons">
+                    <button 
+                      mat-icon-button 
+                      (click)="viewBeneficio(beneficio.id)"
+                      matTooltip="Visualizar">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      (click)="editBeneficio(beneficio.id)"
+                      matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          } @else {
+            <!-- Empty State -->
+            <div class="empty-state">
+              <mat-icon class="empty-icon">card_giftcard</mat-icon>
+              <h3>Nenhum benefício encontrado</h3>
+              <p>Comece criando um novo benefício.</p>
+              <button 
+                mat-raised-button 
+                color="primary"
+                (click)="navigateToCreate()">
+                <mat-icon>add</mat-icon>
+                Novo Benefício
+              </button>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

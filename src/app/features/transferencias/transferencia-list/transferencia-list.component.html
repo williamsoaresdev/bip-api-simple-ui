@@ -1,0 +1,209 @@
+<div class="transferencia-list-container">
+  <!-- Header -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-info">
+        <h1>
+          <mat-icon>swap_horiz</mat-icon>
+          Transferências
+        </h1>
+        <p>Histórico de transferências realizadas entre benefícios</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="navigateToCreate()">
+          <mat-icon>add</mat-icon>
+          Nova Transferência
+        </button>
+        <button 
+          mat-icon-button 
+          (click)="onRefresh()"
+          [disabled]="loading()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-section">
+      <mat-card>
+        <div class="loading-content">
+          <mat-icon>hourglass_empty</mat-icon>
+          <span>Carregando transferências...</span>
+        </div>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-section">
+      <mat-card>
+        <div class="error-content">
+          <mat-icon color="warn">error</mat-icon>
+          <div class="error-text">
+            <h3>Erro ao carregar transferências</h3>
+            <p>{{ error() }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Statistics Cards -->
+  @if (!loading() && !error()) {
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon" color="primary">assessment</mat-icon>
+            <div class="stat-info">
+              <div class="stat-value">{{ totalTransferencias() }}</div>
+              <div class="stat-label">Total de Transferências</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon" color="accent">check_circle</mat-icon>
+            <div class="stat-info">
+              <div class="stat-value">{{ transferenciasComSucesso() }}</div>
+              <div class="stat-label">Bem-sucedidas</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon" color="warn">schedule</mat-icon>
+            <div class="stat-info">
+              <div class="stat-value">{{ transferenciasPendentes() }}</div>
+              <div class="stat-label">Pendentes</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon">attach_money</mat-icon>
+            <div class="stat-info">
+              <div class="stat-value">{{ valorTotalTransferido() | currency:'BRL':'symbol':'1.2-2' }}</div>
+              <div class="stat-label">Total Transferido</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Transferências Table -->
+    <div class="table-section">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>history</mat-icon>
+            Histórico de Transferências
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          @if (recentTransferencias().length > 0) {
+            <table mat-table [dataSource]="recentTransferencias()" class="transferencias-table">
+              <!-- Destinatário Column -->
+              <ng-container matColumnDef="destinatario">
+                <th mat-header-cell *matHeaderCellDef>Destinatário</th>
+                <td mat-cell *matCellDef="let transferencia">
+                  <div class="destinatario-info">
+                    <div class="destinatario-details">
+                      <div class="destinatario-name">{{ transferencia.destinatario }}</div>
+                      <div class="transferencia-id">ID: {{ transferencia.id }}</div>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Valor Column -->
+              <ng-container matColumnDef="valor">
+                <th mat-header-cell *matHeaderCellDef>Valor</th>
+                <td mat-cell *matCellDef="let transferencia">
+                  <span class="valor-transferencia">{{ transferencia.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
+                </td>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let transferencia">
+                  <mat-chip [color]="getStatusColor(transferencia.status)">
+                    {{ getStatusLabel(transferencia.status) }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Data Column -->
+              <ng-container matColumnDef="data">
+                <th mat-header-cell *matHeaderCellDef>Data</th>
+                <td mat-cell *matCellDef="let transferencia">
+                  <div class="data-info">
+                    <div class="data-principal">{{ transferencia.createdAt | date:'dd/MM/yyyy' }}</div>
+                    <div class="data-hora">{{ transferencia.createdAt | date:'HH:mm' }}</div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Observações Column -->
+              <ng-container matColumnDef="observacoes">
+                <th mat-header-cell *matHeaderCellDef>Observações</th>
+                <td mat-cell *matCellDef="let transferencia">
+                  <div class="observacoes-transferencia">
+                    {{ transferencia.observacoes || 'Sem observações' }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Ações</th>
+                <td mat-cell *matCellDef="let transferencia">
+                  <button 
+                    mat-icon-button 
+                    (click)="viewTransferencia(transferencia.id)"
+                    matTooltip="Ver detalhes">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          } @else {
+            <!-- Empty State -->
+            <div class="empty-state">
+              <mat-icon class="empty-icon">swap_horiz</mat-icon>
+              <h3>Nenhuma transferência encontrada</h3>
+              <p>Ainda não há transferências realizadas no sistema.</p>
+              <button 
+                mat-raised-button 
+                color="primary"
+                (click)="navigateToCreate()">
+                <mat-icon>add</mat-icon>
+                Nova Transferência
+              </button>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

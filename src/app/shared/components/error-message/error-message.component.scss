@@ -1,0 +1,120 @@
+// Error Container Variants
+.error-container {
+  &.error-filled {
+    &.error-error {
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+    &.error-warning {
+      background-color: #fffbeb;
+      border: 1px solid #fed7aa;
+    }
+    &.error-info {
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+    &.error-success {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+  }
+
+  &.error-outlined {
+    background-color: white;
+    &.error-error {
+      border: 2px solid #fca5a5;
+    }
+    &.error-warning {
+      border: 2px solid #fcd34d;
+    }
+    &.error-info {
+      border: 2px solid #93c5fd;
+    }
+    &.error-success {
+      border: 2px solid #86efac;
+    }
+  }
+
+  &.error-minimal {
+    &.error-error {
+      border-left: 4px solid #ef4444;
+      background-color: rgba(254, 242, 242, 0.3);
+    }
+    &.error-warning {
+      border-left: 4px solid #f59e0b;
+      background-color: rgba(255, 251, 235, 0.3);
+    }
+    &.error-info {
+      border-left: 4px solid #3b82f6;
+      background-color: rgba(239, 246, 255, 0.3);
+    }
+    &.error-success {
+      border-left: 4px solid #10b981;
+      background-color: rgba(240, 253, 244, 0.3);
+    }
+  }
+}
+
+// Icon Colors
+.icon {
+  &.icon-error {
+    color: #dc2626;
+  }
+  &.icon-warning {
+    color: #d97706;
+  }
+  &.icon-info {
+    color: #2563eb;
+  }
+  &.icon-success {
+    color: #059669;
+  }
+}
+
+// Title Colors
+.title {
+  &.title-error {
+    color: #991b1b;
+  }
+  &.title-warning {
+    color: #92400e;
+  }
+  &.title-info {
+    color: #1e40af;
+  }
+  &.title-success {
+    color: #065f46;
+  }
+}
+
+// Message Colors
+.message {
+  &.message-error {
+    color: #b91c1c;
+  }
+  &.message-warning {
+    color: #b45309;
+  }
+  &.message-info {
+    color: #1d4ed8;
+  }
+  &.message-success {
+    color: #047857;
+  }
+}
+
+// Details Colors
+.details {
+  &.details-error {
+    color: #dc2626;
+  }
+  &.details-warning {
+    color: #d97706;
+  }
+  &.details-info {
+    color: #2563eb;
+  }
+  &.details-success {
+    color: #059669;
+  }
+}

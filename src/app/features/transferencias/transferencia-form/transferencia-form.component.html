@@ -1,0 +1,327 @@
+<!-- Header Section -->
+<div class="transferencia-form-container">
+  <div class="container-wrapper">
+    <!-- Page Header -->
+    <div class="header-section">
+      <div class="header-content">
+        <div class="header-info">
+          <h1 class="page-title">
+            <i class="title-icon fas fa-plus-circle"></i>
+            Nova Transferência
+          </h1>
+          <p class="page-subtitle">Realize uma transferência rápida e segura entre beneficiários</p>
+        </div>
+        
+        <div class="header-actions">
+          <button type="button" (click)="onCancel()" class="back-button">
+            <i class="button-icon fas fa-arrow-left"></i>
+            Voltar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Section -->
+    <div *ngIf="error()" class="error-section">
+      <div class="error-content">
+        <i class="error-icon fas fa-exclamation-triangle"></i>
+        <div class="error-text">
+          <h3 class="error-title">Erro no formulário</h3>
+          <p class="error-message">{{ error() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="form-layout">
+      <!-- Main Form -->
+      <div class="form-container">
+        <div class="form-card">
+          <div class="form-header">
+            <h2 class="form-title">
+              <i class="fas fa-edit"></i>
+              Dados da Transferência
+            </h2>
+            <p class="form-subtitle">Preencha as informações para criar a transferência</p>
+          </div>
+
+          <div class="form-content">
+            <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" novalidate>
+              
+              <!-- Benefício -->
+              <div class="form-group">
+                <label for="beneficioId" class="form-label">
+                  Benefício *
+                  <i class="label-icon fas fa-gift"></i>
+                </label>
+                
+                <!-- Loading Benefícios -->
+                <div *ngIf="loadingBeneficios()" class="loading-field">
+                  <div class="loading-spinner"></div>
+                  <span>Carregando benefícios...</span>
+                </div>
+
+                <!-- Select Benefício -->
+                <div *ngIf="!loadingBeneficios()" class="select-wrapper">
+                  <select 
+                    id="beneficioId"
+                    formControlName="beneficioId"
+                    class="form-select"
+                    [class.invalid]="isFieldInvalid('beneficioId')"
+                    [class.valid]="isFieldValid('beneficioId')">
+                    <option value="">Selecione um benefício</option>
+                    <option 
+                      *ngFor="let beneficio of beneficios()" 
+                      [value]="beneficio.id">
+                      {{ beneficio.nome }} - {{ formatCurrency(beneficio.valor) }}
+                    </option>
+                  </select>
+                  <i class="select-icon fas fa-chevron-down"></i>
+                </div>
+
+                <div class="field-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Selecione o benefício para transferência
+                </div>
+
+                <div *ngIf="getFieldError('beneficioId')" class="field-error">
+                  <i class="fas fa-exclamation-circle"></i>
+                  {{ getFieldError('beneficioId') }}
+                </div>
+              </div>
+
+              <!-- Destinatário -->
+              <div class="form-group">
+                <label for="destinatario" class="form-label">
+                  Destinatário *
+                  <i class="label-icon fas fa-user"></i>
+                </label>
+                
+                <div class="input-wrapper">
+                  <input 
+                    id="destinatario"
+                    type="text"
+                    formControlName="destinatario"
+                    class="form-input"
+                    [class.invalid]="isFieldInvalid('destinatario')"
+                    [class.valid]="isFieldValid('destinatario')"
+                    placeholder="Nome do destinatário">
+                  <div class="input-suffix">
+                    <i class="fas fa-user-check"></i>
+                  </div>
+                </div>
+
+                <div class="field-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Nome da pessoa que receberá a transferência
+                </div>
+
+                <div *ngIf="getFieldError('destinatario')" class="field-error">
+                  <i class="fas fa-exclamation-circle"></i>
+                  {{ getFieldError('destinatario') }}
+                </div>
+              </div>
+
+              <!-- Valor -->
+              <div class="form-group">
+                <label for="valor" class="form-label">
+                  Valor *
+                  <i class="label-icon fas fa-dollar-sign"></i>
+                </label>
+                
+                <div class="input-wrapper">
+                  <div class="input-prefix">R$</div>
+                  <input 
+                    id="valor"
+                    type="number"
+                    formControlName="valor"
+                    class="form-input"
+                    [class.invalid]="isFieldInvalid('valor')"
+                    [class.valid]="isFieldValid('valor')"
+                    placeholder="0,00"
+                    step="0.01"
+                    min="0.01"
+                    max="999999.99">
+                  <div class="input-suffix">
+                    <i class="fas fa-coins"></i>
+                  </div>
+                </div>
+
+                <div class="field-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Valor da transferência (máximo R$ 999.999,99)
+                </div>
+
+                <div *ngIf="getFieldError('valor')" class="field-error">
+                  <i class="fas fa-exclamation-circle"></i>
+                  {{ getFieldError('valor') }}
+                </div>
+
+                <!-- Valor Formatado -->
+                <div *ngIf="totalValue() > 0" class="valor-display">
+                  <div class="valor-card">
+                    <span class="valor-label">Valor Total:</span>
+                    <span class="valor-amount">{{ formattedTotalValue() }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Observações (opcional) -->
+              <div class="form-group">
+                <label for="observacoes" class="form-label">
+                  Observações (Opcional)
+                  <i class="label-icon fas fa-comment"></i>
+                </label>
+                
+                <div class="textarea-wrapper">
+                  <textarea 
+                    id="observacoes"
+                    formControlName="observacoes"
+                    class="form-textarea"
+                    [class.invalid]="isFieldInvalid('observacoes')"
+                    [class.valid]="isFieldValid('observacoes')"
+                    placeholder="Observações sobre a transferência..."
+                    rows="4"
+                    maxlength="500"
+                    #observacoesRef></textarea>
+                  <div class="textarea-counter">
+                    {{ observacoesRef.value.length || 0 }}/500
+                  </div>
+                </div>
+
+                <div class="field-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Observações opcionais sobre a transferência
+                </div>
+
+                <div *ngIf="getFieldError('observacoes')" class="field-error">
+                  <i class="fas fa-exclamation-circle"></i>
+                  {{ getFieldError('observacoes') }}
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="form-actions">
+                <button 
+                  type="button" 
+                  (click)="onCancel()"
+                  class="action-button cancel-button"
+                  [disabled]="submitting()">
+                  <i class="button-icon fas fa-times"></i>
+                  Cancelar
+                </button>
+
+                <button 
+                  type="submit"
+                  class="action-button submit-button"
+                  [disabled]="!canSubmit()"
+                  [class.loading]="submitting()">
+                  <i *ngIf="!submitting()" class="button-icon fas fa-paper-plane"></i>
+                  <div *ngIf="submitting()" class="button-spinner"></div>
+                  {{ submitting() ? 'Criando...' : 'Criar Transferência' }}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Sidebar -->
+      <div class="info-container">
+        
+        <!-- Benefício Selecionado -->
+        <div *ngIf="selectedBeneficio()" class="info-card beneficiario-card">
+          <div class="info-header">
+            <h3 class="info-title">
+              <i class="fas fa-gift"></i>
+              Benefício Selecionado
+            </h3>
+          </div>
+          <div class="info-content">
+            <div class="beneficiario-info">
+              <div class="beneficiario-avatar">
+                <span class="avatar-text">
+                  {{ getBeneficioInitials(selectedBeneficio()!.nome) }}
+                </span>
+              </div>
+              <div class="beneficiario-details">
+                <h4 class="beneficiario-name">{{ selectedBeneficio()!.nome }}</h4>
+                <p class="beneficiario-email">{{ selectedBeneficio()!.descricao }}</p>
+                <div class="beneficiario-meta">
+                  <span class="meta-item">
+                    <i class="fas fa-dollar-sign"></i>
+                    Valor: {{ formatCurrency(selectedBeneficio()!.valor) }}
+                  </span>
+                  <span class="meta-item">
+                    <i class="fas fa-id-card"></i>
+                    ID: {{ selectedBeneficio()!.id }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo da Transferência -->
+        <div *ngIf="transferForm.valid && selectedBeneficio() && totalValue() > 0" class="info-card resumo-card">
+          <div class="info-header">
+            <h3 class="info-title">
+              <i class="fas fa-file-invoice-dollar"></i>
+              Resumo da Transferência
+            </h3>
+          </div>
+          <div class="info-content">
+            <div class="resumo-details">
+              <div class="resumo-item">
+                <span class="resumo-label">Benefício:</span>
+                <span class="resumo-value">{{ selectedBeneficio()!.nome }}</span>
+              </div>
+              <div class="resumo-item">
+                <span class="resumo-label">Para:</span>
+                <span class="resumo-value">{{ transferForm.value.destinatario }}</span>
+              </div>
+              <div class="resumo-item">
+                <span class="resumo-label">Valor:</span>
+                <span class="resumo-value highlight">{{ formattedTotalValue() }}</span>
+              </div>
+              <div class="resumo-item" *ngIf="transferForm.value.observacoes">
+                <span class="resumo-label">Observações:</span>
+                <span class="resumo-value description">{{ transferForm.value.observacoes }}</span>
+              </div>
+            </div>
+
+            <div class="resumo-footer">
+              <div class="confirmation-note">
+                <i class="fas fa-shield-alt"></i>
+                <span>Transferência segura e rastreável</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Refresh Benefícios -->
+        <div class="info-card actions-card">
+          <div class="info-header">
+            <h3 class="info-title">
+              <i class="fas fa-tools"></i>
+              Ações Rápidas
+            </h3>
+          </div>
+          <div class="info-content">
+            <button 
+              type="button"
+              (click)="onRefreshBeneficios()"
+              class="refresh-button"
+              [disabled]="loadingBeneficios()">
+              <i class="button-icon fas fa-sync-alt" [class.spinning]="loadingBeneficios()"></i>
+              Atualizar Benefícios
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

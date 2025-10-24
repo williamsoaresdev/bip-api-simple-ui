@@ -1,0 +1,32 @@
+<div [class]="containerClasses()">
+  <!-- Spinner Variant -->
+  @if (variant() === 'spinner') {
+    <mat-spinner 
+      [diameter]="spinnerSize()" 
+      [strokeWidth]="strokeWidth()"
+      color="primary">
+    </mat-spinner>
+  }
+  
+  <!-- Dots Variant -->
+  @if (variant() === 'dots') {
+    <div class="flex space-x-2">
+      @for (dot of [0,1,2]; track dot) {
+        <div 
+          [class]="dotClasses()"
+          [style.animation-delay]="dot * 0.2 + 's'">
+        </div>
+      }
+    </div>
+  }
+  
+  <!-- Pulse Variant -->
+  @if (variant() === 'pulse') {
+    <div [class]="pulseClasses()"></div>
+  }
+  
+  <!-- Message -->
+  @if (message()) {
+    <p [class]="messageClasses()">{{ message() }}</p>
+  }
+</div>
