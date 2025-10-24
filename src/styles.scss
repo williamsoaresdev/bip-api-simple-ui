@@ -1,0 +1,282 @@
+/* ===== BIP SISTEMA - ESTILOS GLOBAIS ===== */
+
+// Importar Angular Material e tema personalizado
+@import './styles/theme.scss';
+
+// Importar componentes personalizados
+@import './styles/components.scss';
+
+/* ===== RESET E BASE ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  padding: 0;
+  font-family: var(--bip-font-family);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--bip-grey-800);
+  background: var(--bip-gradient-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== SCROLLBAR CUSTOMIZADA ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bip-grey-100);
+  border-radius: var(--bip-border-radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bip-grey-400);
+  border-radius: var(--bip-border-radius-full);
+  transition: var(--bip-transition-normal);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bip-grey-500);
+}
+
+/* ===== ANGULAR MATERIAL OVERRIDES ===== */
+
+// Customizar botões Material
+.mat-mdc-raised-button {
+  border-radius: var(--bip-border-radius-md) !important;
+  font-weight: var(--bip-font-weight-medium) !important;
+  box-shadow: var(--bip-shadow-sm) !important;
+  transition: var(--bip-transition-normal) !important;
+
+  &:hover {
+    box-shadow: var(--bip-shadow-md) !important;
+    transform: translateY(-1px);
+  }
+}
+
+.mat-mdc-outlined-button {
+  border-radius: var(--bip-border-radius-md) !important;
+  font-weight: var(--bip-font-weight-medium) !important;
+  border-width: 2px !important;
+  transition: var(--bip-transition-normal) !important;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.mat-mdc-icon-button {
+  border-radius: var(--bip-border-radius-md) !important;
+  transition: var(--bip-transition-normal) !important;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+    transform: scale(1.05);
+  }
+}
+
+// Customizar cards Material
+.mat-mdc-card {
+  border-radius: var(--bip-border-radius-lg) !important;
+  box-shadow: var(--bip-shadow-sm) !important;
+  border: 1px solid var(--bip-grey-200);
+  transition: var(--bip-transition-normal) !important;
+
+  &:hover {
+    box-shadow: var(--bip-shadow-md) !important;
+  }
+}
+
+// Customizar form fields Material
+.mat-mdc-form-field {
+  .mat-mdc-form-field-outline {
+    border-radius: var(--bip-border-radius-md) !important;
+  }
+
+  &.mat-focused .mat-mdc-form-field-outline-thick {
+    border-color: var(--bip-primary-500) !important;
+    border-width: 2px !important;
+  }
+
+  .mat-mdc-form-field-error {
+    font-size: 12px !important;
+    margin-top: var(--bip-spacing-xs) !important;
+  }
+}
+
+// Customizar tabelas Material
+.mat-mdc-table {
+  border-radius: var(--bip-border-radius-md) !important;
+  overflow: hidden;
+  box-shadow: var(--bip-shadow-sm) !important;
+  border: 1px solid var(--bip-grey-200);
+}
+
+.mat-mdc-header-row {
+  background: var(--bip-gradient-background) !important;
+}
+
+.mat-mdc-header-cell {
+  font-weight: var(--bip-font-weight-semibold) !important;
+  color: var(--bip-grey-700) !important;
+  border-bottom: 2px solid var(--bip-grey-300) !important;
+}
+
+.mat-mdc-row {
+  transition: var(--bip-transition-fast) !important;
+
+  &:hover {
+    background: var(--bip-grey-50) !important;
+  }
+}
+
+.mat-mdc-cell {
+  border-bottom: 1px solid var(--bip-grey-200) !important;
+}
+
+// Customizar chips Material
+.mat-mdc-chip {
+  border-radius: var(--bip-border-radius-full) !important;
+  font-weight: var(--bip-font-weight-medium) !important;
+}
+
+// Customizar lista Material
+.mat-mdc-list-item {
+  border-radius: var(--bip-border-radius-md) !important;
+  margin: var(--bip-spacing-xs) 0 !important;
+  transition: var(--bip-transition-normal) !important;
+
+  &:hover {
+    background: var(--bip-grey-50) !important;
+    transform: translateX(2px);
+  }
+
+  &.mdc-list-item--activated {
+    background: var(--bip-primary-50) !important;
+    color: var(--bip-primary-700) !important;
+    border-left: 4px solid var(--bip-primary-500);
+
+    .mat-icon {
+      color: var(--bip-primary-500) !important;
+    }
+  }
+}
+
+// Customizar toolbar Material
+.mat-toolbar {
+  box-shadow: var(--bip-shadow-sm) !important;
+}
+
+/* ===== CLASSES UTILITÁRIAS GLOBAIS ===== */
+
+// Flexbox utilities
+.flex { display: flex !important; }
+.flex-column { flex-direction: column !important; }
+.flex-center { align-items: center !important; justify-content: center !important; }
+.flex-between { justify-content: space-between !important; }
+.flex-end { justify-content: flex-end !important; }
+.flex-wrap { flex-wrap: wrap !important; }
+.flex-1 { flex: 1 !important; }
+
+// Grid utilities
+.grid { display: grid !important; }
+.grid-gap { gap: var(--bip-spacing-md) !important; }
+
+// Width utilities
+.w-full { width: 100% !important; }
+.w-auto { width: auto !important; }
+.h-full { height: 100% !important; }
+.h-auto { height: auto !important; }
+
+// Display utilities
+.block { display: block !important; }
+.inline { display: inline !important; }
+.inline-block { display: inline-block !important; }
+.hidden { display: none !important; }
+
+// Position utilities
+.relative { position: relative !important; }
+.absolute { position: absolute !important; }
+.fixed { position: fixed !important; }
+.sticky { position: sticky !important; }
+
+// Overflow utilities
+.overflow-hidden { overflow: hidden !important; }
+.overflow-auto { overflow: auto !important; }
+
+/* ===== SNACKBAR CUSTOMIZADO ===== */
+.success-snackbar {
+  .mat-mdc-snack-bar-container {
+    background: var(--bip-success-500) !important;
+    color: white !important;
+  }
+}
+
+.error-snackbar {
+  .mat-mdc-snack-bar-container {
+    background: var(--bip-error-500) !important;
+    color: white !important;
+  }
+}
+
+.warning-snackbar {
+  .mat-mdc-snack-bar-container {
+    background: var(--bip-warning-500) !important;
+    color: white !important;
+  }
+}
+
+.info-snackbar {
+  .mat-mdc-snack-bar-container {
+    background: var(--bip-primary-500) !important;
+    color: white !important;
+  }
+}
+
+/* ===== RESPONSIVE HELPERS ===== */
+@media (max-width: 1200px) {
+  .hide-lg { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  .hide-md { display: none !important; }
+  
+  .bip-container {
+    padding: var(--bip-spacing-md) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hide-sm { display: none !important; }
+  
+  .bip-container {
+    padding: var(--bip-spacing-sm) !important;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .no-print { display: none !important; }
+  
+  .bip-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
+
+/* ===== FOCUS STYLES ===== */
+.mat-mdc-button:focus,
+.mat-mdc-raised-button:focus,
+.mat-mdc-outlined-button:focus,
+.mat-mdc-icon-button:focus {
+  outline: 2px solid var(--bip-primary-300) !important;
+  outline-offset: 2px !important;
+}

@@ -1,0 +1,237 @@
+// ===== TEMA PROFISSIONAL BIP =====
+@use '@angular/material' as mat;
+
+// Definir paleta de cores personalizada
+$bip-primary: mat.define-palette((
+  50: #e8eaf6,
+  100: #c5cae9,
+  200: #9fa8da,
+  300: #7986cb,
+  400: #5c6bc0,
+  500: #3f51b5,
+  600: #3949ab,
+  700: #303f9f,
+  800: #283593,
+  900: #1a237e,
+  A100: #8c9eff,
+  A200: #536dfe,
+  A400: #3d5afe,
+  A700: #304ffe,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+));
+
+$bip-accent: mat.define-palette((
+  50: #e0f2f1,
+  100: #b2dfdb,
+  200: #80cbc4,
+  300: #4db6ac,
+  400: #26a69a,
+  500: #009688,
+  600: #00897b,
+  700: #00796b,
+  800: #00695c,
+  900: #004d40,
+  A100: #a7ffeb,
+  A200: #64ffda,
+  A400: #1de9b6,
+  A700: #00bfa5,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: rgba(black, 0.87),
+  )
+));
+
+$bip-warn: mat.define-palette((
+  50: #ffebee,
+  100: #ffcdd2,
+  200: #ef9a9a,
+  300: #e57373,
+  400: #ef5350,
+  500: #f44336,
+  600: #e53935,
+  700: #d32f2f,
+  800: #c62828,
+  900: #b71c1c,
+  A100: #ff8a80,
+  A200: #ff5252,
+  A400: #ff1744,
+  A700: #d50000,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+));
+
+// Criar tema
+$bip-theme: mat.define-light-theme((
+  color: (
+    primary: $bip-primary,
+    accent: $bip-accent,
+    warn: $bip-warn,
+  ),
+  typography: mat.define-typography-config(
+    $font-family: '"Roboto", "Helvetica Neue", Arial, sans-serif',
+    $headline-1: mat.define-typography-level(32px, 40px, 300, $letter-spacing: -0.01em),
+    $headline-2: mat.define-typography-level(28px, 36px, 400, $letter-spacing: -0.005em),
+    $headline-3: mat.define-typography-level(24px, 32px, 400),
+    $headline-4: mat.define-typography-level(20px, 28px, 500),
+    $headline-5: mat.define-typography-level(18px, 24px, 500),
+    $headline-6: mat.define-typography-level(16px, 22px, 600),
+    $subtitle-1: mat.define-typography-level(16px, 24px, 400),
+    $subtitle-2: mat.define-typography-level(14px, 20px, 500),
+    $body-1: mat.define-typography-level(16px, 24px, 400),
+    $body-2: mat.define-typography-level(14px, 20px, 400),
+    $caption: mat.define-typography-level(12px, 16px, 400),
+    $button: mat.define-typography-level(14px, 16px, 500),
+    $overline: mat.define-typography-level(10px, 16px, 400),
+  ),
+  density: 0,
+));
+
+// Aplicar tema
+@include mat.all-component-themes($bip-theme);
+
+// ===== VARIÁVEIS CSS CUSTOMIZADAS =====
+:root {
+  // Cores principais
+  --bip-primary-50: #e8eaf6;
+  --bip-primary-100: #c5cae9;
+  --bip-primary-200: #9fa8da;
+  --bip-primary-300: #7986cb;
+  --bip-primary-400: #5c6bc0;
+  --bip-primary-500: #3f51b5;
+  --bip-primary-600: #3949ab;
+  --bip-primary-700: #303f9f;
+  --bip-primary-800: #283593;
+  --bip-primary-900: #1a237e;
+
+  // Cores de acentuação
+  --bip-accent-50: #e0f2f1;
+  --bip-accent-100: #b2dfdb;
+  --bip-accent-200: #80cbc4;
+  --bip-accent-300: #4db6ac;
+  --bip-accent-400: #26a69a;
+  --bip-accent-500: #009688;
+  --bip-accent-600: #00897b;
+  --bip-accent-700: #00796b;
+
+  // Cores de sucesso
+  --bip-success-50: #e8f5e8;
+  --bip-success-100: #c8e6c9;
+  --bip-success-500: #4caf50;
+  --bip-success-700: #388e3c;
+
+  // Cores de warning
+  --bip-warning-50: #fff8e1;
+  --bip-warning-100: #ffecb3;
+  --bip-warning-500: #ff9800;
+  --bip-warning-700: #f57c00;
+
+  // Cores de erro
+  --bip-error-50: #ffebee;
+  --bip-error-100: #ffcdd2;
+  --bip-error-500: #f44336;
+  --bip-error-700: #d32f2f;
+
+  // Cores neutras
+  --bip-grey-50: #fafafa;
+  --bip-grey-100: #f5f5f5;
+  --bip-grey-200: #eeeeee;
+  --bip-grey-300: #e0e0e0;
+  --bip-grey-400: #bdbdbd;
+  --bip-grey-500: #9e9e9e;
+  --bip-grey-600: #757575;
+  --bip-grey-700: #616161;
+  --bip-grey-800: #424242;
+  --bip-grey-900: #212121;
+
+  // Gradientes
+  --bip-gradient-primary: linear-gradient(135deg, var(--bip-primary-500) 0%, var(--bip-primary-700) 100%);
+  --bip-gradient-accent: linear-gradient(135deg, var(--bip-accent-400) 0%, var(--bip-accent-600) 100%);
+  --bip-gradient-success: linear-gradient(135deg, var(--bip-success-500) 0%, var(--bip-success-700) 100%);
+  --bip-gradient-background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+
+  // Sombras
+  --bip-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --bip-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --bip-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --bip-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --bip-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  // Bordas
+  --bip-border-radius-sm: 4px;
+  --bip-border-radius-md: 8px;
+  --bip-border-radius-lg: 12px;
+  --bip-border-radius-xl: 16px;
+  --bip-border-radius-full: 9999px;
+
+  // Espaçamentos
+  --bip-spacing-xs: 4px;
+  --bip-spacing-sm: 8px;
+  --bip-spacing-md: 16px;
+  --bip-spacing-lg: 24px;
+  --bip-spacing-xl: 32px;
+  --bip-spacing-2xl: 48px;
+  --bip-spacing-3xl: 64px;
+
+  // Tipografia
+  --bip-font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --bip-font-weight-light: 300;
+  --bip-font-weight-normal: 400;
+  --bip-font-weight-medium: 500;
+  --bip-font-weight-semibold: 600;
+  --bip-font-weight-bold: 700;
+
+  // Transições
+  --bip-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --bip-transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --bip-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Z-index
+  --bip-z-dropdown: 1000;
+  --bip-z-sticky: 1020;
+  --bip-z-fixed: 1030;
+  --bip-z-modal-backdrop: 1040;
+  --bip-z-modal: 1050;
+  --bip-z-popover: 1060;
+  --bip-z-tooltip: 1070;
+}
