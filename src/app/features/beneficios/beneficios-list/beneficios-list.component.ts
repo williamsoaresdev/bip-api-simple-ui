@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
+
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
@@ -17,7 +17,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { BeneficioService } from '@core/services';
 import { Beneficio } from '@core/models';
-import { LoadingComponent, ErrorMessageComponent, ConfirmationDialogComponent } from '@shared/components';
+import { ConfirmationDialogComponent } from '@shared/components';
 
 @Component({
   selector: 'bip-beneficios-list',
@@ -29,15 +29,12 @@ import { LoadingComponent, ErrorMessageComponent, ConfirmationDialogComponent } 
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatTableModule,
     MatChipsModule,
     MatMenuModule,
     MatDividerModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatDialogModule,
-    LoadingComponent,
-    ErrorMessageComponent
+    MatDialogModule
   ],
   template: `
     <div class="bip-page-container">
@@ -580,13 +577,8 @@ import { LoadingComponent, ErrorMessageComponent, ConfirmationDialogComponent } 
 })
 export class BeneficiosListComponent implements OnInit, OnDestroy {
   beneficios: Beneficio[] = [];
-  displayedColumns: string[] = ['id', 'nome', 'valor', 'acoes'];
   
   private destroy$ = new Subject<void>();
-  
-  retryCallback = () => {
-    this.carregarBeneficios();
-  };
 
   constructor(
     public beneficioService: BeneficioService,
