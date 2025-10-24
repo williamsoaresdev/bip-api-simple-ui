@@ -717,7 +717,7 @@ export class BeneficioFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  private createBeneficio(formValue: any): void {
+  private createBeneficio(formValue: { nome: string; descricao?: string; valorInicial: number }): void {
     const request: CreateBeneficioRequest = {
       nome: formValue.nome.trim(),
       descricao: formValue.descricao?.trim() || undefined,
@@ -743,7 +743,7 @@ export class BeneficioFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updateBeneficio(formValue: any): void {
+  private updateBeneficio(formValue: { nome: string; descricao?: string; valorInicial: number }): void {
     if (!this.beneficioId) return;
 
     const request: UpdateBeneficioRequest = {

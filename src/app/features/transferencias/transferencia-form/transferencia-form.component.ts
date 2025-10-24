@@ -979,7 +979,12 @@ export class TransferenciaFormComponent implements OnInit, OnDestroy {
     this.createTransferencia(formValue);
   }
 
-  private createTransferencia(formValue: any): void {
+  private createTransferencia(formValue: { 
+    beneficioOrigemId: number; 
+    beneficioDestinoId: number; 
+    valor: number; 
+    descricao?: string 
+  }): void {
     const request: CreateTransferenciaRequest = {
       beneficioOrigemId: formValue.beneficioOrigemId,
       beneficioDestinoId: formValue.beneficioDestinoId,
