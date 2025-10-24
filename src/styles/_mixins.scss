@@ -1,0 +1,333 @@
+// BIP Design System Mixins
+// ======================================================
+
+@import 'variables';
+
+// Breakpoint mixins
+@mixin mobile {
+  @media (max-width: #{map-get($bip-breakpoints, md) - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{map-get($bip-breakpoints, md)}) and (max-width: #{map-get($bip-breakpoints, lg) - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{map-get($bip-breakpoints, lg)}) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: #{map-get($bip-breakpoints, xl)}) {
+    @content;
+  }
+}
+
+@mixin breakpoint-up($name) {
+  $min: map-get($bip-breakpoints, $name);
+  @if $min != 0 {
+    @media (min-width: $min) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+@mixin breakpoint-down($name) {
+  $max: map-get($bip-breakpoints, $name) - 1px;
+  @media (max-width: $max) {
+    @content;
+  }
+}
+
+@mixin breakpoint-between($lower, $upper) {
+  $min: map-get($bip-breakpoints, $lower);
+  $max: map-get($bip-breakpoints, $upper) - 1px;
+  
+  @if $min != 0 {
+    @media (min-width: $min) and (max-width: $max) {
+      @content;
+    }
+  } @else {
+    @media (max-width: $max) {
+      @content;
+    }
+  }
+}
+
+// Layout mixins
+@mixin container($max-width: null) {
+  width: 100%;
+  padding-right: var(--bip-spacing-md);
+  padding-left: var(--bip-spacing-md);
+  margin-right: auto;
+  margin-left: auto;
+  
+  @if $max-width {
+    max-width: $max-width;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Typography mixins
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-multiline-truncate($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin font-size($size) {
+  font-size: var(--bip-font-size-#{$size});
+}
+
+@mixin font-weight($weight) {
+  font-weight: var(--bip-font-weight-#{$weight});
+}
+
+// Visual mixins
+@mixin card {
+  background: white;
+  border-radius: var(--bip-border-radius-lg);
+  box-shadow: var(--bip-shadow-md);
+  border: 1px solid var(--bip-grey-200);
+  overflow: hidden;
+}
+
+@mixin button-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+@mixin focus-ring {
+  outline: 2px solid var(--bip-primary-500);
+  outline-offset: 2px;
+}
+
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+// Animation mixins
+@mixin fade-in($duration: var(--bip-transition-normal)) {
+  animation: fadeIn $duration ease-in-out;
+}
+
+@mixin slide-in-up($duration: var(--bip-transition-normal)) {
+  animation: slideInUp $duration ease-out;
+}
+
+@mixin slide-in-down($duration: var(--bip-transition-normal)) {
+  animation: slideInDown $duration ease-out;
+}
+
+@mixin scale-in($duration: var(--bip-transition-normal)) {
+  animation: scaleIn $duration ease-out;
+}
+
+// Hover and interaction states
+@mixin hover-lift {
+  transition: transform var(--bip-transition-normal), box-shadow var(--bip-transition-normal);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--bip-shadow-lg);
+  }
+}
+
+@mixin hover-glow($color: var(--bip-primary-500)) {
+  transition: box-shadow var(--bip-transition-normal);
+  
+  &:hover {
+    box-shadow: 0 0 0 4px rgba($color, 0.1);
+  }
+}
+
+// Loading states
+@mixin skeleton {
+  background: linear-gradient(90deg, var(--bip-grey-200) 25%, var(--bip-grey-300) 50%, var(--bip-grey-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@mixin pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// Form mixins
+@mixin form-field {
+  width: 100%;
+  padding: var(--bip-spacing-sm) var(--bip-spacing-md);
+  border: 1px solid var(--bip-grey-300);
+  border-radius: var(--bip-border-radius-md);
+  font-size: var(--bip-font-size-base);
+  transition: border-color var(--bip-transition-normal);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--bip-primary-500);
+    box-shadow: 0 0 0 3px rgba(var(--bip-primary-500), 0.1);
+  }
+  
+  &:disabled {
+    background-color: var(--bip-grey-100);
+    cursor: not-allowed;
+  }
+}
+
+@mixin form-error {
+  border-color: var(--bip-error-500);
+  
+  &:focus {
+    border-color: var(--bip-error-500);
+    box-shadow: 0 0 0 3px rgba(var(--bip-error-500), 0.1);
+  }
+}
+
+// Grid mixins
+@mixin grid($columns: auto-fit, $min-width: 250px) {
+  display: grid;
+  grid-template-columns: repeat($columns, minmax($min-width, 1fr));
+  gap: var(--bip-spacing-lg);
+}
+
+@mixin grid-responsive {
+  display: grid;
+  gap: var(--bip-spacing-lg);
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @include desktop {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Utility mixins
+@mixin clearfix {
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+@mixin aspect-ratio($width, $height) {
+  aspect-ratio: #{$width} / #{$height};
+  
+  @supports not (aspect-ratio: 1 / 1) {
+    position: relative;
+    
+    &::before {
+      content: "";
+      display: block;
+      padding-top: percentage($height / $width);
+    }
+    
+    > * {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+// Keyframes for animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

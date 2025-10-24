@@ -1,5 +1,9 @@
 /* ===== BIP SISTEMA - ESTILOS GLOBAIS ===== */
 
+// Importar variáveis e mixins primeiro
+@use './styles/variables' as *;
+@use './styles/mixins' as *;
+
 // Importar Angular Material e tema personalizado
 @import './styles/theme.scss';
 

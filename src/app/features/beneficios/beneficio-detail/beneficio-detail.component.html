@@ -1,0 +1,172 @@
+<div class="detail-container">
+  <!-- Loading State -->
+  <bip-loading 
+    *ngIf="(beneficioService.loading$ | async)?.loading"
+    message="Carregando benefício..."
+    [showCard]="true">
+  </bip-loading>
+
+  <!-- Error State -->
+  <bip-error-message
+    *ngIf="(beneficioService.loading$ | async)?.error"
+    [message]="(beneficioService.loading$ | async)?.error || ''"
+    title="Erro ao carregar benefício"
+    type="error"
+    [showRetry]="true"
+    (retry)="loadBeneficio()">
+  </bip-error-message>
+
+  <!-- Success State -->
+  <div *ngIf="beneficio && !(beneficioService.loading$ | async)?.loading && !(beneficioService.loading$ | async)?.error">
+    
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <button mat-stroked-button routerLink="/beneficios">
+        <mat-icon>arrow_back</mat-icon>
+        Voltar
+      </button>
+
+      <div class="action-buttons">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          [routerLink]="['/beneficios', beneficio.id, 'editar']">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+
+        <button 
+          mat-stroked-button 
+          color="warn" 
+          (click)="confirmarExclusao()">
+          <mat-icon>delete</mat-icon>
+          Excluir
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Info Card -->
+    <mat-card class="bip-card info-card">
+      <div class="bip-card-header">
+        <div class="title-section">
+          <h1>{{ beneficio.nome }}</h1>
+        </div>
+      </div>
+
+      <div class="bip-card-content">
+        <div class="info-grid">
+          
+          <!-- ID -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>tag</mat-icon>
+              ID
+            </div>
+            <div class="info-value">#{{ beneficio.id }}</div>
+          </div>
+
+          <!-- Valor -->
+          <div class="info-item valor-item">
+            <div class="info-label">
+              <mat-icon>payments</mat-icon>
+              Saldo Atual
+            </div>
+            <div class="info-value valor-destaque">
+              {{ beneficio.saldo | currency:'BRL':'symbol':'1.2-2' }}
+            </div>
+          </div>
+
+          <!-- Data Criação -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>today</mat-icon>
+              Data de Criação
+            </div>
+            <div class="info-value">
+              {{ beneficio.criadoEm | date:'dd/MM/yyyy HH:mm' }}
+              <small class="data-relativa">({{ getRelativeDate(beneficio.criadoEm) }})</small>
+            </div>
+          </div>
+
+          <!-- Data Atualização -->
+          <div class="info-item" *ngIf="beneficio.atualizadoEm && beneficio.atualizadoEm !== beneficio.criadoEm">
+            <div class="info-label">
+              <mat-icon>update</mat-icon>
+              Última Atualização
+            </div>
+            <div class="info-value">
+              {{ beneficio.atualizadoEm | date:'dd/MM/yyyy HH:mm' }}
+              <small class="data-relativa">({{ getRelativeDate(beneficio.atualizadoEm) }})</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descrição -->
+        <div class="description-section" *ngIf="beneficio.descricao">
+          <h3>
+            <mat-icon>description</mat-icon>
+            Descrição
+          </h3>
+          <div class="description-content">
+            {{ beneficio.descricao }}
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Statistics Card -->
+    <mat-card class="bip-card stats-card">
+      <div class="bip-card-header">
+        <h2>
+          <mat-icon>analytics</mat-icon>
+          Estatísticas de Uso
+        </h2>
+      </div>
+      <div class="bip-card-content">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Transferências Realizadas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ beneficio.saldo | currency:'BRL':'symbol':'1.2-2' }}</div>
+            <div class="stat-label">Saldo Disponível</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ getDaysActive() }}</div>
+            <div class="stat-label">Dias Ativo</div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Quick Actions Card -->
+    <mat-card class="bip-card actions-card">
+      <div class="bip-card-header">
+        <h2>
+          <mat-icon>speed</mat-icon>
+          Ações Rápidas
+        </h2>
+      </div>
+      <div class="bip-card-content">
+        <div class="quick-actions">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            [routerLink]="['/transferencias/nova']"
+            [queryParams]="{beneficioId: beneficio.id}">
+            <mat-icon>send</mat-icon>
+            Nova Transferência
+          </button>
+
+          <button 
+            mat-stroked-button 
+            [routerLink]="['/beneficios', beneficio.id, 'editar']">
+            <mat-icon>edit</mat-icon>
+            Editar Benefício
+          </button>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>

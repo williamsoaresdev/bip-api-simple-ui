@@ -114,13 +114,13 @@ import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
                       matInput 
                       type="text"
                       formControlName="valorInicial"
-                      placeholder="0,00"
+                      placeholder="100,50 ou 1000,75"
                       (input)="formatarValor($event)"
                       (blur)="validarValor()"
                       maxlength="15">
                     <span matTextPrefix>R$ </span>
                     <mat-icon matSuffix>attach_money</mat-icon>
-                    <mat-hint>Valor deve ser maior ou igual a zero</mat-hint>
+                    <mat-hint>Digite com vírgula para centavos (ex: 100,50)</mat-hint>
                     <mat-error *ngIf="beneficioForm.get('valorInicial')?.hasError('required')">
                       Valor é obrigatório
                     </mat-error>
@@ -800,53 +800,89 @@ export class BeneficioFormComponent implements OnInit, OnDestroy {
 
   formatarValor(event: any): void {
     const input = event.target;
-    const valor = input.value;
+    let valor = input.value;
     
-    // Remove tudo que não é número
-    let apenasNumeros = valor.replace(/\D/g, '');
+    // Remove tudo exceto números, vírgula e ponto
+    valor = valor.replace(/[^\d,\.]/g, '');
     
-    // Se vazio, mantém vazio
-    if (!apenasNumeros) {
-      this.beneficioForm.get('valorInicial')?.setValue('');
+    // Se vazio, não faz nada
+    if (!valor) {
+      this.beneficioForm.get('valorInicial')?.setValue(0);
       return;
     }
     
-    // Converte para número e divide por 100 para ter os centavos
-    const numeroValor = parseFloat(apenasNumeros) / 100;
+    // Substitui vírgula por ponto para processamento
+    let valorParaProcessar = valor.replace(',', '.');
     
-    // Formata como moeda brasileira
-    const valorFormatado = numeroValor.toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    // Se termina com ponto/vírgula, permite continuar digitando
+    if (valor.endsWith(',') || valor.endsWith('.')) {
+      // Não processa ainda, deixa o usuário continuar digitando
+      return;
+    }
     
-    // Define o valor formatado no input
-    input.value = valorFormatado;
+    // Valida e limita casas decimais
+    const partes = valorParaProcessar.split('.');
+    if (partes.length > 2) {
+      // Mais de um ponto/vírgula - pega só as duas primeiras partes
+      valorParaProcessar = partes[0] + '.' + partes[1];
+    }
     
-    // Atualiza o valor do FormControl com o número
-    this.beneficioForm.get('valorInicial')?.setValue(numeroValor);
+    if (partes[1] && partes[1].length > 2) {
+      // Limita a 2 casas decimais
+      valorParaProcessar = partes[0] + '.' + partes[1].substring(0, 2);
+      // Atualiza o campo com o valor limitado
+      input.value = valorParaProcessar.replace('.', ',');
+    }
+    
+    // Converte para número
+    const numeroValor = parseFloat(valorParaProcessar);
+    
+    if (!isNaN(numeroValor)) {
+      // Atualiza o FormControl
+      this.beneficioForm.get('valorInicial')?.setValue(numeroValor);
+    }
   }
 
   validarValor(): void {
     const control = this.beneficioForm.get('valorInicial');
-    const valor = control?.value;
+    const input = document.querySelector('input[formControlName="valorInicial"]') as HTMLInputElement;
     
-    if (typeof valor === 'string') {
-      // Se é string, tenta converter
-      const numeroLimpo = valor.replace(/\D/g, '');
-      const numeroValor = parseFloat(numeroLimpo) / 100;
-      
-      if (isNaN(numeroValor) || numeroValor < 0) {
-        control?.setErrors({ invalid: true });
-      } else {
-        control?.setValue(numeroValor);
-      }
-    } else if (typeof valor === 'number') {
-      // Se já é número, valida se é válido
-      if (isNaN(valor) || valor < 0) {
-        control?.setErrors({ invalid: true });
-      }
+    if (!input) return;
+    
+    let valorInput = input.value;
+    
+    // Remove caracteres inválidos
+    valorInput = valorInput.replace(/[^\d,\.]/g, '');
+    
+    // Se vazio, define como 0
+    if (!valorInput) {
+      control?.setValue(0);
+      input.value = '0,00';
+      return;
     }
+    
+    // Converte vírgula para ponto
+    let valorNumerico = valorInput.replace(',', '.');
+    
+    // Converte para número
+    const numero = parseFloat(valorNumerico);
+    
+    if (isNaN(numero) || numero < 0) {
+      control?.setErrors({ invalid: true });
+      return;
+    }
+    
+    // Atualiza o FormControl
+    control?.setValue(numero);
+    control?.setErrors(null);
+    
+    // Formata para exibição brasileira
+    const valorFormatado = numero.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    
+    input.value = valorFormatado;
   }
 
   getValorFormatado(): string {
