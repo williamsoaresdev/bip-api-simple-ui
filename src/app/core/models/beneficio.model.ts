@@ -1,37 +1,40 @@
-/**
- * Interface para o modelo Benefício baseado na API BIP
- */
-export interface Beneficio {
-  id: number;
-  nome: string;
-  descricao?: string;
-  saldo: number; // API retorna "saldo"
-  criadoEm: string;
-  atualizadoEm: string;
+import { BaseEntity } from './common.model';
+
+export interface Beneficio extends BaseEntity {
+  readonly nome: string;
+  readonly descricao: string;
+  readonly valor: number;
+  readonly ativo: boolean;
+  readonly categoria: BeneficioCategoria;
 }
 
-/**
- * DTO para criação de benefício
- */
+export enum BeneficioCategoria {
+  ALIMENTACAO = 'ALIMENTACAO',
+  TRANSPORTE = 'TRANSPORTE',
+  SAUDE = 'SAUDE',
+  EDUCACAO = 'EDUCACAO',
+  OUTROS = 'OUTROS'
+}
+
+export const BENEFICIO_CATEGORIA_LABELS: Record<BeneficioCategoria, string> = {
+  [BeneficioCategoria.ALIMENTACAO]: 'Alimentação',
+  [BeneficioCategoria.TRANSPORTE]: 'Transporte',
+  [BeneficioCategoria.SAUDE]: 'Saúde',
+  [BeneficioCategoria.EDUCACAO]: 'Educação',
+  [BeneficioCategoria.OUTROS]: 'Outros'
+};
+
 export interface CreateBeneficioRequest {
-  nome: string;
-  descricao?: string;
-  valorInicial: number; // API espera "valorInicial"
+  readonly nome: string;
+  readonly descricao?: string;
+  readonly valor: number;
+  readonly categoria: BeneficioCategoria;
 }
 
-/**
- * DTO para atualização de benefício
- */
 export interface UpdateBeneficioRequest {
-  nome: string;
-  descricao?: string;
-  valorInicial: number; // API espera "valorInicial"
-}
-
-/**
- * Response de estatísticas dos benefícios
- */
-export interface BeneficioEstatisticas {
-  totalBeneficios: number;
-  ultimaAtualizacao: string;
+  readonly nome?: string;
+  readonly descricao?: string;
+  readonly valor?: number;
+  readonly categoria?: BeneficioCategoria;
+  readonly ativo?: boolean;
 }

@@ -1,52 +1,47 @@
-/**
- * DTO para criação de transferência baseado na API real
- */
+import { BaseEntity } from './common.model';
+
+export interface Transferencia extends BaseEntity {
+  readonly beneficioId: string;
+  readonly beneficioNome: string;
+  readonly valor: number;
+  readonly destinatario: string;
+  readonly status: TransferenciaStatus;
+  readonly dataExecucao?: Date;
+  readonly observacoes?: string;
+}
+
+export enum TransferenciaStatus {
+  PENDENTE = 'PENDENTE',
+  PROCESSANDO = 'PROCESSANDO',
+  CONCLUIDA = 'CONCLUIDA',
+  CANCELADA = 'CANCELADA',
+  REJEITADA = 'REJEITADA'
+}
+
+export const TRANSFERENCIA_STATUS_LABELS: Record<TransferenciaStatus, string> = {
+  [TransferenciaStatus.PENDENTE]: 'Pendente',
+  [TransferenciaStatus.PROCESSANDO]: 'Processando',
+  [TransferenciaStatus.CONCLUIDA]: 'Concluída',
+  [TransferenciaStatus.CANCELADA]: 'Cancelada',
+  [TransferenciaStatus.REJEITADA]: 'Rejeitada'
+};
+
+export const TRANSFERENCIA_STATUS_COLORS: Record<TransferenciaStatus, string> = {
+  [TransferenciaStatus.PENDENTE]: 'bg-yellow-100 text-yellow-800',
+  [TransferenciaStatus.PROCESSANDO]: 'bg-blue-100 text-blue-800',
+  [TransferenciaStatus.CONCLUIDA]: 'bg-green-100 text-green-800',
+  [TransferenciaStatus.CANCELADA]: 'bg-gray-100 text-gray-800',
+  [TransferenciaStatus.REJEITADA]: 'bg-red-100 text-red-800'
+};
+
 export interface CreateTransferenciaRequest {
-  beneficioOrigemId: number;
-  beneficioDestinoId: number;
-  valor: number;
-  descricao?: string;
+  readonly beneficioId: string;
+  readonly destinatario: string;
+  readonly valor: number;
+  readonly observacoes?: string;
 }
 
-/**
- * Response de transferência criada baseado na API real
- */
-export interface TransferenciaResponse {
-  mensagem: string;
-  origem: number;
-  valor: number;
-  destino: number;
-  sucesso: boolean;
-  descricao?: string;
-  timestamp: string;
-}
-
-/**
- * DTO para validação de transferência baseado na API real
- */
-export interface ValidarTransferenciaRequest {
-  beneficioOrigemId: number;
-  beneficioDestinoId: number;
-  valor: number;
-  descricao?: string;
-}
-
-/**
- * Response de validação de transferência baseado na API real
- */
-export interface ValidacaoTransferenciaResponse {
-  valida: boolean;
-  motivo?: string;
-  origem: number;
-  valor: number;
-  destino: number;
-}
-
-/**
- * Response de cálculo de taxa baseado na API real
- */
-export interface TaxaTransferenciaResponse {
-  taxa: number;
-  valorComTaxa: number;
-  valorOriginal: number;
+export interface UpdateTransferenciaRequest {
+  readonly status?: TransferenciaStatus;
+  readonly observacoes?: string;
 }

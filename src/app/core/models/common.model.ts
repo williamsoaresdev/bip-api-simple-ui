@@ -1,57 +1,42 @@
-/**
- * Interface genérica para resposta de erro da API
- */
-export interface ApiError {
-  erro: string;
-  codigo: string;
-  timestamp: string;
-  path: string;
+export interface BaseEntity {
+  readonly id: string;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
 }
 
-/**
- * Interface para resposta de status da API
- */
-export interface ApiStatus {
-  status: string;
-  timestamp: string;
-  ambiente: string;
+export interface ApiResponse<T> {
+  readonly data: T;
+  readonly message?: string;
+  readonly success: boolean;
+  readonly errors?: string[];
 }
 
-/**
- * Interface genérica para paginação (futura implementação)
- */
-export interface PagedResponse<T> {
-  content: T[];
-  pageable: {
-    page: number;
-    size: number;
-    sort: string;
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  readonly pagination: {
+    readonly page: number;
+    readonly limit: number;
+    readonly total: number;
+    readonly totalPages: number;
   };
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
 }
 
-/**
- * Enum para códigos de erro personalizados da API
- */
-export enum ApiErrorCode {
-  BENEFICIO_NAO_ENCONTRADO = 'BENEFICIO_NAO_ENCONTRADO',
-  NOME_JA_EXISTE = 'NOME_JA_EXISTE',
-  SALDO_INSUFICIENTE = 'SALDO_INSUFICIENTE',
-  VALOR_INVALIDO = 'VALOR_INVALIDO',
-  TRANSFERENCIA_INVALIDA = 'TRANSFERENCIA_INVALIDA'
+export interface ApiError {
+  readonly message: string;
+  readonly code: string;
+  readonly details?: Record<string, unknown>;
 }
 
-/**
- * Interface para loading state
- */
-export interface LoadingState {
-  loading: boolean;
-  error?: string;
+export type LoadingState = 'idle' | 'loading' | 'success' | 'error';
+
+export interface UIState {
+  readonly loading: LoadingState;
+  readonly error: string | null;
 }
 
-/**
- * Type para operações CRUD
- */
-export type CrudOperation = 'create' | 'read' | 'update' | 'delete';
+export interface DashboardMetrics {
+  readonly totalBeneficios: number;
+  readonly totalTransferencias: number;
+  readonly valorTotalTransferido: number;
+  readonly beneficiosAtivos: number;
+  readonly transferenciasPendentes: number;
+}

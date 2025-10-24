@@ -1,74 +1,41 @@
-import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
 
-@Injectable()
-export class ErrorInterceptor implements HttpInterceptor {
+export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
 
-  constructor(
-    private snackBar: MatSnackBar,
-    private router: Router
-  ) {}
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      const errorMessage = getErrorMessage(error);
+      
+      if (error.status === 401) {
+        router.navigate(['/login']);
+      }
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(request).pipe(
-      catchError((error: HttpErrorResponse) => {
-        let errorMessage = 'Erro inesperado. Tente novamente.';
-        
-        // Handle different error status codes
-        switch (error.status) {
-          case 0:
-            errorMessage = 'Não foi possível conectar ao servidor.';
-            break;
-          case 400:
-            errorMessage = error.error?.erro || 'Dados inválidos.';
-            break;
-          case 401:
-            errorMessage = 'Sessão expirada. Faça login novamente.';
-            this.router.navigate(['/login']);
-            break;
-          case 403:
-            errorMessage = 'Acesso negado.';
-            break;
-          case 404:
-            errorMessage = 'Recurso não encontrado.';
-            break;
-          case 422:
-            errorMessage = error.error?.erro || 'Dados de entrada inválidos.';
-            break;
-          case 500:
-            errorMessage = 'Erro interno do servidor.';
-            break;
-          case 503:
-            errorMessage = 'Serviço temporariamente indisponível.';
-            break;
-          default:
-            if (error.error?.erro) {
-              errorMessage = error.error.erro;
-            }
-        }
+      console.error('HTTP Error:', {
+        status: error.status,
+        message: errorMessage,
+        url: error.url
+      });
 
-        // Show error message to user
-        this.snackBar.open(errorMessage, 'Fechar', {
-          duration: 5000,
-          panelClass: ['error-snackbar'],
-          horizontalPosition: 'end',
-          verticalPosition: 'top'
-        });
+      return throwError(() => ({ ...error, message: errorMessage }));
+    })
+  );
+};
 
-        // Log error for debugging
-        console.error('HTTP Error:', {
-          status: error.status,
-          message: errorMessage,
-          url: error.url,
-          error: error.error
-        });
+function getErrorMessage(error: HttpErrorResponse): string {
+  const statusMessages: Record<number, string> = {
+    401: 'Acesso não autorizado. Faça login novamente.',
+    403: 'Acesso negado. Você não tem permissão para esta ação.',
+    404: 'Recurso não encontrado.',
+    422: 'Dados inválidos enviados.',
+    500: 'Erro interno do servidor. Tente novamente mais tarde.',
+    0: 'Não foi possível conectar ao servidor. Verifique sua conexão.'
+  };
 
-        return throwError(() => errorMessage);
-      })
-    );
-  }
+  return statusMessages[error.status] || 
+         error.error?.message || 
+         'Erro inesperado. Tente novamente.';
 }

@@ -1,222 +1,204 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, tap, finalize } from 'rxjs/operators';
-
-import { environment } from '@environments/environment';
-import {
-  CreateTransferenciaRequest,
-  TransferenciaResponse,
-  ValidacaoTransferenciaResponse,
-  TaxaTransferenciaResponse,
-  ApiError,
-  LoadingState
-} from '@core/models';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, tap, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { 
+  Transferencia, 
+  TransferenciaStatus,
+  CreateTransferenciaRequest, 
+  UpdateTransferenciaRequest
+} from '@core/models/transferencia.model';
+import { ApiResponse, PaginatedResponse, LoadingState } from '@core/models/common.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransferenciaService {
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/transferencias`;
-  
-  // Loading state management
-  private loadingSubject = new BehaviorSubject<LoadingState>({ loading: false });
-  public loading$ = this.loadingSubject.asObservable();
 
-  // Histórico de transferências
-  private transferenciasSubject = new BehaviorSubject<TransferenciaResponse[]>([]);
-  public transferencias$ = this.transferenciasSubject.asObservable();
+  private readonly _transferencias = signal<Transferencia[]>([]);
+  private readonly _loading = signal<LoadingState>('idle');
+  private readonly _error = signal<string | null>(null);
+  private readonly _selectedTransferencia = signal<Transferencia | null>(null);
 
-  constructor(private http: HttpClient) {
-    // Adicionar dados de exemplo para demonstração
-    this.initializeExampleData();
+  readonly transferencias = this._transferencias.asReadonly();
+  readonly loading = this._loading.asReadonly();
+  readonly error = this._error.asReadonly();
+  readonly selectedTransferencia = this._selectedTransferencia.asReadonly();
+
+  readonly transferenciasPendentes = computed(() => 
+    this._transferencias().filter(t => t.status === TransferenciaStatus.PENDENTE)
+  );
+
+  readonly transferenciasProcessando = computed(() => 
+    this._transferencias().filter(t => t.status === TransferenciaStatus.PROCESSANDO)
+  );
+
+  readonly transferenciasConcluidas = computed(() => 
+    this._transferencias().filter(t => t.status === TransferenciaStatus.CONCLUIDA)
+  );
+
+  readonly totalTransferencias = computed(() => 
+    this._transferencias().length
+  );
+
+  readonly valorTotalTransferido = computed(() => 
+    this._transferencias()
+      .filter(t => t.status === TransferenciaStatus.CONCLUIDA)
+      .reduce((total, t) => total + t.valor, 0)
+  );
+
+  readonly isLoading = computed(() => 
+    this._loading() === 'loading'
+  );
+
+  readonly hasError = computed(() => 
+    this._error() !== null
+  );
+
+  constructor() {
+    this.loadInitialData();
   }
 
-  /**
-   * Inicializa dados de exemplo para demonstração
-   */
-  private initializeExampleData(): void {
-    const exemploTransferencias: TransferenciaResponse[] = [
+  private loadInitialData(): void {
+    const mockData: Transferencia[] = [
       {
-        origem: 1,
-        destino: 2,
+        id: '1',
+        beneficioId: '1',
+        beneficioNome: 'Auxílio Alimentação',
         valor: 500.00,
-        sucesso: true,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 horas atrás
-        mensagem: 'Transferência realizada com sucesso',
-        descricao: 'Transferência para pagamento de benefícios'
+        destinatario: 'João Silva',
+        status: TransferenciaStatus.CONCLUIDA,
+        dataExecucao: new Date('2024-10-20T14:30:00Z'),
+        observacoes: 'Transferência mensal',
+        createdAt: new Date('2024-10-20T10:00:00Z'),
+        updatedAt: new Date('2024-10-20T14:30:00Z')
       },
       {
-        origem: 3,
-        destino: 1,
-        valor: 250.75,
-        sucesso: true,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(), // 6 horas atrás
-        mensagem: 'Transferência concluída',
-        descricao: 'Redistribuição de valores'
+        id: '2',
+        beneficioId: '2',
+        beneficioNome: 'Vale Transporte',
+        valor: 220.50,
+        destinatario: 'Maria Santos',
+        status: TransferenciaStatus.PENDENTE,
+        observacoes: 'Aguardando processamento',
+        createdAt: new Date('2024-10-22T09:15:00Z'),
+        updatedAt: new Date('2024-10-22T09:15:00Z')
       },
       {
-        origem: 2,
-        destino: 4,
-        valor: 1000.00,
-        sucesso: false,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(), // 12 horas atrás
-        mensagem: 'Saldo insuficiente',
-        descricao: 'Tentativa de transferência de grande valor'
-      },
-      {
-        origem: 1,
-        destino: 3,
-        valor: 150.30,
-        sucesso: true,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 dia atrás
-        mensagem: 'Transferência processada',
-        descricao: 'Ajuste mensal de benefícios'
-      },
-      {
-        origem: 4,
-        destino: 2,
-        valor: 750.00,
-        sucesso: true,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 dias atrás
-        mensagem: 'Operação concluída com sucesso',
-        descricao: 'Transferência programada'
-      },
-      {
-        origem: 2,
-        destino: 3,
-        valor: 300.00,
-        sucesso: false,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), // 3 dias atrás
-        mensagem: 'Benefício de destino inativo',
-        descricao: 'Transferência para conta bloqueada'
+        id: '3',
+        beneficioId: '3',
+        beneficioNome: 'Plano de Saúde',
+        valor: 450.00,
+        destinatario: 'Pedro Costa',
+        status: TransferenciaStatus.PROCESSANDO,
+        observacoes: 'Em processamento',
+        createdAt: new Date('2024-10-22T11:00:00Z'),
+        updatedAt: new Date('2024-10-22T11:30:00Z')
       }
     ];
 
-    this.transferenciasSubject.next(exemploTransferencias);
+    setTimeout(() => {
+      this._transferencias.set(mockData);
+      this._loading.set('success');
+    }, 100);
   }
 
-  /**
-   * Cria nova transferência
-   * POST /transferencias
-   */
-  criar(request: CreateTransferenciaRequest): Observable<TransferenciaResponse> {
-    this.setLoading(true);
-    
-    return this.http.post<TransferenciaResponse>(this.baseUrl, request).pipe(
-      tap((transferencia) => {
-        console.log('Transferência criada:', transferencia.sucesso ? 'Sucesso' : 'Falha');
-        this.adicionarTransferenciaAoHistorico(transferencia);
+  loadTransferencias(): Observable<PaginatedResponse<Transferencia>> {
+    this._loading.set('loading');
+    this._error.set(null);
+
+    return this.http.get<PaginatedResponse<Transferencia>>(this.baseUrl).pipe(
+      tap(response => {
+        this._transferencias.set(response.data);
+        this._loading.set('success');
       }),
-      catchError(this.handleError),
-      finalize(() => this.setLoading(false))
+      catchError(error => {
+        this._error.set(error.message || 'Erro ao carregar transferências');
+        this._loading.set('error');
+        return of({
+          data: this._transferencias(),
+          success: false,
+          message: 'Usando dados em cache'
+        } as PaginatedResponse<Transferencia>);
+      })
     );
   }
 
-  /**
-   * Valida uma transferência sem executá-la
-   * POST /transferencias/validar
-   */
-  validar(request: CreateTransferenciaRequest): Observable<ValidacaoTransferenciaResponse> {
-    this.setLoading(true);
-    
-    return this.http.post<ValidacaoTransferenciaResponse>(`${this.baseUrl}/validar`, request).pipe(
-      tap((validacao) => {
-        console.log('Transferência validada:', validacao.valida ? 'VÁLIDA' : 'INVÁLIDA');
-        if (!validacao.valida && validacao.motivo) {
-          console.warn('Motivo da invalidação:', validacao.motivo);
+  getTransferenciaById(id: string): Observable<ApiResponse<Transferencia>> {
+    this._loading.set('loading');
+    this._error.set(null);
+
+    return this.http.get<ApiResponse<Transferencia>>(`${this.baseUrl}/${id}`).pipe(
+      tap(response => {
+        this._selectedTransferencia.set(response.data);
+        this._loading.set('success');
+      }),
+      catchError(error => {
+        this._error.set(error.message || 'Erro ao carregar transferência');
+        this._loading.set('error');
+        const cached = this._transferencias().find(t => t.id === id);
+        if (cached) {
+          this._selectedTransferencia.set(cached);
+          return of({ data: cached, success: true } as ApiResponse<Transferencia>);
         }
-      }),
-      catchError(this.handleError),
-      finalize(() => this.setLoading(false))
+        throw error;
+      })
     );
   }
 
-  /**
-   * Calcula a taxa para um valor específico
-   * GET /transferencias/taxa?valor={valor}
-   */
-  calcularTaxa(valor: number): Observable<TaxaTransferenciaResponse> {
-    this.setLoading(true);
-    
-    const params = { valor: valor.toString() };
-    
-    return this.http.get<TaxaTransferenciaResponse>(`${this.baseUrl}/taxa`, { params }).pipe(
-      tap((taxa) => {
-        console.log('Taxa calculada:', `R$ ${taxa.taxa} para valor original R$ ${taxa.valorOriginal}`);
+  createTransferencia(transferencia: CreateTransferenciaRequest): Observable<ApiResponse<Transferencia>> {
+    this._loading.set('loading');
+    this._error.set(null);
+
+    return this.http.post<ApiResponse<Transferencia>>(this.baseUrl, transferencia).pipe(
+      tap(response => {
+        const current = this._transferencias();
+        this._transferencias.set([response.data, ...current]);
+        this._loading.set('success');
       }),
-      catchError(this.handleError),
-      finalize(() => this.setLoading(false))
+      catchError(error => {
+        this._error.set(error.message || 'Erro ao criar transferência');
+        this._loading.set('error');
+        throw error;
+      })
     );
   }
 
-  /**
-   * Obtém histórico de transferências (local)
-   */
-  obterHistorico(): Observable<TransferenciaResponse[]> {
-    return this.transferencias$;
+  updateTransferencia(id: string, update: UpdateTransferenciaRequest): Observable<ApiResponse<Transferencia>> {
+    this._loading.set('loading');
+    this._error.set(null);
+
+    return this.http.put<ApiResponse<Transferencia>>(`${this.baseUrl}/${id}`, update).pipe(
+      tap(response => {
+        const current = this._transferencias();
+        const index = current.findIndex(t => t.id === id);
+        if (index !== -1) {
+          const updated = [...current];
+          updated[index] = response.data;
+          this._transferencias.set(updated);
+        }
+        this._selectedTransferencia.set(response.data);
+        this._loading.set('success');
+      }),
+      catchError(error => {
+        this._error.set(error.message || 'Erro ao atualizar transferência');
+        this._loading.set('error');
+        throw error;
+      })
+    );
   }
 
-  /**
-   * Limpa o histórico de transferências
-   */
-  limparHistorico(): void {
-    this.transferenciasSubject.next([]);
+  cancelTransferencia(id: string): Observable<ApiResponse<Transferencia>> {
+    return this.updateTransferencia(id, { status: TransferenciaStatus.CANCELADA });
   }
 
-  /**
-   * Adiciona transferência ao histórico local
-   */
-  private adicionarTransferenciaAoHistorico(transferencia: TransferenciaResponse): void {
-    const historicoAtual = this.transferenciasSubject.value;
-    const novoHistorico = [transferencia, ...historicoAtual].slice(0, 50); // Máximo 50 itens
-    this.transferenciasSubject.next(novoHistorico);
+  clearError(): void {
+    this._error.set(null);
   }
 
-  /**
-   * Gerencia estado de loading
-   */
-  private setLoading(loading: boolean, error?: string): void {
-    this.loadingSubject.next({ loading, error });
+  clearSelection(): void {
+    this._selectedTransferencia.set(null);
   }
-
-  /**
-   * Tratamento centralizado de erros
-   */
-  private handleError = (error: HttpErrorResponse): Observable<never> => {
-    console.error('Erro no TransferenciaService:', error);
-    
-    let errorMessage = 'Erro inesperado. Tente novamente.';
-    
-    if (error.error && error.error.erro) {
-      // Erro estruturado da API
-      const apiError = error.error as ApiError;
-      errorMessage = apiError.erro;
-      
-      // Mensagens específicas para transferências
-      switch (apiError.codigo) {
-        case 'SALDO_INSUFICIENTE':
-          errorMessage = 'Saldo insuficiente para esta transferência.';
-          break;
-        case 'BENEFICIO_NAO_ENCONTRADO':
-          errorMessage = 'Um dos benefícios selecionados não foi encontrado.';
-          break;
-        case 'TRANSFERENCIA_INVALIDA':
-          errorMessage = 'Os dados da transferência são inválidos.';
-          break;
-        case 'VALOR_INVALIDO':
-          errorMessage = 'O valor da transferência deve ser maior que zero.';
-          break;
-      }
-    } else if (error.status === 0) {
-      errorMessage = 'Não foi possível conectar ao servidor.';
-    } else if (error.status >= 500) {
-      errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
-    } else if (error.status === 400) {
-      errorMessage = 'Dados da transferência inválidos.';
-    }
-    
-    this.setLoading(false, errorMessage);
-    return throwError(() => errorMessage);
-  };
 }
