@@ -1,909 +1,505 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { 
+  Component, 
+  OnInit, 
+  ChangeDetectionStrategy, 
+  signal, 
+  computed, 
+  inject,
+  effect,
+  DestroyRef
+} from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { 
+  ReactiveFormsModule, 
+  NonNullableFormBuilder, 
+  Validators,
+  AbstractControl 
+} from '@angular/forms';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { 
+  map, 
+  filter, 
+  debounceTime, 
+  distinctUntilChanged,
+  switchMap,
+  startWith,
+  catchError,
+  finalize
+} from 'rxjs/operators';
+import { of, combineLatest, EMPTY } from 'rxjs';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { BeneficioService } from '@core/services';
 import { Beneficio, CreateBeneficioRequest, UpdateBeneficioRequest } from '@core/models';
-import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
+import { BeneficioValidators } from '@core/validators/beneficio.validators';
+import { MoedaBrasilPipe, TempoRelativoPipe } from '@core/pipes/beneficio.pipes';
+import { 
+  BeneficioFormGroup, 
+  BeneficioFormValue, 
+  FormState, 
+  ValidationState,
+  FormMode 
+} from '@core/types/form.types';
 
 @Component({
-  selector: 'bip-beneficio-form',
+  selector: 'app-beneficio-form',
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatButtonModule,
-    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatCheckboxModule,
-    MatProgressSpinnerModule
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatTooltipModule,
+    RouterModule,
+    DatePipe
   ],
-  template: `
-    <div class="bip-page-container">
-      <!-- Page Header -->
-      <div class="bip-page-header">
-        <div class="bip-header-content">
-          <h1 class="bip-page-title">
-            <mat-icon class="bip-page-icon">{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
-            {{ isEditMode ? 'Editar Benefício' : 'Novo Benefício' }}
-          </h1>
-          <p class="bip-page-subtitle">
-            {{ isEditMode ? 'Atualize as informações do benefício' : 'Preencha as informações para criar um novo benefício' }}
-          </p>
-        </div>
-        
-        <div class="bip-page-actions">
-          <button mat-stroked-button (click)="onCancel()" class="bip-btn-secondary">
-            <mat-icon>arrow_back</mat-icon>
-            Voltar
-          </button>
-        </div>
-      </div>
-
-      <!-- Loading State -->
-      <div *ngIf="(beneficioService.loading$ | async)?.loading" class="bip-loading-container">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p>{{ isEditMode ? 'Carregando benefício...' : 'Processando...' }}</p>
-      </div>
-
-      <!-- Error State -->
-      <div *ngIf="(beneficioService.loading$ | async)?.error" class="bip-message-container error">
-        <mat-icon>error_outline</mat-icon>
-        <div>
-          <h3>Erro no formulário</h3>
-          <p>{{ (beneficioService.loading$ | async)?.error }}</p>
-        </div>
-      </div>
-
-      <!-- Form Content -->
-      <div class="bip-form-layout" *ngIf="!(beneficioService.loading$ | async)?.loading">
-        <!-- Main Form -->
-        <div class="bip-form-container">
-          <mat-card class="bip-card-form">
-            <mat-card-header>
-              <mat-card-title>Informações do Benefício</mat-card-title>
-              <mat-card-subtitle>Preencha todos os campos obrigatórios</mat-card-subtitle>
-            </mat-card-header>
-
-            <mat-card-content>
-              <form [formGroup]="beneficioForm" (ngSubmit)="onSubmit()" novalidate>
-                
-                <!-- Nome -->
-                <div class="bip-form-group">
-                  <mat-form-field class="bip-form-field" appearance="outline">
-                    <mat-label>Nome do Benefício *</mat-label>
-                    <input 
-                      matInput 
-                      formControlName="nome"
-                      placeholder="Ex: Vale Alimentação, Auxílio Transporte"
-                      maxlength="100"
-                      #nomeInput>
-                    <mat-icon matSuffix>card_giftcard</mat-icon>
-                    <mat-hint align="end">{{ nomeInput.value.length || 0 }}/100</mat-hint>
-                    <mat-error *ngIf="beneficioForm.get('nome')?.hasError('required')">
-                      Nome é obrigatório
-                    </mat-error>
-                    <mat-error *ngIf="beneficioForm.get('nome')?.hasError('minlength')">
-                      Nome deve ter pelo menos 3 caracteres
-                    </mat-error>
-                    <mat-error *ngIf="beneficioForm.get('nome')?.hasError('maxlength')">
-                      Nome não pode ter mais que 100 caracteres
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-
-                <!-- Valor Inicial -->
-                <div class="bip-form-group">
-                  <mat-form-field class="bip-form-field" appearance="outline">
-                    <mat-label>Valor Inicial *</mat-label>
-                    <input 
-                      matInput 
-                      type="text"
-                      formControlName="valorInicial"
-                      placeholder="100,50 ou 1000,75"
-                      (input)="formatarValor($event)"
-                      (blur)="validarValor()"
-                      maxlength="15">
-                    <span matTextPrefix>R$ </span>
-                    <mat-icon matSuffix>attach_money</mat-icon>
-                    <mat-hint>Digite com vírgula para centavos (ex: 100,50)</mat-hint>
-                    <mat-error *ngIf="beneficioForm.get('valorInicial')?.hasError('required')">
-                      Valor é obrigatório
-                    </mat-error>
-                    <mat-error *ngIf="beneficioForm.get('valorInicial')?.hasError('min')">
-                      Valor deve ser maior ou igual a zero
-                    </mat-error>
-                    <mat-error *ngIf="beneficioForm.get('valorInicial')?.hasError('invalid')">
-                      Formato de valor inválido
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-
-                <!-- Descrição -->
-                <div class="bip-form-group">
-                  <mat-form-field class="bip-form-field" appearance="outline">
-                    <mat-label>Descrição (Opcional)</mat-label>
-                    <textarea 
-                      matInput 
-                      formControlName="descricao"
-                      placeholder="Descreva o benefício, suas características ou condições de uso..."
-                      rows="4"
-                      maxlength="500"
-                      #descricaoInput>
-                    </textarea>
-                    <mat-icon matSuffix>description</mat-icon>
-                    <mat-hint align="end">{{ descricaoInput.value.length || 0 }}/500</mat-hint>
-                    <mat-error *ngIf="beneficioForm.get('descricao')?.hasError('maxlength')">
-                      Descrição não pode ter mais que 500 caracteres
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-
-              </form>
-            </mat-card-content>
-
-            <!-- Form Actions -->
-            <mat-card-actions class="bip-form-actions">
-              <button 
-                type="button" 
-                mat-stroked-button 
-                (click)="onCancel()"
-                [disabled]="(beneficioService.loading$ | async)?.loading"
-                class="bip-btn-secondary">
-                <mat-icon>cancel</mat-icon>
-                Cancelar
-              </button>
-
-              <button 
-                type="submit" 
-                mat-raised-button 
-                color="primary"
-                (click)="onSubmit()"
-                [disabled]="beneficioForm.invalid || (beneficioService.loading$ | async)?.loading"
-                class="bip-btn-primary">
-                <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-                {{ isEditMode ? 'Atualizar' : 'Criar' }} Benefício
-              </button>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-
-        <!-- Preview Sidebar -->
-        <div class="bip-preview-container" *ngIf="beneficioForm.value.nome">
-          <mat-card class="bip-preview-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>preview</mat-icon>
-                Prévia do Benefício
-              </mat-card-title>
-              <mat-card-subtitle>Como ficará após salvar</mat-card-subtitle>
-            </mat-card-header>
-
-            <mat-card-content>
-              <div class="bip-preview-content">
-                <!-- Preview Header -->
-                <div class="bip-preview-header">
-                  <div class="bip-preview-avatar">
-                    <mat-icon>card_giftcard</mat-icon>
-                  </div>
-                  <div class="bip-preview-title">
-                    <h3>{{ beneficioForm.value.nome || 'Nome do benefício' }}</h3>
-                    <span class="bip-preview-id">{{ isEditMode ? '#' + beneficioId : 'Novo benefício' }}</span>
-                  </div>
-                </div>
-
-                <!-- Preview Details -->
-                <div class="bip-preview-details">
-                  <div class="bip-preview-item">
-                    <mat-icon class="bip-preview-icon">account_balance_wallet</mat-icon>
-                    <div class="bip-preview-text">
-                      <label>Saldo Inicial</label>
-                      <p class="bip-preview-valor">{{ getValorFormatado() }}</p>
-                    </div>
-                  </div>
-
-                  <div class="bip-preview-item" *ngIf="beneficioForm.value.descricao">
-                    <mat-icon class="bip-preview-icon">description</mat-icon>
-                    <div class="bip-preview-text">
-                      <label>Descrição</label>
-                      <p>{{ beneficioForm.value.descricao }}</p>
-                    </div>
-                  </div>
-
-                  <div class="bip-preview-item" *ngIf="!beneficioForm.value.descricao">
-                    <mat-icon class="bip-preview-icon">info</mat-icon>
-                    <div class="bip-preview-text">
-                      <label>Descrição</label>
-                      <p class="bip-text-muted">Nenhuma descrição fornecida</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Preview Actions -->
-                <div class="bip-preview-actions">
-                  <small class="bip-text-muted">
-                    {{ isEditMode ? 'As alterações serão aplicadas após salvar' : 'O benefício será criado com essas informações' }}
-                  </small>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .bip-page-container {
-      padding: var(--bip-spacing-lg);
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .bip-page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--bip-spacing-xl);
-      flex-wrap: wrap;
-      gap: var(--bip-spacing-md);
-    }
-
-    .bip-header-content {
-      flex: 1;
-    }
-
-    .bip-page-title {
-      display: flex;
-      align-items: center;
-      gap: var(--bip-spacing-sm);
-      margin: 0;
-      font-size: 2rem;
-      font-weight: var(--bip-font-weight-bold);
-      color: var(--bip-grey-800);
-    }
-
-    .bip-page-icon {
-      font-size: 2rem !important;
-      width: 2rem !important;
-      height: 2rem !important;
-      color: var(--bip-primary-500);
-    }
-
-    .bip-page-subtitle {
-      margin: var(--bip-spacing-xs) 0 0 0;
-      color: var(--bip-grey-600);
-      font-size: 1rem;
-    }
-
-    .bip-page-actions {
-      display: flex;
-      gap: var(--bip-spacing-sm);
-      align-items: center;
-    }
-
-    .bip-form-layout {
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: var(--bip-spacing-xl);
-      align-items: start;
-    }
-
-    .bip-form-container {
-      min-width: 0;
-    }
-
-    .bip-card-form {
-      box-shadow: var(--bip-shadow-md);
-      border: 1px solid var(--bip-grey-200);
-    }
-
-    .mat-mdc-card-header {
-      background: var(--bip-gradient-background);
-      border-radius: var(--bip-border-radius-lg) var(--bip-border-radius-lg) 0 0;
-      margin: calc(-1 * var(--bip-spacing-lg));
-      margin-bottom: var(--bip-spacing-lg);
-      padding: var(--bip-spacing-lg);
-    }
-
-    .mat-mdc-card-title {
-      font-weight: var(--bip-font-weight-semibold);
-      color: var(--bip-grey-800);
-      margin: 0;
-    }
-
-    .mat-mdc-card-subtitle {
-      color: var(--bip-grey-600);
-      margin: var(--bip-spacing-xs) 0 0 0;
-    }
-
-    .bip-form-group {
-      margin-bottom: var(--bip-spacing-lg);
-    }
-
-    .bip-form-field {
-      width: 100%;
-    }
-
-    .bip-form-actions {
-      display: flex;
-      gap: var(--bip-spacing-md);
-      justify-content: flex-end;
-      align-items: center;
-      border-top: 1px solid var(--bip-grey-200);
-      margin-top: var(--bip-spacing-lg);
-      padding-top: var(--bip-spacing-lg);
-    }
-
-    .bip-preview-container {
-      position: sticky;
-      top: var(--bip-spacing-lg);
-    }
-
-    .bip-preview-card {
-      box-shadow: var(--bip-shadow-md);
-      border: 1px solid var(--bip-grey-200);
-    }
-
-    .bip-preview-content {
-      display: flex;
-      flex-direction: column;
-      gap: var(--bip-spacing-lg);
-    }
-
-    .bip-preview-header {
-      display: flex;
-      align-items: center;
-      gap: var(--bip-spacing-md);
-      padding: var(--bip-spacing-md);
-      background: var(--bip-gradient-background);
-      border-radius: var(--bip-border-radius-md);
-    }
-
-    .bip-preview-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--bip-border-radius-md);
-      background: var(--bip-primary-100);
-      color: var(--bip-primary-600);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      mat-icon {
-        font-size: 24px !important;
-        width: 24px !important;
-        height: 24px !important;
-      }
-    }
-
-    .bip-preview-title {
-      flex: 1;
-      min-width: 0;
-
-      h3 {
-        margin: 0;
-        font-size: 1.125rem;
-        font-weight: var(--bip-font-weight-semibold);
-        color: var(--bip-grey-800);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .bip-preview-id {
-        font-size: 0.875rem;
-        color: var(--bip-grey-600);
-      }
-    }
-
-    .bip-preview-details {
-      display: flex;
-      flex-direction: column;
-      gap: var(--bip-spacing-md);
-    }
-
-    .bip-preview-item {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--bip-spacing-sm);
-      padding: var(--bip-spacing-sm);
-      border-radius: var(--bip-border-radius-md);
-      background: var(--bip-grey-50);
-    }
-
-    .bip-preview-icon {
-      color: var(--bip-grey-500);
-      margin-top: 2px;
-      flex-shrink: 0;
-    }
-
-    .bip-preview-text {
-      flex: 1;
-      min-width: 0;
-
-      label {
-        font-size: 0.75rem;
-        color: var(--bip-grey-600);
-        text-transform: uppercase;
-        font-weight: var(--bip-font-weight-medium);
-        letter-spacing: 0.5px;
-        margin-bottom: var(--bip-spacing-xs);
-        display: block;
-      }
-
-      p {
-        margin: 0;
-        color: var(--bip-grey-800);
-        line-height: 1.4;
-        word-wrap: break-word;
-
-        &.bip-preview-valor {
-          font-size: 1.25rem;
-          font-weight: var(--bip-font-weight-bold);
-          color: var(--bip-success-600);
-        }
-      }
-    }
-
-    .bip-preview-actions {
-      padding: var(--bip-spacing-md);
-      background: var(--bip-grey-50);
-      border-radius: var(--bip-border-radius-md);
-      border: 1px dashed var(--bip-grey-300);
-      text-align: center;
-
-      small {
-        font-size: 0.75rem;
-        line-height: 1.4;
-      }
-    }
-
-    .bip-loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: var(--bip-spacing-xxl);
-      text-align: center;
-
-      p {
-        margin: var(--bip-spacing-md) 0 0 0;
-        color: var(--bip-grey-600);
-      }
-    }
-
-    .bip-message-container {
-      display: flex;
-      align-items: center;
-      gap: var(--bip-spacing-md);
-      padding: var(--bip-spacing-lg);
-      border-radius: var(--bip-border-radius-md);
-      margin: var(--bip-spacing-lg) 0;
-
-      &.error {
-        background: var(--bip-error-50);
-        border: 1px solid var(--bip-error-200);
-        color: var(--bip-error-800);
-
-        mat-icon {
-          color: var(--bip-error-600);
-        }
-      }
-
-      h3 {
-        margin: 0 0 var(--bip-spacing-xs) 0;
-        font-size: 1rem;
-        font-weight: var(--bip-font-weight-medium);
-      }
-
-      p {
-        margin: 0;
-        font-size: 0.875rem;
-      }
-    }
-
-    .bip-text-muted {
-      color: var(--bip-grey-500) !important;
-      font-style: italic;
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 1024px) {
-      .bip-form-layout {
-        grid-template-columns: 1fr;
-        gap: var(--bip-spacing-lg);
-      }
-
-      .bip-preview-container {
-        position: static;
-        order: -1;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .bip-page-container {
-        padding: var(--bip-spacing-md);
-      }
-
-      .bip-page-header {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .bip-page-actions {
-        justify-content: center;
-      }
-
-      .bip-form-actions {
-        flex-direction: column;
-        gap: var(--bip-spacing-sm);
-
-        button {
-          width: 100%;
-        }
-      }
-
-      .bip-preview-header {
-        flex-direction: column;
-        text-align: center;
-        gap: var(--bip-spacing-sm);
-      }
-
-      .bip-preview-title h3 {
-        white-space: normal;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .bip-page-container {
-        padding: var(--bip-spacing-sm);
-      }
-
-      .mat-mdc-card-header {
-        margin: calc(-1 * var(--bip-spacing-md));
-        margin-bottom: var(--bip-spacing-md);
-        padding: var(--bip-spacing-md);
-      }
-    }
-
-    /* Form field enhancements */
-    .mat-mdc-form-field {
-      .mat-mdc-form-field-outline {
-        transition: var(--bip-transition-normal);
-      }
-
-      &.mat-focused .mat-mdc-form-field-outline-thick {
-        border-color: var(--bip-primary-500);
-        border-width: 2px;
-      }
-
-      &.mat-form-field-invalid .mat-mdc-form-field-outline-thick {
-        border-color: var(--bip-error-500);
-      }
-
-      .mat-mdc-form-field-hint,
-      .mat-mdc-form-field-error {
-        font-size: 0.75rem;
-      }
-
-      .mat-mdc-form-field-hint {
-        color: var(--bip-grey-600);
-      }
-
-      .mat-mdc-form-field-error {
-        color: var(--bip-error-600);
-      }
-    }
-
-    /* Animation enhancements */
-    .bip-preview-card {
-      animation: slideInRight 0.3s ease-out;
-    }
-
-    @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    .bip-preview-item {
-      transition: var(--bip-transition-normal);
-
-      &:hover {
-        background: var(--bip-grey-100);
-        transform: translateX(2px);
-      }
-    }
-  `]
+  templateUrl: './beneficio-form.component.html',
+  styleUrl: './beneficio-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BeneficioFormComponent implements OnInit, OnDestroy {
-  beneficioForm: FormGroup;
-  isEditMode = false;
-  beneficioId?: number;
-  
-  private destroy$ = new Subject<void>();
+export class BeneficioFormComponent implements OnInit {
+  // 🚀 Modern Angular 20 - Dependency Injection
+  private readonly fb = inject(NonNullableFormBuilder);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
+  public readonly beneficioService = inject(BeneficioService);
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    public beneficioService: BeneficioService
-  ) {
-    this.beneficioForm = this.createForm();
-  }
+  // 🎯 Advanced Signals para estado reativo
+  readonly mode = signal<FormMode>('create');
+  readonly beneficioId = signal<number | null>(null);
+  readonly loading = signal(false);
+  readonly submitting = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly originalBeneficio = signal<Beneficio | null>(null);
+  readonly existingNames = signal<string[]>([]);
 
-  ngOnInit(): void {
-    // Verifica se é modo de edição
-    this.beneficioId = Number(this.route.snapshot.paramMap.get('id'));
-    this.isEditMode = !!this.beneficioId && !isNaN(this.beneficioId);
-
-    if (this.isEditMode) {
-      this.loadBeneficio();
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private createForm(): FormGroup {
-    return this.fb.group({
-      nome: ['', [
+  // 📋 Type-safe Reactive Form com validators avançados
+  readonly beneficioForm: BeneficioFormGroup = this.fb.group({
+    nome: this.fb.control('', {
+      validators: [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(100)
-      ]],
-      descricao: ['', [Validators.maxLength(500)]],
-      valorInicial: [0, [
+      ],
+      asyncValidators: [],
+      updateOn: 'blur'
+    }),
+    descricao: this.fb.control('', {
+      validators: [
+        Validators.maxLength(500),
+        BeneficioValidators.descricaoValida()
+      ],
+      updateOn: 'blur'
+    }),
+    valorInicial: this.fb.control(0, {
+      validators: [
         Validators.required,
-        Validators.min(0)
-      ]]
-    });
-  }
+        BeneficioValidators.valorMonetario()
+      ],
+      updateOn: 'blur'
+    })
+  }, {
+    validators: [BeneficioValidators.validarRegrasNegocio()],
+    updateOn: 'change'
+  });
 
-  private loadBeneficio(): void {
-    if (!this.beneficioId) return;
+  // 💡 Advanced Computed signals
+  readonly isEditMode = computed(() => this.mode() === 'edit');
+  readonly isCreateMode = computed(() => this.mode() === 'create');
+  readonly isViewMode = computed(() => this.mode() === 'view');
 
-    this.beneficioService.buscarPorId(this.beneficioId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (beneficio: Beneficio) => {
-          this.beneficioForm.patchValue({
-            nome: beneficio.nome,
-            descricao: beneficio.descricao || '',
-            valorInicial: beneficio.saldo
-          });
-          
-          // Formatar o valor exibido no campo
-          this.formatarValorInicial(beneficio.saldo);
-        },
-        error: (error) => {
-          this.snackBar.open(error || 'Erro ao carregar benefício', 'Fechar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-          this.router.navigate(['/beneficios']);
-        }
-      });
-  }
+  readonly formTitle = computed(() => {
+    switch (this.mode()) {
+      case 'create': return 'Criar Novo Benefício';
+      case 'edit': return 'Editar Benefício';
+      case 'view': return 'Visualizar Benefício';
+      case 'copy': return 'Copiar Benefício';
+      default: return 'Benefício';
+    }
+  });
 
-  private formatarValorInicial(valor: number): void {
-    // Formata o valor para exibição no campo
-    const valorFormatado = valor.toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+  readonly formSubtitle = computed(() => {
+    switch (this.mode()) {
+      case 'create': return 'Preencha as informações para criar um novo benefício';
+      case 'edit': return 'Atualize as informações do benefício';
+      case 'view': return 'Informações detalhadas do benefício';
+      case 'copy': return 'Crie um novo benefício baseado no existente';
+      default: return '';
+    }
+  });
+
+  readonly submitButtonText = computed(() => {
+    if (this.submitting()) {
+      return this.isEditMode() ? 'Atualizando...' : 'Criando...';
+    }
+    return this.isEditMode() ? 'Atualizar Benefício' : 'Criar Benefício';
+  });
+
+  readonly valorFormatado = computed(() => {
+    const valor = this.beneficioForm.controls.valorInicial.value;
+    return this.moedaBrasilPipe.transform(valor);
+  });
+
+  readonly formState = computed((): FormState => ({
+    mode: this.mode(),
+    isSubmitting: this.submitting(),
+    isDirty: this.beneficioForm.dirty,
+    hasUnsavedChanges: this.hasUnsavedChanges(),
+    validationState: this.getValidationState()
+  }));
+
+  readonly isFormValid = computed(() => 
+    this.beneficioForm.valid && !this.submitting()
+  );
+
+  readonly hasUnsavedChanges = computed(() => {
+    if (!this.originalBeneficio() || this.mode() === 'create') {
+      return this.beneficioForm.dirty;
+    }
     
-    // Atualiza o campo visual
-    setTimeout(() => {
-      const valorInput = document.querySelector('input[formControlName="valorInicial"]') as HTMLInputElement;
-      if (valorInput) {
-        valorInput.value = valorFormatado;
+    const original = this.originalBeneficio()!;
+    const current = this.beneficioForm.getRawValue();
+    
+    return (
+      original.nome !== current.nome ||
+      original.descricao !== (current.descricao || '') ||
+      original.saldo !== current.valorInicial
+    );
+  });
+
+  // 🎨 Pipes injetados para uso programático
+  private readonly moedaBrasilPipe = new MoedaBrasilPipe();
+  private readonly tempoRelativoPipe = new TempoRelativoPipe();
+
+  constructor() {
+    this.setupFormEffects();
+    this.setupRouteHandling();
+    this.setupFormValidation();
+    this.loadExistingNames();
+  }
+
+  ngOnInit(): void {
+    // Lifecycle hook para setup adicional se necessário
+  }
+
+  // 🔄 Advanced form effects
+  private setupFormEffects(): void {
+    // Effect para auto-save (se necessário)
+    effect(() => {
+      if (this.hasUnsavedChanges() && this.isEditMode()) {
+        // Implementar auto-save se necessário
+        console.log('Formulário modificado - considerando auto-save');
       }
-    }, 100);
-  }
-
-  onSubmit(): void {
-    if (this.beneficioForm.invalid) {
-      this.markFormGroupTouched();
-      return;
-    }
-
-    const formValue = this.beneficioForm.value;
-
-    if (this.isEditMode) {
-      this.updateBeneficio(formValue);
-    } else {
-      this.createBeneficio(formValue);
-    }
-  }
-
-  private createBeneficio(formValue: { nome: string; descricao?: string; valorInicial: number }): void {
-    const request: CreateBeneficioRequest = {
-      nome: formValue.nome.trim(),
-      descricao: formValue.descricao?.trim() || undefined,
-      valorInicial: Number(formValue.valorInicial)
-    };
-
-    this.beneficioService.criar(request)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (beneficio: Beneficio) => {
-          this.snackBar.open('Benefício criado com sucesso!', 'Fechar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-          this.router.navigate(['/beneficios']);
-        },
-        error: (error) => {
-          this.snackBar.open(error || 'Erro ao criar benefício', 'Fechar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
-  }
-
-  private updateBeneficio(formValue: { nome: string; descricao?: string; valorInicial: number }): void {
-    if (!this.beneficioId) return;
-
-    const request: UpdateBeneficioRequest = {
-      nome: formValue.nome.trim(),
-      descricao: formValue.descricao?.trim() || undefined,
-      valorInicial: Number(formValue.valorInicial)
-    };
-
-    this.beneficioService.atualizar(this.beneficioId, request)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (beneficio: Beneficio) => {
-          this.snackBar.open('Benefício atualizado com sucesso!', 'Fechar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-          this.router.navigate(['/beneficios']);
-        },
-        error: (error) => {
-          this.snackBar.open(error || 'Erro ao atualizar benefício', 'Fechar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/beneficios']);
-  }
-
-  formatarValor(event: any): void {
-    const input = event.target;
-    let valor = input.value;
-    
-    // Remove tudo exceto números, vírgula e ponto
-    valor = valor.replace(/[^\d,\.]/g, '');
-    
-    // Se vazio, não faz nada
-    if (!valor) {
-      this.beneficioForm.get('valorInicial')?.setValue(0);
-      return;
-    }
-    
-    // Substitui vírgula por ponto para processamento
-    let valorParaProcessar = valor.replace(',', '.');
-    
-    // Se termina com ponto/vírgula, permite continuar digitando
-    if (valor.endsWith(',') || valor.endsWith('.')) {
-      // Não processa ainda, deixa o usuário continuar digitando
-      return;
-    }
-    
-    // Valida e limita casas decimais
-    const partes = valorParaProcessar.split('.');
-    if (partes.length > 2) {
-      // Mais de um ponto/vírgula - pega só as duas primeiras partes
-      valorParaProcessar = partes[0] + '.' + partes[1];
-    }
-    
-    if (partes[1] && partes[1].length > 2) {
-      // Limita a 2 casas decimais
-      valorParaProcessar = partes[0] + '.' + partes[1].substring(0, 2);
-      // Atualiza o campo com o valor limitado
-      input.value = valorParaProcessar.replace('.', ',');
-    }
-    
-    // Converte para número
-    const numeroValor = parseFloat(valorParaProcessar);
-    
-    if (!isNaN(numeroValor)) {
-      // Atualiza o FormControl
-      this.beneficioForm.get('valorInicial')?.setValue(numeroValor);
-    }
-  }
-
-  validarValor(): void {
-    const control = this.beneficioForm.get('valorInicial');
-    const input = document.querySelector('input[formControlName="valorInicial"]') as HTMLInputElement;
-    
-    if (!input) return;
-    
-    let valorInput = input.value;
-    
-    // Remove caracteres inválidos
-    valorInput = valorInput.replace(/[^\d,\.]/g, '');
-    
-    // Se vazio, define como 0
-    if (!valorInput) {
-      control?.setValue(0);
-      input.value = '0,00';
-      return;
-    }
-    
-    // Converte vírgula para ponto
-    let valorNumerico = valorInput.replace(',', '.');
-    
-    // Converte para número
-    const numero = parseFloat(valorNumerico);
-    
-    if (isNaN(numero) || numero < 0) {
-      control?.setErrors({ invalid: true });
-      return;
-    }
-    
-    // Atualiza o FormControl
-    control?.setValue(numero);
-    control?.setErrors(null);
-    
-    // Formata para exibição brasileira
-    const valorFormatado = numero.toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
     });
-    
-    input.value = valorFormatado;
+
+    // Effect para validação em tempo real
+    effect(() => {
+      const formValue = this.beneficioForm.value;
+      this.validateFormRealTime(formValue);
+    });
   }
 
-  getValorFormatado(): string {
-    const valor = this.beneficioForm.get('valorInicial')?.value;
+  // 🛣️ Advanced route handling
+  private setupRouteHandling(): void {
+    combineLatest([
+      this.route.params,
+      this.route.queryParams
+    ]).pipe(
+      map(([params, queryParams]) => ({
+        id: params['id'] ? Number(params['id']) : null,
+        mode: queryParams['mode'] as FormMode || 'create'
+      })),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(({ id, mode }) => {
+      this.mode.set(mode);
+      
+      if (id) {
+        this.beneficioId.set(id);
+        this.loadBeneficio(id);
+      }
+    });
+  }
+
+  // ✅ Advanced form validation setup
+  private setupFormValidation(): void {
+    // Validação assíncrona para nome único
+    this.beneficioForm.controls.nome.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      filter((value): value is string => !!value && value.length >= 3),
+      switchMap(nome => this.validateNomeUnico(nome)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
+
+    // Formatação automática de valor
+    this.beneficioForm.controls.valorInicial.valueChanges.pipe(
+      debounceTime(300),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(valor => {
+      this.formatarValorAutomatico(valor);
+    });
+  }
+
+  // 📥 Advanced data loading
+  private loadBeneficio(id: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.beneficioService.buscarPorId(id).pipe(
+      catchError(error => {
+        this.error.set('Erro ao carregar benefício: ' + error);
+        return EMPTY;
+      }),
+      finalize(() => this.loading.set(false)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(beneficio => {
+      this.originalBeneficio.set(beneficio);
+      this.populateForm(beneficio);
+    });
+  }
+
+  // 📝 Advanced form population
+  private populateForm(beneficio: Beneficio): void {
+    this.beneficioForm.patchValue({
+      nome: beneficio.nome,
+      descricao: beneficio.descricao || '',
+      valorInicial: beneficio.saldo
+    }, { emitEvent: true });
+
+    // Marcar como pristine após carregar dados
+    this.beneficioForm.markAsPristine();
+  }
+
+  // 🔍 Advanced validation methods
+  private validateNomeUnico(nome: string) {
+    const existing = this.existingNames();
+    const currentId = this.beneficioId();
     
-    if (typeof valor === 'number' && !isNaN(valor)) {
-      return valor.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+    // Se estamos editando, remover o nome atual da validação
+    const namesToCheck = this.isEditMode() && this.originalBeneficio()
+      ? existing.filter(n => n !== this.originalBeneficio()!.nome)
+      : existing;
+
+    const isDuplicate = namesToCheck.some(n => 
+      n.toLowerCase() === nome.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      this.beneficioForm.controls.nome.setErrors({ 
+        nomeJaExiste: { value: nome } 
       });
     }
-    
-    return 'R$ 0,00';
+
+    return of(null);
   }
 
-  private markFormGroupTouched(): void {
-    Object.keys(this.beneficioForm.controls).forEach(key => {
+  private getValidationState(): ValidationState {
+    const errors = this.beneficioForm.errors || {};
+    const controlErrors = Object.keys(this.beneficioForm.controls).reduce((acc, key) => {
       const control = this.beneficioForm.get(key);
-      control?.markAsTouched();
+      if (control?.errors) {
+        acc[key] = control.errors;
+      }
+      return acc;
+    }, {} as any);
+
+    return {
+      isValid: this.beneficioForm.valid,
+      errors: { ...errors, ...controlErrors },
+      warnings: this.getValidationWarnings(),
+      suggestions: this.getValidationSuggestions()
+    };
+  }
+
+  private getValidationWarnings() {
+    const warnings: any = {};
+    const valor = this.beneficioForm.controls.valorInicial.value;
+    
+    if (valor > 5000) {
+      warnings.valorAlto = {
+        message: 'Valor alto detectado',
+        suggestion: 'Verifique se o valor está correto'
+      };
+    }
+
+    return warnings;
+  }
+
+  private getValidationSuggestions() {
+    const suggestions: any = {};
+    const nome = this.beneficioForm.controls.nome.value;
+    
+    if (nome && nome.length < 10) {
+      suggestions.nomeDetalhe = {
+        message: 'Nome poderia ser mais descritivo',
+        action: 'Considere adicionar mais detalhes'
+      };
+    }
+
+    return suggestions;
+  }
+
+  // 💰 Advanced value formatting
+  formatarValorAutomatico(valor: number): void {
+    if (typeof valor === 'number' && !isNaN(valor)) {
+      // Trigger any additional formatting logic here
+      console.log('Valor formatado automaticamente:', valor);
+    }
+  }
+
+  private loadExistingNames(): void {
+    this.beneficioService.listarTodos().pipe(
+      map(beneficios => beneficios.map(b => b.nome)),
+      catchError(() => of([])),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(names => {
+      this.existingNames.set(names);
     });
   }
+
+  private validateFormRealTime(formValue: any): void {
+    // Implementar validação em tempo real avançada
+    // console.log('Validação em tempo real:', formValue);
+  }
+
+  // 📤 Advanced form submission
+  onSubmit(): void {
+    if (!this.isFormValid()) {
+      this.markAllAsTouched();
+      return;
+    }
+
+    this.submitting.set(true);
+    this.error.set(null);
+
+    const formValue = this.beneficioForm.getRawValue();
+    const request$ = this.isEditMode() && this.beneficioId()
+      ? this.updateBeneficio(this.beneficioId()!, formValue)
+      : this.createBeneficio(formValue);
+
+    request$.pipe(
+      catchError(error => {
+        const action = this.isEditMode() ? 'atualizar' : 'criar';
+        this.error.set(`Erro ao ${action} benefício: ${error}`);
+        return EMPTY;
+      }),
+      finalize(() => this.submitting.set(false)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      const message = this.isEditMode() 
+        ? 'Benefício atualizado com sucesso!' 
+        : 'Benefício criado com sucesso!';
+      
+      this.snackBar.open(message, 'Fechar', { 
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+      
+      this.router.navigate(['/beneficios']);
+    });
+  }
+
+  private updateBeneficio(id: number, formValue: BeneficioFormValue) {
+    const updateRequest: UpdateBeneficioRequest = {
+      nome: formValue.nome.trim(),
+      descricao: formValue.descricao?.trim(),
+      valorInicial: formValue.valorInicial
+    };
+
+    return this.beneficioService.atualizar(id, updateRequest);
+  }
+
+  private createBeneficio(formValue: BeneficioFormValue) {
+    const createRequest: CreateBeneficioRequest = {
+      nome: formValue.nome.trim(),
+      descricao: formValue.descricao?.trim(),
+      valorInicial: formValue.valorInicial
+    };
+
+    return this.beneficioService.criar(createRequest);
+  }
+
+  // 🚫 Enhanced navigation
+  onCancel(): void {
+    if (this.hasUnsavedChanges()) {
+      const confirmMessage = 'Você tem alterações não salvas. Tem certeza que deseja sair?';
+      if (confirm(confirmMessage)) {
+        this.router.navigate(['/beneficios']);
+      }
+    } else {
+      this.router.navigate(['/beneficios']);
+    }
+  }
+
+  // 🎛️ Advanced form control methods
+  formatarValor(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const formatted = this.formatBrazilianCurrency(input.value);
+    input.value = formatted;
+    
+    const numericValue = this.parseToNumber(formatted);
+    if (numericValue !== null) {
+      this.beneficioForm.controls.valorInicial.setValue(numericValue, { 
+        emitEvent: false 
+      });
+    }
+  }
+
+  private formatBrazilianCurrency(value: string): string {
+    // Remove tudo exceto números e vírgula
+    let cleaned = value.replace(/[^\d,]/g, '');
+    
+    // Permite apenas uma vírgula
+    const parts = cleaned.split(',');
+    if (parts.length > 2) {
+      cleaned = parts[0] + ',' + parts[1];
+    }
+    
+    // Limita a 2 casas decimais após a vírgula
+    if (parts[1] && parts[1].length > 2) {
+      cleaned = parts[0] + ',' + parts[1].substring(0, 2);
+    }
+    
+    return cleaned;
+  }
+
+  private parseToNumber(value: string): number | null {
+    if (!value || value.trim() === '') return null;
+    
+    const cleanValue = value.replace(/\s/g, '').replace(',', '.');
+    const numericValue = parseFloat(cleanValue);
+    
+    return isNaN(numericValue) ? null : numericValue;
+  }
+
+  private markAllAsTouched(): void {
+    Object.values(this.beneficioForm.controls).forEach(control => {
+      control.markAsTouched();
+      if (control instanceof AbstractControl) {
+        control.updateValueAndValidity();
+      }
+    });
+  }
+
+  // 🎯 Getters para template
+  get nomeControl() { return this.beneficioForm.controls.nome; }
+  get descricaoControl() { return this.beneficioForm.controls.descricao; }
+  get valorControl() { return this.beneficioForm.controls.valorInicial; }
 }
