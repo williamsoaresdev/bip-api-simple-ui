@@ -7,10 +7,9 @@ import { MatCardModule } from '@angular/material/card';
 export type ErrorType = 'error' | 'warning' | 'info';
 
 @Component({
-  selector: 'bip-error-message',
-  standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatCardModule],
-  template: `
+    selector: 'bip-error-message',
+    imports: [CommonModule, MatIconModule, MatButtonModule, MatCardModule],
+    template: `
     <div class="bip-error-container" [ngClass]="'bip-error-' + type" [class.bip-compact]="compact">
       <!-- Card Layout -->
       <mat-card *ngIf="showCard" class="bip-error-card">
@@ -82,7 +81,7 @@ export type ErrorType = 'error' | 'warning' | 'info';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .bip-error-container {
       margin: var(--bip-spacing-md) 0;
       animation: slideInDown 0.3s ease-out;

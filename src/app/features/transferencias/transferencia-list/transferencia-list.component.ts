@@ -17,20 +17,19 @@ import { TransferenciaService } from '@core/services';
 import { TransferenciaResponse } from '@core/models';
 
 @Component({
-  selector: 'bip-transferencia-list',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTableModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule
-  ],
-  template: `
+    selector: 'bip-transferencia-list',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CommonModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTableModule,
+        MatChipsModule,
+        MatTooltipModule,
+        MatProgressSpinnerModule
+    ],
+    template: `
     <div class="bip-page-container">
       <!-- Page Header -->
       <div class="bip-page-header">
@@ -292,7 +291,7 @@ import { TransferenciaResponse } from '@core/models';
       </button>
     </div>
   `,
-  styles: [`
+    styles: [`
     .bip-page-container {
       padding: var(--bip-spacing-lg);
       max-width: 1200px;

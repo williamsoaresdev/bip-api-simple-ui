@@ -16,21 +16,20 @@ import { Beneficio } from '@core/models';
 import { LoadingComponent, ErrorMessageComponent, ConfirmationDialogComponent } from '@shared/components';
 
 @Component({
-  selector: 'bip-beneficio-detail',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './beneficio-detail.component.html',
-  styleUrl: './beneficio-detail.component.scss',
-  imports: [
-    CommonModule,
-    RouterLink,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    LoadingComponent,
-    ErrorMessageComponent
-  ]
+    selector: 'bip-beneficio-detail',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './beneficio-detail.component.html',
+    styleUrl: './beneficio-detail.component.scss',
+    imports: [
+        CommonModule,
+        RouterLink,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatChipsModule,
+        LoadingComponent,
+        ErrorMessageComponent
+    ]
 })
 export class BeneficioDetailComponent implements OnInit, OnDestroy {
   beneficio?: Beneficio;

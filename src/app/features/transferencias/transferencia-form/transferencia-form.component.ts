@@ -19,20 +19,19 @@ import { CreateTransferenciaRequest, TransferenciaResponse, ValidacaoTransferenc
 import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
 
 @Component({
-  selector: 'bip-transferencia-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatProgressSpinnerModule
-  ],
-  template: `
+    selector: 'bip-transferencia-form',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatProgressSpinnerModule
+    ],
+    template: `
     <div class="bip-page-container">
       <!-- Page Header -->
       <div class="bip-page-header">
@@ -311,7 +310,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .bip-page-container {
       padding: var(--bip-spacing-lg);
       max-width: 1400px;

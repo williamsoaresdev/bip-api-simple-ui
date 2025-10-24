@@ -13,10 +13,9 @@ export interface ConfirmationDialogData {
 }
 
 @Component({
-  selector: 'bip-confirmation-dialog',
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-  template: `
+    selector: 'bip-confirmation-dialog',
+    imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+    template: `
     <div class="confirmation-dialog">
       <h2 mat-dialog-title>{{ data.title }}</h2>
       <mat-dialog-content>
@@ -32,7 +31,7 @@ export interface ConfirmationDialogData {
       </mat-dialog-actions>
     </div>
   `,
-  styles: [`
+    styles: [`
     .confirmation-dialog {
       min-width: 350px;
     }

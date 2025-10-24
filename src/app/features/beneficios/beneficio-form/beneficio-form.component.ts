@@ -51,25 +51,24 @@ import {
 } from '@core/types/form.types';
 
 @Component({
-  selector: 'app-beneficio-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatTooltipModule,
-    RouterModule,
-    DatePipe
-  ],
-  templateUrl: './beneficio-form.component.html',
-  styleUrl: './beneficio-form.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-beneficio-form',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule,
+        MatTooltipModule,
+        RouterModule,
+        DatePipe
+    ],
+    templateUrl: './beneficio-form.component.html',
+    styleUrl: './beneficio-form.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BeneficioFormComponent implements OnInit {
   // 🚀 Modern Angular 20 - Dependency Injection

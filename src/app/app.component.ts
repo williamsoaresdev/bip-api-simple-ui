@@ -18,20 +18,19 @@ interface NavItem {
 }
 
 @Component({
-  selector: 'bip-root',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSidenavModule,
-    MatListModule
-  ],
-  template: `
+    selector: 'bip-root',
+    imports: [
+        CommonModule,
+        RouterOutlet,
+        RouterLink,
+        RouterLinkActive,
+        MatToolbarModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSidenavModule,
+        MatListModule
+    ],
+    template: `
     <mat-sidenav-container class="sidenav-container">
       <!-- Side Navigation -->
       <mat-sidenav 
@@ -119,7 +118,7 @@ interface NavItem {
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: [`
+    styles: [`
     /* ===== CONTAINER PRINCIPAL ===== */
     .sidenav-container {
       height: 100vh;

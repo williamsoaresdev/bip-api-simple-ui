@@ -5,10 +5,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'bip-loading',
-  standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatCardModule, MatIconModule],
-  template: `
+    selector: 'bip-loading',
+    imports: [CommonModule, MatProgressSpinnerModule, MatCardModule, MatIconModule],
+    template: `
     <div class="bip-loading-container" [class.bip-overlay]="overlay" [class.bip-inline]="inline">
       <!-- Card Loading State -->
       <mat-card *ngIf="showCard && !inline" class="bip-loading-card">
@@ -67,7 +66,7 @@ import { MatIconModule } from '@angular/material/icon';
       </ng-container>
     </div>
   `,
-  styles: [`
+    styles: [`
     .bip-loading-container {
       display: flex;
       flex-direction: column;

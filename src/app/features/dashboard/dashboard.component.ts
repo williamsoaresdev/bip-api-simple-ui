@@ -13,18 +13,17 @@ import { BeneficioEstatisticas } from '@core/models';
 import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
 
 @Component({
-  selector: 'bip-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    LoadingComponent,
-    ErrorMessageComponent
-  ],
-  template: `
+    selector: 'bip-dashboard',
+    imports: [
+        CommonModule,
+        RouterLink,
+        MatCardModule,
+        MatIconModule,
+        MatButtonModule,
+        LoadingComponent,
+        ErrorMessageComponent
+    ],
+    template: `
     <div class="dashboard-container">
       <!-- Header -->
       <mat-card class="bip-card">
@@ -121,7 +120,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .dashboard-container {
       padding: 16px;
       max-width: 1200px;
