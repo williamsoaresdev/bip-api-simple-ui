@@ -112,11 +112,12 @@ import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
                     <mat-label>Valor Inicial *</mat-label>
                     <input 
                       matInput 
-                      type="number"
+                      type="text"
                       formControlName="valorInicial"
                       placeholder="0,00"
-                      step="0.01"
-                      min="0">
+                      (input)="formatarValor($event)"
+                      (blur)="validarValor()"
+                      maxlength="15">
                     <span matTextPrefix>R$ </span>
                     <mat-icon matSuffix>attach_money</mat-icon>
                     <mat-hint>Valor deve ser maior ou igual a zero</mat-hint>
@@ -125,6 +126,9 @@ import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
                     </mat-error>
                     <mat-error *ngIf="beneficioForm.get('valorInicial')?.hasError('min')">
                       Valor deve ser maior ou igual a zero
+                    </mat-error>
+                    <mat-error *ngIf="beneficioForm.get('valorInicial')?.hasError('invalid')">
+                      Formato de valor inválido
                     </mat-error>
                   </mat-form-field>
                 </div>
@@ -208,7 +212,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@shared/components';
                     <mat-icon class="bip-preview-icon">account_balance_wallet</mat-icon>
                     <div class="bip-preview-text">
                       <label>Saldo Inicial</label>
-                      <p class="bip-preview-valor">{{ beneficioForm.value.valorInicial | currency:'BRL':'symbol':'1.2-2' }}</p>
+                      <p class="bip-preview-valor">{{ getValorFormatado() }}</p>
                     </div>
                   </div>
 
@@ -691,6 +695,9 @@ export class BeneficioFormComponent implements OnInit, OnDestroy {
             descricao: beneficio.descricao || '',
             valorInicial: beneficio.saldo
           });
+          
+          // Formatar o valor exibido no campo
+          this.formatarValorInicial(beneficio.saldo);
         },
         error: (error) => {
           this.snackBar.open(error || 'Erro ao carregar benefício', 'Fechar', {
@@ -700,6 +707,22 @@ export class BeneficioFormComponent implements OnInit, OnDestroy {
           this.router.navigate(['/beneficios']);
         }
       });
+  }
+
+  private formatarValorInicial(valor: number): void {
+    // Formata o valor para exibição no campo
+    const valorFormatado = valor.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    
+    // Atualiza o campo visual
+    setTimeout(() => {
+      const valorInput = document.querySelector('input[formControlName="valorInicial"]') as HTMLInputElement;
+      if (valorInput) {
+        valorInput.value = valorFormatado;
+      }
+    }, 100);
   }
 
   onSubmit(): void {
@@ -773,6 +796,72 @@ export class BeneficioFormComponent implements OnInit, OnDestroy {
 
   onCancel(): void {
     this.router.navigate(['/beneficios']);
+  }
+
+  formatarValor(event: any): void {
+    const input = event.target;
+    const valor = input.value;
+    
+    // Remove tudo que não é número
+    let apenasNumeros = valor.replace(/\D/g, '');
+    
+    // Se vazio, mantém vazio
+    if (!apenasNumeros) {
+      this.beneficioForm.get('valorInicial')?.setValue('');
+      return;
+    }
+    
+    // Converte para número e divide por 100 para ter os centavos
+    const numeroValor = parseFloat(apenasNumeros) / 100;
+    
+    // Formata como moeda brasileira
+    const valorFormatado = numeroValor.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    
+    // Define o valor formatado no input
+    input.value = valorFormatado;
+    
+    // Atualiza o valor do FormControl com o número
+    this.beneficioForm.get('valorInicial')?.setValue(numeroValor);
+  }
+
+  validarValor(): void {
+    const control = this.beneficioForm.get('valorInicial');
+    const valor = control?.value;
+    
+    if (typeof valor === 'string') {
+      // Se é string, tenta converter
+      const numeroLimpo = valor.replace(/\D/g, '');
+      const numeroValor = parseFloat(numeroLimpo) / 100;
+      
+      if (isNaN(numeroValor) || numeroValor < 0) {
+        control?.setErrors({ invalid: true });
+      } else {
+        control?.setValue(numeroValor);
+      }
+    } else if (typeof valor === 'number') {
+      // Se já é número, valida se é válido
+      if (isNaN(valor) || valor < 0) {
+        control?.setErrors({ invalid: true });
+      }
+    }
+  }
+
+  getValorFormatado(): string {
+    const valor = this.beneficioForm.get('valorInicial')?.value;
+    
+    if (typeof valor === 'number' && !isNaN(valor)) {
+      return valor.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+    
+    return 'R$ 0,00';
   }
 
   private markFormGroupTouched(): void {
