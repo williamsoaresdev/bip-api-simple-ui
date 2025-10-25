@@ -26,7 +26,7 @@ export const routes: Routes = [
         loadComponent: () => import('./features/beneficios/beneficio-form/beneficio-form.component').then(c => c.BeneficioFormComponent)
       },
       {
-        path: ':id',
+        path: 'visualizar/:id',
         loadComponent: () => import('./features/beneficios/beneficio-detail/beneficio-detail.component').then(c => c.BeneficioDetailComponent)
       }
     ]

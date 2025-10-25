@@ -159,13 +159,26 @@ export class BeneficioFormComponent implements OnInit {
     console.log('🔧 Form inicial:', this.beneficioForm.value);
     console.log('🔧 Form válido:', this.beneficioForm.valid);
     console.log('🔧 Form errors:', this.getFormErrors());
+    console.log('🔧 URL atual:', this.router.url);
+    console.log('🔧 Route snapshot params:', this.route.snapshot.params);
+    
+    // Teste direto da API
+    console.log('🧪 Teste direto da API...');
+    this.beneficioService.getBeneficioById('12').subscribe({
+      next: (response) => console.log('🧪 Resposta API direta:', response),
+      error: (error) => console.error('🧪 Erro API direta:', error)
+    });
+    
     this.initializeForm();
   }
 
   private initializeForm(): void {
+    console.log('🚀 Inicializando formulário...');
     this.route.params.subscribe(params => {
+      console.log('📍 Route params recebidos:', params);
       const id = params['id'];
       if (id) {
+        console.log('✏️ Modo EDIT detectado, ID:', id);
         this.beneficioId.set(id);
         this.mode.set('edit');
         this.loadBeneficio(id);
@@ -177,28 +190,42 @@ export class BeneficioFormComponent implements OnInit {
   }
 
   private loadBeneficio(id: string): void {
+    console.log('📥 Carregando benefício ID:', id);
     this.loading.set(true);
     this.error.set(null);
 
     this.beneficioService.getBeneficioById(id)
       .pipe(
         catchError(error => {
+          console.error('❌ Erro ao carregar benefício:', error);
           this.error.set('Erro ao carregar benefício: ' + error.message);
           return of(null);
         }),
-        finalize(() => this.loading.set(false))
+        finalize(() => {
+          console.log('🏁 Finalizando carregamento...');
+          this.loading.set(false);
+        })
       )
       .subscribe(response => {
+        console.log('📦 Resposta recebida:', response);
         if (response?.data) {
           const beneficio = response.data;
+          console.log('✅ Benefício encontrado:', beneficio);
           this.originalBeneficio.set(beneficio);
-          this.beneficioForm.patchValue({
+          
+          const formData = {
             nome: beneficio.nome,
             descricao: beneficio.descricao,
             valor: beneficio.valor,
             categoria: beneficio.categoria,
             ativo: beneficio.ativo
-          });
+          };
+          
+          console.log('🔄 Aplicando dados ao formulário:', formData);
+          this.beneficioForm.patchValue(formData);
+          console.log('📊 Estado do formulário após patch:', this.beneficioForm.value);
+        } else {
+          console.log('⚠️ Nenhum dado retornado na resposta');
         }
       });
   }
