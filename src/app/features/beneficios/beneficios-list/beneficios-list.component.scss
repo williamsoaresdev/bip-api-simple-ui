@@ -1,27 +1,27 @@
 // Modern Variables - Using SCSS variables
-$primary-color: #6366f1;
-$primary-light: #8b5cf6;
-$primary-dark: #4f46e5;
+$primary-color: #10b981;
+$primary-light: #34d399;
+$primary-dark: #059669;
 $success-color: #10b981;
 $warning-color: #f59e0b;
 $error-color: #ef4444;
-$accent-color: #8b5cf6;
+$accent-color: #059669;
 
 $bg-primary: #ffffff;
-$bg-secondary: #f8fafc;
-$bg-tertiary: #f1f5f9;
+$bg-secondary: #f0fdf4;
+$bg-tertiary: #ecfdf5;
 
-$text-primary: #1e293b;
-$text-secondary: #64748b;
-$text-muted: #94a3b8;
+$text-primary: #065f46;
+$text-secondary: #047857;
+$text-muted: #6b7280;
 
-$border-color: #e2e8f0;
-$border-light: #f1f5f9;
+$border-color: #d1fae5;
+$border-light: #ecfdf5;
 
-$shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-$shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-$shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+$shadow-sm: 0 1px 2px 0 rgb(5 150 105 / 0.05);
+$shadow-md: 0 4px 6px -1px rgb(5 150 105 / 0.1);
+$shadow-lg: 0 10px 15px -3px rgb(5 150 105 / 0.1);
+$shadow-xl: 0 20px 25px -5px rgb(5 150 105 / 0.1);
 
 $radius-sm: 6px;
 $radius-md: 8px;
@@ -50,13 +50,14 @@ $radius-xl: 16px;
 
 // Modern Header
 .page-header {
-  background: $bg-primary;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 253, 244, 0.95) 100%);
   border-bottom: 1px solid $border-color;
   position: sticky;
   top: 0;
   z-index: 100;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: $shadow-md;
 
   .header-content {
     max-width: 1400px;
@@ -86,7 +87,7 @@ $radius-xl: 16px;
 
         .title-icon {
           font-size: 2.5rem;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+          filter: hue-rotate(120deg) drop-shadow(0 2px 4px rgba(5, 150, 105, 0.2));
         }
 
         @media (max-width: 768px) {
@@ -292,9 +293,9 @@ $radius-xl: 16px;
       }
 
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        border-color: rgba(99, 102, 241, 0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.12);
       }
 
       &.primary::before {
@@ -310,7 +311,7 @@ $radius-xl: 16px;
       }
 
       &.accent::before {
-        background: linear-gradient(90deg, #{$accent-color}, #a855f7);
+        background: linear-gradient(90deg, #{$accent-color}, #{$primary-light});
       }
 
       .stat-icon {
@@ -363,9 +364,9 @@ $radius-xl: 16px;
       }
 
       &.primary .stat-icon {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.12));
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(52, 211, 153, 0.12));
         color: $primary-color;
-        border: 1px solid rgba(99, 102, 241, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.1);
       }
 
       &.success .stat-icon {
@@ -381,9 +382,9 @@ $radius-xl: 16px;
       }
 
       &.accent .stat-icon {
-        background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(168, 85, 247, 0.12));
+        background: linear-gradient(135deg, rgba(5, 150, 105, 0.12), rgba(52, 211, 153, 0.12));
         color: $accent-color;
-        border: 1px solid rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(5, 150, 105, 0.1);
       }
 
       .stat-content {
@@ -392,7 +393,7 @@ $radius-xl: 16px;
 
         .stat-number {
           display: block;
-          font-size: 2rem;
+          font-size: 1rem;
           font-weight: 800;
           color: $text-primary;
           margin-bottom: 6px;
@@ -400,17 +401,17 @@ $radius-xl: 16px;
           letter-spacing: -0.01em;
 
           @media (min-width: 1600px) {
-            font-size: 2.5rem;
+            font-size: 1.25rem;
             margin-bottom: 8px;
           }
 
           @media (max-width: 1400px) {
-            font-size: 1.75rem;
+            font-size: 0.875rem;
             margin-bottom: 5px;
           }
 
           @media (max-width: 768px) {
-            font-size: 1.5rem;
+            font-size: 0.75rem;
             margin-bottom: 4px;
           }
         }
@@ -502,17 +503,19 @@ $radius-xl: 16px;
   }
 
   .modern-table {
-    background: $bg-primary;
+    background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border-radius: $radius-xl;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: $shadow-lg;
     border: 1px solid $border-color;
 
     .benefits-table {
       width: 100%;
 
       .table-header-row {
-        background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+        background: linear-gradient(90deg, $bg-tertiary, $bg-secondary);
         height: 68px;
         border-bottom: 2px solid $border-color;
 
@@ -544,17 +547,17 @@ $radius-xl: 16px;
         background: $bg-primary;
 
         &:hover {
-          background: rgba(99, 102, 241, 0.04) !important;
+          background: rgba(248, 250, 252, 0.6) !important;
           transform: translateX(0);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         &:nth-child(even) {
-          background: rgba(248, 250, 252, 0.6) !important;
+          background: #ffffff !important;
           
           &:hover {
-            background: rgba(99, 102, 241, 0.08) !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            background: rgba(248, 250, 252, 0.6) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
           }
         }
 
@@ -584,14 +587,14 @@ $radius-xl: 16px;
         .benefit-name {
           font-weight: 700;
           font-size: 1.125rem;
-          color: $text-primary;
+          color: #065f46;
           margin-bottom: 6px;
           letter-spacing: 0.01em;
         }
 
         .benefit-desc {
           font-size: 0.9rem;
-          color: $text-secondary;
+          color: #047857;
           max-width: 280px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -611,34 +614,34 @@ $radius-xl: 16px;
 
         &.alimentacao {
           background: rgba(16, 185, 129, 0.1);
-          color: $success-color;
+          color: #059669;
         }
 
         &.transporte {
-          background: rgba(99, 102, 241, 0.1);
-          color: $primary-color;
+          background: rgba(5, 150, 105, 0.1);
+          color: #047857;
         }
 
         &.saude {
           background: rgba(239, 68, 68, 0.1);
-          color: $error-color;
+          color: #dc2626;
         }
 
         &.educacao {
-          background: rgba(139, 92, 246, 0.1);
-          color: $accent-color;
+          background: rgba(5, 150, 105, 0.1);
+          color: #065f46;
         }
 
         &.outros {
-          background: rgba(148, 163, 184, 0.1);
-          color: $text-secondary;
+          background: rgba(107, 114, 128, 0.1);
+          color: #4b5563;
         }
       }
 
       .value-amount {
         font-weight: 800;
         font-size: 1.25rem;
-        color: $success-color;
+        color: #059669;
         text-shadow: none;
       }
 
@@ -653,7 +656,7 @@ $radius-xl: 16px;
 
         &.active {
           background: rgba(16, 185, 129, 0.1);
-          color: $success-color;
+          color: #059669;
         }
 
         &.inactive {
@@ -672,14 +675,14 @@ $radius-xl: 16px;
         .date-primary {
           display: block;
           font-weight: 600;
-          color: $text-primary;
+          color: #065f46;
           margin-bottom: 4px;
           font-size: 0.95rem;
         }
 
         .date-time {
           font-size: 0.85rem;
-          color: $text-secondary;
+          color: #047857;
         }
       }
 
@@ -699,17 +702,17 @@ $radius-xl: 16px;
           &.view {
             color: $primary-color;
             &:hover {
-              background: rgba(99, 102, 241, 0.1);
+              background: rgba(16, 185, 129, 0.1);
               border-color: $primary-color;
               transform: scale(1.05);
             }
           }
 
           &.edit {
-            color: $success-color;
+            color: $accent-color;
             &:hover {
-              background: rgba(16, 185, 129, 0.1);
-              border-color: $success-color;
+              background: rgba(5, 150, 105, 0.1);
+              border-color: $accent-color;
               transform: scale(1.05);
             }
           }
@@ -717,7 +720,7 @@ $radius-xl: 16px;
           &.more {
             color: $text-secondary;
             &:hover {
-              background: rgba(148, 163, 184, 0.1);
+              background: rgba(107, 114, 128, 0.1);
               border-color: $text-secondary;
               transform: scale(1.05);
             }
@@ -747,10 +750,13 @@ $radius-xl: 16px;
 
 // Empty State
 .empty-state {
-  background: $bg-primary;
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-radius: $radius-xl;
   box-shadow: $shadow-lg;
   padding: 80px 32px;
+  border: 1px solid $border-color;
 
   .empty-content {
     text-align: center;

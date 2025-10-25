@@ -7,7 +7,7 @@ import {
   inject 
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 // Material Design Imports
 import { MatCardModule } from '@angular/material/card';
@@ -26,7 +26,6 @@ import { BipDateFormatPipe } from '../../../core/pipes/date-format.pipe';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
