@@ -29,6 +29,31 @@
     </mat-card>
   }
 
+  <!-- Debug Section - Temporário -->
+  @if (beneficiosLoading() === 'loading') {
+    <mat-card class="debug-card">
+      <mat-card-content>
+        <p>Carregando benefícios...</p>
+      </mat-card-content>
+    </mat-card>
+  }
+  
+  @if (beneficios().length === 0 && beneficiosLoading() === 'success') {
+    <mat-card class="debug-card">
+      <mat-card-content>
+        <p>Nenhum benefício encontrado</p>
+      </mat-card-content>
+    </mat-card>
+  }
+  
+  @if (beneficios().length > 0) {
+    <mat-card class="debug-card">
+      <mat-card-content>
+        <p>{{ beneficios().length }} benefícios carregados</p>
+      </mat-card-content>
+    </mat-card>
+  }
+
   <!-- Main Form -->
   <mat-card class="form-card">
     <mat-card-header>
@@ -42,7 +67,7 @@
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="transferencia-form">
         
         <!-- Beneficio Origem -->
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline">
           <mat-label>Benefício de Origem *</mat-label>
           <mat-select formControlName="beneficioOrigemId" placeholder="Selecione o benefício de origem">
             @for (beneficio of beneficios(); track beneficio.id) {
@@ -56,7 +81,7 @@
         </mat-form-field>
 
         <!-- Beneficio Destino -->
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline">
           <mat-label>Benefício de Destino *</mat-label>
           <mat-select formControlName="beneficioDestinoId" placeholder="Selecione o benefício de destino">
             @for (beneficio of beneficios(); track beneficio.id) {
@@ -74,7 +99,7 @@
         </mat-form-field>
 
         <!-- Valor -->
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline">
           <mat-label>Valor da Transferência *</mat-label>
           <input 
             matInput 
@@ -92,7 +117,7 @@
         </mat-form-field>
 
         <!-- Observações -->
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline">
           <mat-label>Observações (Opcional)</mat-label>
           <textarea 
             matInput 

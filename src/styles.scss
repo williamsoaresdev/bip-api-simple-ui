@@ -1,41 +1,56 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-@layer base {
-  html, body {
-    height: 100%;
-    font-family: 'Inter', sans-serif;
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  background-color: #fafafa;
+  color: #212121;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+// Angular Material Global Customizations
+.mat-mdc-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+  
+  .mdc-text-field--outlined {
+    border-radius: 8px;
   }
   
-  body {
-    margin: 0;
-    @apply bg-gray-50 text-gray-900 antialiased;
+  .mdc-notched-outline {
+    border-color: #e0e0e0;
+  }
+  
+  .mdc-text-field--focused .mdc-notched-outline {
+    border-color: #1976d2;
+    border-width: 2px;
+  }
+  
+  .mdc-text-field:hover .mdc-notched-outline {
+    border-color: #757575;
   }
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 focus:ring-offset-2 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2;
-  }
-  
-  .btn-secondary {
-    @apply bg-secondary-100 hover:bg-secondary-200 focus:ring-secondary-500 text-secondary-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2;
-  }
-  
-  .input-field {
-    @apply block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 transition-colors duration-200;
-  }
-  
-  .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
-  }
-  
-  .loading-spinner {
-    @apply animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-primary-600;
-  }
+.mat-mdc-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 12px;
+}
+
+.mat-mdc-button {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.mat-mdc-raised-button {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mat-mdc-outlined-button {
+  border: 1px solid #e0e0e0;
 }
 
 // Custom Dialog Styles
