@@ -170,7 +170,7 @@ export class BeneficiosListComponent implements OnInit {
 
   viewBeneficio(id: string): void {
     console.log('🎯 Navegando para visualizar benefício:', id);
-    this.router.navigate(['/beneficios', id]);
+    this.router.navigate(['/beneficios/visualizar', id]);
   }
 
   deleteBeneficio(id: string): void {

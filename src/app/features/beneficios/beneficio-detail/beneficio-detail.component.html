@@ -1,201 +1,208 @@
-<div class="detail-container">
+<div class="beneficio-detail-container">
   <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-container">
-      <mat-card>
-        <div class="loading-content">
-          <mat-icon>hourglass_empty</mat-icon>
-          <p>Carregando benefício...</p>
-        </div>
-      </mat-card>
+    <div class="loading-state">
+      <div class="loading-card">
+        <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
+        <h3>Carregando benefício...</h3>
+        <p>Aguarde enquanto buscamos as informações</p>
+      </div>
     </div>
-  }
-
-  <!-- Error State -->
-  @if (error()) {
-    <div class="error-container">
-      <mat-card>
-        <div class="error-content">
-          <mat-icon color="warn">error</mat-icon>
-          <h3>Erro ao carregar benefício</h3>
-          <p>{{ error() }}</p>
-          <button mat-raised-button color="primary" (click)="ngOnInit()">
-            <mat-icon>refresh</mat-icon>
+  } @else if (error()) {
+    <!-- Error State -->
+    <div class="error-state">
+      <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <h3>Erro ao carregar benefício</h3>
+        <p>{{ error() }}</p>
+        <div class="error-actions">
+          <button class="btn btn-primary" (click)="retryLoad()">
+            <span class="btn-icon">🔄</span>
             Tentar Novamente
           </button>
+          <button class="btn btn-secondary" (click)="onBack()">
+            <span class="btn-icon">⬅️</span>
+            Voltar
+          </button>
         </div>
-      </mat-card>
+      </div>
     </div>
-  }
-
-  <!-- Success State -->
-  @if (beneficio() && !loading() && !error()) {
-    <!-- Header Actions -->
-    <div class="header-actions">
-      <button mat-stroked-button (click)="onBack()">
-        <mat-icon>arrow_back</mat-icon>
-        Voltar
-      </button>
-
-      <div class="action-buttons">
-        <button 
-          mat-raised-button 
-          color="primary" 
-          (click)="onEdit()">
-          <mat-icon>edit</mat-icon>
-          Editar
-        </button>
-
-        <button 
-          mat-stroked-button 
-          color="warn" 
-          (click)="onDelete()">
-          <mat-icon>delete</mat-icon>
-          Excluir
-        </button>
-
-        <button 
-          mat-stroked-button 
-          (click)="onCopy()">
-          <mat-icon>content_copy</mat-icon>
-          Copiar
-        </button>
+  } @else if (beneficio()) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="title-section">
+          <button class="back-btn" (click)="onBack()">
+            <span class="back-icon">⬅️</span>
+            Voltar
+          </button>
+          <div class="title-info">
+            <h1 class="page-title">
+              <span class="title-icon">👁️</span>
+              {{ beneficio()?.nome || 'Carregando...' }}
+            </h1>
+            <p class="page-subtitle">Visualização detalhada do benefício</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" (click)="onEdit()">
+            <span class="btn-icon">✏️</span>
+            Editar
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Main Info Card -->
-    <mat-card class="info-card">
-      <mat-card-header>
-        <mat-card-title>
-          <div class="title-section">
-            <h1>{{ beneficio()!.nome }}</h1>
-            <div class="status-badge" [class]="statusColor()">
-              {{ statusLabel() }}
-            </div>
-          </div>
-        </mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="info-grid">
-          
-          <!-- ID -->
-          <div class="info-item">
-            <div class="info-label">
-              <mat-icon>tag</mat-icon>
-              ID
-            </div>
-            <div class="info-value">#{{ beneficio()!.id }}</div>
-          </div>
-
-          <!-- Valor -->
-          <div class="info-item valor-item">
-            <div class="info-label">
-              <mat-icon>payments</mat-icon>
-              Valor
-            </div>
-            <div class="info-value valor-destaque">
-              {{ beneficio()!.valor | brlCurrency }}
-            </div>
-          </div>
-
-          <!-- Status -->
-          <div class="info-item">
-            <div class="info-label">
-              <mat-icon>info</mat-icon>
-              Status
-            </div>
-            <div class="info-value">
-              <span class="status-chip" [class]="statusColor()">
-                {{ statusLabel() }}
-              </span>
-              <button 
-                mat-icon-button 
-                (click)="onToggleStatus()" 
-                [title]="beneficio()!.ativo ? 'Desativar' : 'Ativar'">
-                <mat-icon>{{ beneficio()!.ativo ? 'toggle_on' : 'toggle_off' }}</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <!-- Data Criação -->
-          @if (createdDate()) {
-            <div class="info-item">
-              <div class="info-label">
-                <mat-icon>today</mat-icon>
-                Data de Criação
-              </div>
-              <div class="info-value">
-                {{ createdDate() | bipDateFormat:'medium' }}
-              </div>
-            </div>
-          }
-
-          <!-- Data Atualização -->
-          @if (updatedDate() && updatedDate() !== createdDate()) {
-            <div class="info-item">
-              <div class="info-label">
-                <mat-icon>update</mat-icon>
-                Última Atualização
-              </div>
-              <div class="info-value">
-                {{ updatedDate() | bipDateFormat:'medium' }}
-              </div>
-            </div>
-          }
+    <!-- Main Content -->
+    <div class="detail-content">
+      <!-- Basic Info Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2>
+            <span class="header-icon">📋</span>
+            Informações Básicas
+          </h2>
         </div>
+        <div class="card-content">
+          <div class="info-grid">
+            <!-- Nome -->
+            <div class="info-item">
+              <label class="info-label">Nome do Benefício</label>
+              <div class="info-value">{{ beneficio()?.nome || 'N/A' }}</div>
+            </div>
 
-        <!-- Descrição -->
-        @if (beneficio()!.descricao) {
-          <div class="description-section">
-            <h3>
-              <mat-icon>description</mat-icon>
+            <!-- ID -->
+            <div class="info-item">
+              <label class="info-label">Identificador</label>
+              <div class="info-value">
+                <span class="id-badge">#{{ beneficio()?.id || 'N/A' }}</span>
+              </div>
+            </div>
+
+            <!-- Categoria -->
+            <div class="info-item">
+              <label class="info-label">Categoria</label>
+              <div class="info-value">
+                @if (beneficio()?.categoria) {
+                  <span class="category-badge" [ngClass]="beneficio()!.categoria.toLowerCase()">
+                    {{ getCategoryLabel(beneficio()!.categoria) }}
+                  </span>
+                } @else {
+                  <span class="category-badge outros">N/A</span>
+                }
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="info-item">
+              <label class="info-label">Status</label>
+              <div class="info-value">
+                <span class="status-badge" [ngClass]="beneficio()?.ativo ? 'active' : 'inactive'">
+                  <span class="status-icon">{{ beneficio()?.ativo ? '✅' : '⏸️' }}</span>
+                  {{ beneficio()?.ativo ? 'Ativo' : 'Inativo' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Info Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2>
+            <span class="header-icon">💰</span>
+            Valor do Benefício
+          </h2>
+        </div>
+        <div class="card-content">
+          <div class="financial-display">
+            <div class="valor-principal">
+              <div class="valor-amount">{{ beneficio()?.valor | brlCurrency }}</div>
+              <div class="valor-subtitle">Saldo atual do benefício</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Card (se houver descrição) -->
+      @if (beneficio()?.descricao) {
+        <div class="info-card">
+          <div class="card-header">
+            <h2>
+              <span class="header-icon">📝</span>
               Descrição
-            </h3>
+            </h2>
+          </div>
+          <div class="card-content">
             <div class="description-content">
               {{ beneficio()!.descricao }}
             </div>
           </div>
-        }
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Quick Actions Card -->
-    <mat-card class="actions-card">
-      <mat-card-header>
-        <mat-card-title>
-          <h2>
-            <mat-icon>speed</mat-icon>
-            Ações Rápidas
-          </h2>
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="quick-actions">
-          <button 
-            mat-raised-button 
-            color="primary" 
-            [routerLink]="['/transferencias/nova']"
-            [queryParams]="{beneficioId: beneficio()!.id}">
-            <mat-icon>send</mat-icon>
-            Nova Transferência
-          </button>
-
-          <button 
-            mat-stroked-button 
-            (click)="onEdit()">
-            <mat-icon>edit</mat-icon>
-            Editar Benefício
-          </button>
-
-          <button 
-            mat-stroked-button 
-            (click)="onCopy()">
-            <mat-icon>content_copy</mat-icon>
-            Duplicar
-          </button>
         </div>
-      </mat-card-content>
-    </mat-card>
+      }
+
+      <!-- Timeline Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2>
+            <span class="header-icon">⏰</span>
+            Histórico do Benefício
+          </h2>
+        </div>
+        <div class="card-content">
+          <div class="timeline">
+            @if (createdDate()) {
+              <div class="timeline-item">
+                <div class="timeline-icon created">📅</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Benefício Criado</div>
+                  <div class="timeline-date">{{ createdDate() | bipDateFormat:'long' }}</div>
+                </div>
+              </div>
+            }
+            
+            @if (updatedDate() && updatedDate() !== createdDate()) {
+              <div class="timeline-item">
+                <div class="timeline-icon updated">🔄</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Última Atualização</div>
+                  <div class="timeline-date">{{ updatedDate() | bipDateFormat:'medium' }}</div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Card -->
+      <div class="actions-card">
+        <div class="card-header">
+          <h2>
+            <span class="header-icon">⚡</span>
+            Ações Disponíveis
+          </h2>
+        </div>
+        <div class="card-content">
+          <div class="action-buttons">
+            <button class="btn btn-primary" (click)="onEdit()">
+              <span class="btn-icon">✏️</span>
+              <div class="btn-content">
+                <span class="btn-title">Editar Benefício</span>
+                <span class="btn-subtitle">Modificar informações deste benefício</span>
+              </div>
+            </button>
+
+            <button class="btn btn-outline" (click)="onBack()">
+              <span class="btn-icon">⬅️</span>
+              <div class="btn-content">
+                <span class="btn-title">Voltar à Lista</span>
+                <span class="btn-subtitle">Retornar aos benefícios</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   }
 </div>
