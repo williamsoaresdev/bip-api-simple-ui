@@ -32,14 +32,20 @@ interface NavItem {
     ],
     template: `
     <mat-sidenav-container class="sidenav-container">
+      <!-- Overlay quando menu estiver aberto -->
+      <div class="menu-overlay" 
+           [class.active]="isMenuOpen" 
+           (click)="closeMenu()"></div>
+           
       <!-- Side Navigation -->
       <mat-sidenav 
         #drawer 
         class="sidenav" 
         fixedInViewport
-        [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-        [mode]="(isHandset$ | async) ? 'over' : 'side'"
-        [opened]="(isHandset$ | async) === false">
+        [attr.role]="'navigation'"
+        mode="over"
+        [opened]="isMenuOpen"
+        (closed)="closeMenu()">
         
         <!-- Sidenav Header -->
         <div class="sidenav-header">
@@ -50,23 +56,30 @@ interface NavItem {
               <p>Sistema de Benefícios</p>
             </div>
           </div>
+          <!-- Botão para fechar o menu -->
+          <button mat-icon-button class="close-button" (click)="closeMenu()">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
         
         <!-- Navigation Menu -->
-        <mat-nav-list class="nav-list">
+        <div class="nav-list">
           <div class="nav-section">
-            <h3 class="nav-section-title">PRINCIPAL</h3>
+            <h3 class="nav-section-title">MENU PRINCIPAL</h3>
             
-            <a mat-list-item 
-               *ngFor="let item of navigationItems"
-               [routerLink]="item.route" 
-               routerLinkActive="active"
-               class="nav-item">
-              <mat-icon matListItemIcon [class]="'nav-icon-' + item.icon">{{ item.icon }}</mat-icon>
-              <span matListItemTitle class="nav-label">{{ item.label }}</span>
-            </a>
+            <div class="nav-items-container">
+              <a *ngFor="let item of navigationItems"
+                 [routerLink]="item.route" 
+                 routerLinkActive="active"
+                 class="nav-item"
+                 (click)="closeMenu()"
+                 [attr.aria-label]="item.description">
+                <mat-icon class="nav-icon {{ 'nav-icon-' + item.icon }}">{{ item.icon }}</mat-icon>
+                <span class="nav-label">{{ item.label }}</span>
+              </a>
+            </div>
           </div>
-        </mat-nav-list>
+        </div>
         
         <!-- Sidenav Footer -->
         <div class="sidenav-footer">
@@ -88,8 +101,7 @@ interface NavItem {
             type="button"
             aria-label="Abrir menu"
             mat-icon-button
-            (click)="drawer.toggle()"
-            *ngIf="isHandset$ | async"
+            (click)="toggleMenu()"
             class="menu-button">
             <mat-icon>menu</mat-icon>
           </button>
@@ -123,20 +135,53 @@ interface NavItem {
     .sidenav-container {
       height: 100vh;
       overflow: hidden;
+      position: relative;
+    }
+
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      
+      &.active {
+        opacity: 1;
+        visibility: visible;
+      }
     }
 
     /* ===== SIDENAV ===== */
     .sidenav {
       width: 280px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      background: #ffffff;
       border-right: 1px solid #e2e8f0;
-      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
     }
 
     .sidenav-header {
       padding: 24px 20px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
+      position: relative;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      color: rgba(255, 255, 255, 0.9);
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
     }
 
     .logo-container {
@@ -167,6 +212,8 @@ interface NavItem {
     /* ===== NAVEGAÇÃO ===== */
     .nav-list {
       padding: 16px 0;
+      height: calc(100vh - 200px);
+      overflow-y: auto;
     }
 
     .nav-section {
@@ -182,43 +229,108 @@ interface NavItem {
       text-transform: uppercase;
     }
 
+    .nav-items-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .nav-item {
-      margin: 4px 0;
-      border-radius: 8px;
-      transition: all 0.2s ease-in-out;
-      min-height: 48px;
+      margin: 0;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      min-height: 52px;
+      display: flex !important;
+      align-items: center;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #334155;
+      border: 1px solid transparent;
+      background: transparent;
+      
+      &:hover {
+        background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 100%);
+        transform: translateX(6px);
+        border-color: #cbd5e1;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+        color: #1e293b;
+      }
+      
+      &.active {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        border-color: #667eea;
+        text-decoration: none;
+        
+        .nav-label {
+          font-weight: 700;
+          color: white !important;
+        }
+        
+        .nav-icon {
+          color: white !important;
+        }
+      }
     }
 
-    .nav-item:hover {
-      background-color: #f1f5f9;
-      transform: translateX(4px);
-    }
-
-    .nav-item.active {
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-
-    .nav-item.active .nav-label {
-      font-weight: 600;
+    .nav-icon {
+      font-size: 24px !important;
+      width: 24px !important;
+      height: 24px !important;
+      margin-right: 12px;
+      flex-shrink: 0;
     }
 
     .nav-label {
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 15px;
+      font-weight: 600;
+      color: inherit;
+      line-height: 1.4;
+      flex: 1;
     }
 
     .nav-divider {
       margin: 16px 20px;
+      border-color: #e2e8f0;
     }
 
     /* ===== ÍCONES COLORIDOS ===== */
-    .nav-icon-dashboard { color: #3b82f6; }
-    .nav-icon-card_giftcard { color: #10b981; }
-    .nav-icon-swap_horiz { color: #f59e0b; }
-    .nav-icon-settings { color: #6b7280; }
-    .nav-icon-help { color: #8b5cf6; }
+    .nav-icon-dashboard { 
+      color: #3b82f6 !important; 
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    
+    .nav-icon-card_giftcard { 
+      color: #10b981 !important; 
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    
+    .nav-icon-swap_horiz { 
+      color: #f59e0b !important; 
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    
+    .nav-icon-settings { 
+      color: #6b7280 !important; 
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    
+    .nav-icon-help { 
+      color: #8b5cf6 !important; 
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
 
     .nav-item.active .mat-icon {
       color: white !important;
@@ -329,11 +441,17 @@ interface NavItem {
 
     .menu-button {
       margin-right: 8px;
+      color: white;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
     }
 
     /* ===== CONTEÚDO PRINCIPAL ===== */
     .main-container {
       background: #f8fafc;
+      width: 100%;
     }
 
     .main-content {
@@ -350,7 +468,8 @@ interface NavItem {
     /* ===== RESPONSIVIDADE ===== */
     @media (max-width: 768px) {
       .sidenav {
-        width: 280px;
+        width: 100vw;
+        max-width: 320px;
       }
 
       .content-wrapper {
@@ -358,11 +477,12 @@ interface NavItem {
       }
 
       .page-info {
-        display: none;
+        display: flex;
+        flex-direction: column;
       }
 
       .toolbar-content {
-        justify-content: flex-end;
+        justify-content: space-between;
         margin-left: 0;
       }
 
@@ -440,6 +560,9 @@ export class AppComponent implements OnInit {
       shareReplay()
     );
 
+  // Controla se o menu está aberto ou fechado
+  isMenuOpen = false;
+
   constructor(
     private breakpointObserver: BreakpointObserver,
     private router: Router
@@ -487,5 +610,13 @@ export class AppComponent implements OnInit {
       this.currentPageTitle = 'BIP Sistema';
       this.currentPageSubtitle = 'Sistema de Gestão de Benefícios';
     }
+  }
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
   }
 }

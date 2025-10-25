@@ -27,14 +27,14 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
 
 // Core Services and Models
-import { BeneficioService } from '@core/services/beneficio.service';
-import { Beneficio } from '@core/models/beneficio.model';
+import { BeneficioService } from '../../../core/services/beneficio.service';
+import { Beneficio, BeneficioCategoria, BENEFICIO_CATEGORIA_LABELS } from '../../../core/models/beneficio.model';
 
 export interface BeneficioFormData {
   nome: string;
   descricao: string;
   valor: number;
-  categoria: string;
+  categoria: BeneficioCategoria;
   ativo: boolean;
 }
 
@@ -72,6 +72,9 @@ export class BeneficioFormComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly originalBeneficio = signal<Beneficio | null>(null);
 
+  readonly categorias = Object.values(BeneficioCategoria);
+  readonly categoriasLabels = BENEFICIO_CATEGORIA_LABELS;
+
   readonly beneficioForm = this.fb.group({
     nome: this.fb.control('', [
       Validators.required,
@@ -85,7 +88,7 @@ export class BeneficioFormComponent implements OnInit {
       Validators.required,
       Validators.min(0.01)
     ]),
-    categoria: this.fb.control('', [
+    categoria: this.fb.control<BeneficioCategoria>(BeneficioCategoria.OUTROS, [
       Validators.required
     ]),
     ativo: this.fb.control(true)
@@ -246,7 +249,7 @@ export class BeneficioFormComponent implements OnInit {
         nome: '',
         descricao: '',
         valor: 0,
-        categoria: '',
+        categoria: BeneficioCategoria.OUTROS,
         ativo: true
       });
     }

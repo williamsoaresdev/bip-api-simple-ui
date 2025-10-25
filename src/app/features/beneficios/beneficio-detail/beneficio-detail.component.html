@@ -95,7 +95,7 @@
               Valor
             </div>
             <div class="info-value valor-destaque">
-              {{ beneficio()!.valor | currency:'BRL':'symbol':'1.2-2' }}
+              {{ beneficio()!.valor | brlCurrency }}
             </div>
           </div>
 
@@ -126,7 +126,7 @@
                 Data de Criação
               </div>
               <div class="info-value">
-                {{ createdDate() | date:'dd/MM/yyyy HH:mm' }}
+                {{ createdDate() | bipDateFormat:'medium' }}
               </div>
             </div>
           }
@@ -139,7 +139,7 @@
                 Última Atualização
               </div>
               <div class="info-value">
-                {{ updatedDate() | date:'dd/MM/yyyy HH:mm' }}
+                {{ updatedDate() | bipDateFormat:'medium' }}
               </div>
             </div>
           }

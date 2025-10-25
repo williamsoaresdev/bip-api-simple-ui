@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { BeneficioCategoria, BENEFICIO_CATEGORIA_LABELS } from '@core/models/beneficio.model';
+import { BeneficioCategoria, BENEFICIO_CATEGORIA_LABELS } from '../models/beneficio.model';
 
 @Pipe({
   name: 'categoriaLabel',

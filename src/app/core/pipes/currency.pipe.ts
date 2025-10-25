@@ -1,11 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'currency',
+  name: 'brlCurrency',
   standalone: true,
   pure: true
 })
-export class CurrencyPipe implements PipeTransform {
+export class BrlCurrencyPipe implements PipeTransform {
   transform(value: number | null | undefined): string {
     if (value == null || isNaN(value)) {
       return 'R$ 0,00';

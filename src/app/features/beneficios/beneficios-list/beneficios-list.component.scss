@@ -1,462 +1,410 @@
 .beneficios-list-container {
-  min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 32px 0;
-}
-
-.container-wrapper {
-  max-width: 1280px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 16px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    gap: 16px;
+  }
 }
 
 // Header Section
 .header-section {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-  margin-bottom: 24px;
-}
-
-.header-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  
-  @media (min-width: 640px) {
-    flex-direction: row;
+  .header-content {
+    display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  @media (min-width: 640px) {
     align-items: center;
+    gap: 16px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .header-info {
+      h1 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 8px 0;
+        font-size: 2rem;
+        font-weight: 500;
+        color: var(--mdc-theme-primary, #1976d2);
+
+        mat-icon {
+          font-size: 2rem;
+          width: 2rem;
+          height: 2rem;
+        }
+      }
+
+      p {
+        margin: 0;
+        color: var(--mdc-theme-text-secondary, #666);
+        font-size: 1.1rem;
+      }
+    }
+
+    .create-button {
+      height: 48px;
+      padding: 0 24px;
+      font-size: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
   }
 }
 
-.header-info {
-  .page-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #111827;
-    margin: 0;
-  }
-  
-  .page-subtitle {
-    color: #6b7280;
-    margin: 4px 0 0 0;
-  }
-}
-
-.create-button {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 16px;
-  background-color: #3b82f6;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: #2563eb;
-  }
-  
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(59, 130, 246, 0.1);
-  }
-  
-  .button-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-  }
-}
-
-// Loading Section
-.loading-section {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 32px;
-}
-
-.loading-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  .loading-spinner {
-    width: 32px;
-    height: 32px;
-    border: 2px solid #e5e7eb;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  .loading-text {
-    margin-left: 12px;
-    color: #6b7280;
-  }
-}
-
-// Error Section
+// Loading & Error States
+.loading-section,
 .error-section {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 24px;
-}
-
-.error-content {
-  display: flex;
-  align-items: flex-start;
-  
-  .error-icon {
-    width: 20px;
-    height: 20px;
-    color: #ef4444;
-    flex-shrink: 0;
+  .loading-card,
+  .error-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }
-  
-  .error-text {
-    margin-left: 12px;
-    
-    .error-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: #991b1b;
+
+  .loading-content,
+  .error-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 32px;
+    text-align: center;
+
+    mat-icon {
+      font-size: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    p {
       margin: 0;
+      font-size: 1.1rem;
+      color: var(--mdc-theme-text-secondary, #666);
     }
-    
-    .error-message {
-      font-size: 14px;
-      color: #dc2626;
-      margin: 4px 0 0 0;
-    }
-  }
-}
 
-// Statistics Grid
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
-  
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
+    .error-text {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
 
-.stat-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-}
+      h3 {
+        margin: 0;
+        color: var(--mdc-theme-error, #f44336);
+      }
 
-.stat-content {
-  display: flex;
-  align-items: center;
-}
-
-.stat-icon-container {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  
-  &.stat-icon-blue {
-    background-color: #dbeafe;
-  }
-  
-  &.stat-icon-green {
-    background-color: #d1fae5;
-  }
-  
-  &.stat-icon-purple {
-    background-color: #e0e7ff;
-  }
-  
-  .stat-icon {
-    width: 20px;
-    height: 20px;
-    
-    .stat-icon-blue & {
-      color: #3b82f6;
-    }
-    
-    .stat-icon-green & {
-      color: #10b981;
-    }
-    
-    .stat-icon-purple & {
-      color: #8b5cf6;
+      p {
+        color: var(--mdc-theme-text-secondary, #666);
+      }
     }
   }
 }
 
-.stat-info {
-  margin-left: 20px;
-  flex: 1;
-  
-  .stat-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #6b7280;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+// Filters Section
+.filters-section {
+  .filters-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 16px;
+      align-items: end;
+
+      @media (max-width: 1024px) {
+        grid-template-columns: 1fr 1fr;
+        .clear-filters-button {
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
+
+      .search-field,
+      .category-field,
+      .status-field {
+        mat-form-field {
+          width: 100%;
+        }
+      }
+
+      .clear-filters-button {
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 8px;
+        border: 1px solid var(--mdc-theme-primary, #1976d2);
+        color: var(--mdc-theme-primary, #1976d2);
+
+        &:hover {
+          background-color: rgba(25, 118, 210, 0.04);
+        }
+
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
   }
-  
-  .stat-value {
-    font-size: 18px;
-    font-weight: 500;
-    color: #111827;
-    margin-top: 2px;
+}
+
+// Statistics Section
+.stats-section {
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+
+    .stat-card {
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+      overflow: hidden;
+      position: relative;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      &.total {
+        border-left: 4px solid var(--mdc-theme-primary, #1976d2);
+      }
+
+      &.active {
+        border-left: 4px solid var(--mdc-theme-accent, #4caf50);
+      }
+
+      &.inactive {
+        border-left: 4px solid var(--mdc-theme-warn, #ff9800);
+      }
+
+      &.value {
+        border-left: 4px solid var(--mdc-theme-secondary, #9c27b0);
+      }
+
+      .stat-content {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .stat-icon {
+          font-size: 2.5rem;
+          width: 2.5rem;
+          height: 2.5rem;
+          color: var(--mdc-theme-primary, #1976d2);
+          opacity: 0.8;
+        }
+
+        .stat-info {
+          flex: 1;
+
+          .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--mdc-theme-text-primary, #333);
+          }
+
+          .stat-label {
+            font-size: 0.9rem;
+            color: var(--mdc-theme-text-secondary, #666);
+            margin: 4px 0 0 0;
+          }
+
+          .stat-subtitle {
+            font-size: 0.8rem;
+            color: var(--mdc-theme-text-hint, #999);
+            margin: 2px 0 0 0;
+          }
+        }
+      }
+    }
   }
 }
 
 // Table Section
 .table-section {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
+  .table-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 
-.table-header {
-  padding: 16px 24px;
-  border-bottom: 1px solid #e5e7eb;
-  
-  .table-title {
-    font-size: 18px;
-    font-weight: 500;
-    color: #111827;
-    margin: 0;
-  }
-}
+    mat-card-header {
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.25rem;
+        font-weight: 500;
 
-.table-container {
-  overflow-x: auto;
-}
+        mat-icon {
+          color: var(--mdc-theme-primary, #1976d2);
+        }
 
-.beneficios-table {
-  min-width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.table-head {
-  background-color: #f9fafb;
-}
-
-.table-th {
-  padding: 12px 24px;
-  text-align: left;
-  font-size: 12px;
-  font-weight: 500;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  
-  &.table-th-actions {
-    position: relative;
-    padding: 12px 24px;
-    
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+        .results-chip {
+          margin-left: auto;
+          background-color: var(--mdc-theme-primary, #1976d2);
+          color: white;
+          font-size: 0.8rem;
+        }
+      }
     }
-  }
-}
 
-.table-body {
-  background-color: white;
-  border-top: 1px solid #e5e7eb;
-}
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
 
-.table-row {
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background-color: #f9fafb;
-  }
-  
-  &:not(:last-child) {
-    border-bottom: 1px solid #e5e7eb;
-  }
-}
+      .beneficios-table {
+        width: 100%;
+        background: white;
 
-.table-cell {
-  padding: 16px 24px;
-  white-space: nowrap;
-  
-  &.table-cell-value {
-    font-size: 14px;
-    color: #111827;
-  }
-  
-  &.table-cell-date {
-    font-size: 14px;
-    color: #6b7280;
-  }
-  
-  &.table-cell-actions {
-    text-align: right;
-    font-size: 14px;
-    font-weight: 500;
-  }
-}
+        .mat-mdc-header-row {
+          background-color: #fafafa;
+          
+          .mat-mdc-header-cell {
+            font-weight: 600;
+            color: var(--mdc-theme-text-primary, #333);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          }
+        }
 
-.beneficio-info {
-  .beneficio-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #111827;
-  }
-  
-  .beneficio-description {
-    font-size: 14px;
-    color: #6b7280;
-    margin-top: 2px;
-  }
-}
+        .beneficio-row {
+          transition: background-color 0.2s ease;
 
-.category-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 500;
-  background-color: #dbeafe;
-  color: #1e40af;
-}
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+          }
 
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 500;
-  
-  &.status-active {
-    background-color: #d1fae5;
-    color: #065f46;
-  }
-  
-  &.status-inactive {
-    background-color: #fee2e2;
-    color: #991b1b;
-  }
-}
+          .mat-mdc-cell {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+          }
+        }
 
-.action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+        .beneficio-info {
+          .beneficio-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+          }
 
-.action-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: color 0.2s ease;
-  
-  &.action-button-edit {
-    color: #3b82f6;
-    
-    &:hover {
-      color: #1e40af;
-    }
-  }
-  
-  &.action-button-view {
-    color: #6b7280;
-    
-    &:hover {
-      color: #111827;
+          .beneficio-description {
+            font-size: 0.9rem;
+            color: var(--mdc-theme-text-secondary, #666);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+
+        .valor-beneficio {
+          font-weight: 600;
+          color: var(--mdc-theme-primary, #1976d2);
+        }
+
+        .date-info {
+          .date-primary {
+            font-weight: 500;
+          }
+
+          .date-secondary {
+            font-size: 0.8rem;
+            color: var(--mdc-theme-text-secondary, #666);
+          }
+        }
+
+        .action-buttons {
+          display: flex;
+          gap: 4px;
+
+          .action-view {
+            color: var(--mdc-theme-primary, #1976d2);
+          }
+
+          .action-edit {
+            color: var(--mdc-theme-accent, #4caf50);
+          }
+
+          .action-more {
+            color: var(--mdc-theme-text-secondary, #666);
+          }
+        }
+      }
     }
   }
 }
 
 // Empty State
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
   text-align: center;
-  padding: 48px;
-  
+  color: var(--mdc-theme-text-secondary, #666);
+
   .empty-icon {
-    width: 48px;
-    height: 48px;
-    color: #9ca3af;
-    margin: 0 auto;
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
   }
-  
-  .empty-title {
-    margin: 8px 0 0 0;
-    font-size: 14px;
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.25rem;
     font-weight: 500;
-    color: #111827;
   }
-  
-  .empty-description {
-    margin: 4px 0 0 0;
-    font-size: 14px;
-    color: #6b7280;
+
+  p {
+    margin: 0 0 24px 0;
+    max-width: 300px;
   }
-  
-  .empty-action {
-    margin-top: 24px;
+
+  button {
+    border-radius: 8px;
+    padding: 0 24px;
+
+    mat-icon {
+      margin-right: 8px;
+    }
   }
 }
 
-// Responsive Design
+// Responsive adjustments
 @media (max-width: 768px) {
-  .container-wrapper {
-    padding: 0 12px;
-  }
-  
-  .beneficios-list-container {
-    padding: 16px 0;
-  }
-  
-  .header-section,
-  .loading-section,
-  .table-section {
-    margin-bottom: 16px;
-  }
-  
   .stats-grid {
-    gap: 16px;
-    margin-bottom: 16px;
+    grid-template-columns: 1fr;
   }
-}
 
-// Animations
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  .beneficios-table {
+    .beneficio-description {
+      display: none;
+    }
+
+    .mat-mdc-header-cell,
+    .mat-mdc-cell {
+      padding: 8px !important;
+    }
+  }
 }

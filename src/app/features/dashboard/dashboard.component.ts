@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 // Material Design Imports
 import { MatCardModule } from '@angular/material/card';
@@ -11,9 +12,13 @@ import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 
 // Core Services
-import { BeneficioService } from '@core/services/beneficio.service';
-import { TransferenciaService } from '@core/services/transferencia.service';
-import { LoadingService } from '@core/services/loading.service';
+import { BeneficioService } from '../../core/services/beneficio.service';
+import { TransferenciaService } from '../../core/services/transferencia.service';
+import { LoadingService } from '../../core/services/loading.service';
+import { Beneficio } from '../../core/models/beneficio.model';
+import { Transferencia } from '../../core/models/transferencia.model';
+import { PaginatedResponse } from '../../core/models/common.model';
+import { BrlCurrencyPipe } from '../../core/pipes/currency.pipe';
 
 export interface DashboardMetrics {
   readonly totalBeneficios: number;
@@ -33,17 +38,19 @@ export interface DashboardMetrics {
     MatButtonModule,
     MatIconModule,
     MatListModule,
-    MatChipsModule
+    MatChipsModule,
+    BrlCurrencyPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   private readonly beneficioService = inject(BeneficioService);
   private readonly transferenciaService = inject(TransferenciaService);
   readonly loadingService = inject(LoadingService);
 
+  private readonly destroy$ = new Subject<void>();
   private readonly _errorMessage = signal<string | null>(null);
   private readonly _now = signal(new Date());
 
@@ -51,32 +58,52 @@ export class DashboardComponent implements OnInit {
   readonly now = this._now.asReadonly();
 
   readonly hasError = computed(() => 
-    this.beneficioService.hasError() || 
-    this.transferenciaService.hasError() || 
     this._errorMessage() !== null
   );
 
-  readonly metrics = computed((): DashboardMetrics => ({
-    totalBeneficios: this.beneficioService.totalBeneficios(),
-    beneficiosAtivos: this.beneficioService.beneficiosAtivos().length,
-    totalTransferencias: this.transferenciaService.totalTransferencias(),
-    valorTotalTransferido: this.transferenciaService.valorTotalTransferido(),
-    transferenciasPendentes: this.transferenciaService.transferenciasPendentes().length
-  }));
-
-  readonly recentBeneficios = computed(() => 
-    this.beneficioService.beneficios()
-      .slice()
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 5)
+  readonly isLoading = computed(() => 
+    this.loadingService.isLoading()
   );
 
-  readonly recentTransferencias = computed(() => 
-    this.transferenciaService.transferencias()
+  readonly metrics = computed((): DashboardMetrics => {
+    const beneficios = this.beneficioService.beneficios() || [];
+    const transferencias = this.transferenciaService.transferencias() || [];
+    const beneficiosAtivos = this.beneficioService.beneficiosAtivos() || [];
+    const transferenciasPendentes = this.transferenciaService.transferenciasPendentes() || [];
+    
+    console.log('📊 Dashboard Metrics:', {
+      beneficios: beneficios.length,
+      transferencias: transferencias.length,
+      beneficiosAtivos: beneficiosAtivos.length,
+      transferenciasPendentes: transferenciasPendentes.length,
+      beneficiosData: beneficios,
+      transferenciasData: transferencias
+    });
+    
+    return {
+      totalBeneficios: beneficios.length,
+      beneficiosAtivos: beneficiosAtivos.length,
+      totalTransferencias: transferencias.length,
+      valorTotalTransferido: this.transferenciaService.valorTotalTransferido() || 0,
+      transferenciasPendentes: transferenciasPendentes.length
+    };
+  });
+
+  readonly recentBeneficios = computed(() => {
+    const beneficios = this.beneficioService.beneficios() || [];
+    return beneficios
       .slice()
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 5)
-  );
+      .sort((a: Beneficio, b: Beneficio) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 5);
+  });
+
+  readonly recentTransferencias = computed(() => {
+    const transferencias = this.transferenciaService.transferencias() || [];
+    return transferencias
+      .slice()
+      .sort((a: Transferencia, b: Transferencia) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 5);
+  });
 
   constructor() {
     setInterval(() => {
@@ -85,25 +112,58 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('🚀 Dashboard: Componente inicializado');
+    console.log('📊 Estados dos serviços:', {
+      beneficioService: {
+        beneficios: this.beneficioService.beneficios(),
+        loading: this.beneficioService.loading(),
+        error: this.beneficioService.error()
+      },
+      transferenciaService: {
+        transferencias: this.transferenciaService.transferencias(),
+        loading: this.transferenciaService.loading(),
+        error: this.transferenciaService.error()
+      }
+    });
+    
     this.loadData();
   }
 
-  private loadData(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadData(): void {
+    console.log('🔄 Dashboard: Iniciando carregamento de dados...');
+    
     this.beneficioService.loadBeneficios()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-        error: (error) => {
-          this._errorMessage.set('Erro ao carregar benefícios: ' + error.message);
+        next: (response: PaginatedResponse<Beneficio>) => {
+          console.log('✅ Dashboard: Benefícios carregados com sucesso:', response);
+        },
+        error: (error: any) => {
+          console.error('❌ Dashboard: Erro ao carregar benefícios:', error);
+          this._errorMessage.set('Erro ao carregar benefícios: ' + (error.message || 'Erro desconhecido'));
         }
       });
 
     this.transferenciaService.loadTransferencias()
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-        error: (error) => {
-          this._errorMessage.set('Erro ao carregar transferências: ' + error.message);
+        next: (response: PaginatedResponse<Transferencia>) => {
+          console.log('✅ Dashboard: Transferências carregadas com sucesso:', response);
+        },
+        error: (error: any) => {
+          console.error('❌ Dashboard: Erro ao carregar transferências:', error);
+          this._errorMessage.set('Erro ao carregar transferências: ' + (error.message || 'Erro desconhecido'));
         }
       });
+  }
+
+  checkApiStatus(): void {
+    window.open('http://localhost:8080/actuator/health', '_blank');
   }
 
   trackById(index: number, item: any): string {
@@ -112,13 +172,14 @@ export class DashboardComponent implements OnInit {
 
   getStatusClasses(status: string): string {
     const classes: Record<string, string> = {
-      'PENDENTE': 'bg-yellow-100 text-yellow-800',
-      'PROCESSANDO': 'bg-blue-100 text-blue-800',
-      'CONCLUIDA': 'bg-green-100 text-green-800',
-      'CANCELADA': 'bg-gray-100 text-gray-800',
-      'FALHOU': 'bg-red-100 text-red-800'
+      'PENDENTE': 'status-pending',
+      'PROCESSANDO': 'status-processing',
+      'CONCLUIDA': 'status-completed',
+      'CANCELADA': 'status-cancelled',
+      'REJEITADA': 'status-failed', // Corrigido de FALHOU para REJEITADA
+      'FALHOU': 'status-failed'
     };
-    return classes[status] || 'bg-gray-100 text-gray-800';
+    return classes[status] || 'status-default';
   }
 
   getStatusLabel(status: string): string {
@@ -127,6 +188,7 @@ export class DashboardComponent implements OnInit {
       'PROCESSANDO': 'Processando',
       'CONCLUIDA': 'Concluída',
       'CANCELADA': 'Cancelada',
+      'REJEITADA': 'Rejeitada', // Corrigido de Falhou para Rejeitada
       'FALHOU': 'Falhou'
     };
     return labels[status] || status;

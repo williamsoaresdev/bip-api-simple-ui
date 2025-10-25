@@ -10,6 +10,26 @@ export interface Transferencia extends BaseEntity {
   readonly observacoes?: string;
 }
 
+// Interface para mapear a resposta da API backend
+export interface TransferenciaBackendResponse {
+  readonly total: number;
+  readonly transferencias: TransferenciaBackendItem[];
+  readonly timestamp: string;
+}
+
+export interface TransferenciaBackendItem {
+  readonly id: number;
+  readonly beneficioOrigemId: number;
+  readonly beneficioOrigemNome: string;
+  readonly beneficioDestinoId: number;
+  readonly beneficioDestinoNome: string;
+  readonly valor: number;
+  readonly taxa: number;
+  readonly descricao: string;
+  readonly dataExecucao: string;
+  readonly status: string;
+}
+
 export enum TransferenciaStatus {
   PENDENTE = 'PENDENTE',
   PROCESSANDO = 'PROCESSANDO',

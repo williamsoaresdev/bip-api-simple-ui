@@ -3,11 +3,11 @@ import { formatDistanceToNow, format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 @Pipe({
-  name: 'dateFormat',
+  name: 'bipDateFormat',
   standalone: true,
   pure: true
 })
-export class DateFormatPipe implements PipeTransform {
+export class BipDateFormatPipe implements PipeTransform {
   transform(
     value: string | Date | null | undefined,
     formatType: 'short' | 'medium' | 'long' | 'relative' | 'time' = 'medium'

@@ -112,13 +112,11 @@
               <mat-form-field appearance="outline">
                 <mat-label>Categoria *</mat-label>
                 <mat-select formControlName="categoria">
-                  <mat-option value="alimentacao">Vale Alimentação</mat-option>
-                  <mat-option value="transporte">Vale Transporte</mat-option>
-                  <mat-option value="refeicao">Vale Refeição</mat-option>
-                  <mat-option value="combustivel">Vale Combustível</mat-option>
-                  <mat-option value="saude">Assistência Médica</mat-option>
-                  <mat-option value="educacao">Auxílio Educação</mat-option>
-                  <mat-option value="outros">Outros</mat-option>
+                  @for (categoria of categorias; track categoria) {
+                    <mat-option [value]="categoria">
+                      {{ categoriasLabels[categoria] }}
+                    </mat-option>
+                  }
                 </mat-select>
                 <mat-icon matSuffix>category</mat-icon>
                 

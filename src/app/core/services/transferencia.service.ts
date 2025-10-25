@@ -1,10 +1,12 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, tap, of } from 'rxjs';
+import { Observable, catchError, tap, of, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { 
   Transferencia, 
   TransferenciaStatus,
+  TransferenciaBackendResponse,
+  TransferenciaBackendItem,
   CreateTransferenciaRequest, 
   UpdateTransferenciaRequest
 } from '@core/models/transferencia.model';
@@ -27,27 +29,32 @@ export class TransferenciaService {
   readonly error = this._error.asReadonly();
   readonly selectedTransferencia = this._selectedTransferencia.asReadonly();
 
-  readonly transferenciasPendentes = computed(() => 
-    this._transferencias().filter(t => t.status === TransferenciaStatus.PENDENTE)
-  );
+  readonly transferenciasPendentes = computed(() => {
+    const transferencias = this._transferencias() || [];
+    return transferencias.filter(t => t.status === TransferenciaStatus.PENDENTE);
+  });
 
-  readonly transferenciasProcessando = computed(() => 
-    this._transferencias().filter(t => t.status === TransferenciaStatus.PROCESSANDO)
-  );
+  readonly transferenciasProcessando = computed(() => {
+    const transferencias = this._transferencias() || [];
+    return transferencias.filter(t => t.status === TransferenciaStatus.PROCESSANDO);
+  });
 
-  readonly transferenciasConcluidas = computed(() => 
-    this._transferencias().filter(t => t.status === TransferenciaStatus.CONCLUIDA)
-  );
+  readonly transferenciasConcluidas = computed(() => {
+    const transferencias = this._transferencias() || [];
+    return transferencias.filter(t => t.status === TransferenciaStatus.CONCLUIDA);
+  });
 
-  readonly totalTransferencias = computed(() => 
-    this._transferencias().length
-  );
+  readonly totalTransferencias = computed(() => {
+    const transferencias = this._transferencias() || [];
+    return transferencias.length;
+  });
 
-  readonly valorTotalTransferido = computed(() => 
-    this._transferencias()
+  readonly valorTotalTransferido = computed(() => {
+    const transferencias = this._transferencias() || [];
+    return transferencias
       .filter(t => t.status === TransferenciaStatus.CONCLUIDA)
-      .reduce((total, t) => total + t.valor, 0)
-  );
+      .reduce((total, t) => total + t.valor, 0);
+  });
 
   readonly isLoading = computed(() => 
     this._loading() === 'loading'
@@ -58,147 +65,232 @@ export class TransferenciaService {
   );
 
   constructor() {
-    this.loadInitialData();
+    // Inicia carregando dados da API ao invés de dados mockados
+    this.loadTransferencias().subscribe();
   }
 
-  private loadInitialData(): void {
-    const mockData: Transferencia[] = [
-      {
-        id: '1',
-        beneficioId: '1',
-        beneficioNome: 'Auxílio Alimentação',
-        valor: 500.00,
-        destinatario: 'João Silva',
-        status: TransferenciaStatus.CONCLUIDA,
-        dataExecucao: new Date('2024-10-20T14:30:00Z'),
-        observacoes: 'Transferência mensal',
-        createdAt: new Date('2024-10-20T10:00:00Z'),
-        updatedAt: new Date('2024-10-20T14:30:00Z')
-      },
-      {
-        id: '2',
-        beneficioId: '2',
-        beneficioNome: 'Vale Transporte',
-        valor: 220.50,
-        destinatario: 'Maria Santos',
-        status: TransferenciaStatus.PENDENTE,
-        observacoes: 'Aguardando processamento',
-        createdAt: new Date('2024-10-22T09:15:00Z'),
-        updatedAt: new Date('2024-10-22T09:15:00Z')
-      },
-      {
-        id: '3',
-        beneficioId: '3',
-        beneficioNome: 'Plano de Saúde',
-        valor: 450.00,
-        destinatario: 'Pedro Costa',
-        status: TransferenciaStatus.PROCESSANDO,
-        observacoes: 'Em processamento',
-        createdAt: new Date('2024-10-22T11:00:00Z'),
-        updatedAt: new Date('2024-10-22T11:30:00Z')
-      }
-    ];
+  private mapBackendItemToFrontend(backendItem: TransferenciaBackendItem): Transferencia {
+    // Mapeia os campos do backend para o formato esperado pelo frontend
+    return {
+      id: backendItem.id.toString(),
+      beneficioId: backendItem.beneficioOrigemId.toString(),
+      beneficioNome: backendItem.beneficioOrigemNome,
+      valor: backendItem.valor,
+      destinatario: backendItem.beneficioDestinoNome, // Usando o nome do benefício destino como destinatário
+      status: this.mapStringToStatus(backendItem.status),
+      dataExecucao: new Date(backendItem.dataExecucao),
+      observacoes: backendItem.descricao,
+      createdAt: new Date(backendItem.dataExecucao), // Usando dataExecucao como createdAt
+      updatedAt: new Date(backendItem.dataExecucao)  // Usando dataExecucao como updatedAt
+    };
+  }
 
-    setTimeout(() => {
-      this._transferencias.set(mockData);
-      this._loading.set('success');
-    }, 100);
+  private mapStringToStatus(status: string): TransferenciaStatus {
+    // Mapeia o status string do backend para o enum do frontend
+    switch (status.toUpperCase()) {
+      case 'PENDENTE':
+        return TransferenciaStatus.PENDENTE;
+      case 'PROCESSANDO':
+        return TransferenciaStatus.PROCESSANDO;
+      case 'CONCLUIDA':
+        return TransferenciaStatus.CONCLUIDA;
+      case 'CANCELADA':
+        return TransferenciaStatus.CANCELADA;
+      case 'REJEITADA':
+        return TransferenciaStatus.REJEITADA;
+      default:
+        return TransferenciaStatus.PENDENTE;
+    }
   }
 
   loadTransferencias(): Observable<PaginatedResponse<Transferencia>> {
     this._loading.set('loading');
     this._error.set(null);
 
-    return this.http.get<PaginatedResponse<Transferencia>>(this.baseUrl).pipe(
+    return this.http.get<TransferenciaBackendResponse>(this.baseUrl).pipe(
+      map(backendResponse => {
+        // Mapeia a resposta do backend para o formato esperado pelo frontend
+        const transferencias = backendResponse.transferencias.map(item => 
+          this.mapBackendItemToFrontend(item)
+        );
+        
+        return {
+          data: transferencias,
+          success: true,
+          message: 'Transferências carregadas com sucesso',
+          pagination: {
+            page: 1,
+            limit: transferencias.length,
+            total: backendResponse.total,
+            totalPages: 1
+          }
+        } as PaginatedResponse<Transferencia>;
+      }),
       tap(response => {
         this._transferencias.set(response.data);
         this._loading.set('success');
+        console.log('Transferências carregadas:', response.data);
       }),
       catchError(error => {
-        this._error.set(error.message || 'Erro ao carregar transferências');
+        console.error('Erro ao carregar transferências da API:', error);
+        this._error.set('Não foi possível conectar com o servidor. Verifique se a API está rodando.');
         this._loading.set('error');
+        
+        // Retorna array vazio em caso de erro
+        this._transferencias.set([]);
+        
         return of({
-          data: this._transferencias(),
+          data: [],
           success: false,
-          message: 'Usando dados em cache'
+          message: 'Erro ao carregar dados da API',
+          pagination: {
+            page: 1,
+            limit: 10,
+            total: 0,
+            totalPages: 0
+          }
         } as PaginatedResponse<Transferencia>);
       })
     );
   }
 
-  getTransferenciaById(id: string): Observable<ApiResponse<Transferencia>> {
+  getTransferenciaById(id: string): Observable<ApiResponse<Transferencia | null>> {
     this._loading.set('loading');
     this._error.set(null);
 
-    return this.http.get<ApiResponse<Transferencia>>(`${this.baseUrl}/${id}`).pipe(
+    return this.http.get<TransferenciaBackendItem>(`${this.baseUrl}/${id}`).pipe(
+      map(backendItem => ({
+        data: this.mapBackendItemToFrontend(backendItem),
+        success: true,
+        message: 'Transferência encontrada'
+      } as ApiResponse<Transferencia>)),
       tap(response => {
         this._selectedTransferencia.set(response.data);
         this._loading.set('success');
       }),
       catchError(error => {
-        this._error.set(error.message || 'Erro ao carregar transferência');
+        console.error('Erro ao buscar transferência:', error);
+        this._error.set('Transferência não encontrada');
         this._loading.set('error');
-        const cached = this._transferencias().find(t => t.id === id);
-        if (cached) {
-          this._selectedTransferencia.set(cached);
-          return of({ data: cached, success: true } as ApiResponse<Transferencia>);
-        }
-        throw error;
+        
+        return of({
+          data: null,
+          success: false,
+          message: 'Transferência não encontrada'
+        } as ApiResponse<Transferencia | null>);
       })
     );
   }
 
-  createTransferencia(transferencia: CreateTransferenciaRequest): Observable<ApiResponse<Transferencia>> {
+  createTransferencia(request: CreateTransferenciaRequest): Observable<ApiResponse<Transferencia | null>> {
     this._loading.set('loading');
     this._error.set(null);
 
-    return this.http.post<ApiResponse<Transferencia>>(this.baseUrl, transferencia).pipe(
+    return this.http.post<TransferenciaBackendItem>(this.baseUrl, request).pipe(
+      map(backendItem => ({
+        data: this.mapBackendItemToFrontend(backendItem),
+        success: true,
+        message: 'Transferência criada com sucesso'
+      } as ApiResponse<Transferencia>)),
       tap(response => {
-        const current = this._transferencias();
-        this._transferencias.set([response.data, ...current]);
+        const currentTransferencias = this._transferencias();
+        this._transferencias.set([...currentTransferencias, response.data]);
         this._loading.set('success');
       }),
       catchError(error => {
-        this._error.set(error.message || 'Erro ao criar transferência');
+        console.error('Erro ao criar transferência:', error);
+        this._error.set('Erro ao criar transferência');
         this._loading.set('error');
-        throw error;
+        
+        return of({
+          data: null,
+          success: false,
+          message: 'Erro ao criar transferência'
+        } as ApiResponse<Transferencia | null>);
       })
     );
   }
 
-  updateTransferencia(id: string, update: UpdateTransferenciaRequest): Observable<ApiResponse<Transferencia>> {
+  updateTransferencia(id: string, request: UpdateTransferenciaRequest): Observable<ApiResponse<Transferencia | null>> {
     this._loading.set('loading');
     this._error.set(null);
 
-    return this.http.put<ApiResponse<Transferencia>>(`${this.baseUrl}/${id}`, update).pipe(
+    return this.http.put<TransferenciaBackendItem>(`${this.baseUrl}/${id}`, request).pipe(
+      map(backendItem => ({
+        data: this.mapBackendItemToFrontend(backendItem),
+        success: true,
+        message: 'Transferência atualizada com sucesso'
+      } as ApiResponse<Transferencia>)),
       tap(response => {
-        const current = this._transferencias();
-        const index = current.findIndex(t => t.id === id);
-        if (index !== -1) {
-          const updated = [...current];
-          updated[index] = response.data;
-          this._transferencias.set(updated);
-        }
+        const currentTransferencias = this._transferencias();
+        const updatedTransferencias = currentTransferencias.map(t =>
+          t.id === id ? response.data : t
+        );
+        this._transferencias.set(updatedTransferencias);
         this._selectedTransferencia.set(response.data);
         this._loading.set('success');
       }),
       catchError(error => {
-        this._error.set(error.message || 'Erro ao atualizar transferência');
+        console.error('Erro ao atualizar transferência:', error);
+        this._error.set('Erro ao atualizar transferência');
         this._loading.set('error');
-        throw error;
+        
+        return of({
+          data: null,
+          success: false,
+          message: 'Erro ao atualizar transferência'
+        } as ApiResponse<Transferencia | null>);
       })
     );
   }
 
-  cancelTransferencia(id: string): Observable<ApiResponse<Transferencia>> {
-    return this.updateTransferencia(id, { status: TransferenciaStatus.CANCELADA });
+  deleteTransferencia(id: string): Observable<ApiResponse<boolean>> {
+    this._loading.set('loading');
+    this._error.set(null);
+
+    return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
+      map(() => ({
+        data: true,
+        success: true,
+        message: 'Transferência excluída com sucesso'
+      } as ApiResponse<boolean>)),
+      tap(() => {
+        const currentTransferencias = this._transferencias();
+        const filteredTransferencias = currentTransferencias.filter(t => t.id !== id);
+        this._transferencias.set(filteredTransferencias);
+        
+        if (this._selectedTransferencia()?.id === id) {
+          this._selectedTransferencia.set(null);
+        }
+        
+        this._loading.set('success');
+      }),
+      catchError(error => {
+        console.error('Erro ao excluir transferência:', error);
+        this._error.set('Erro ao excluir transferência');
+        this._loading.set('error');
+        
+        return of({
+          data: false,
+          success: false,
+          message: 'Erro ao excluir transferência'
+        } as ApiResponse<boolean>);
+      })
+    );
   }
 
+  // Método para limpar erros
   clearError(): void {
     this._error.set(null);
   }
 
-  clearSelection(): void {
-    this._selectedTransferencia.set(null);
+  // Método para recarregar dados
+  refresh(): void {
+    this.loadTransferencias().subscribe();
+  }
+
+  // Método para definir transferência selecionada
+  setSelectedTransferencia(transferencia: Transferencia | null): void {
+    this._selectedTransferencia.set(transferencia);
   }
 }

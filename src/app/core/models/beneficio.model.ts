@@ -8,6 +8,17 @@ export interface Beneficio extends BaseEntity {
   readonly categoria: BeneficioCategoria;
 }
 
+// Interface para mapear a resposta da API backend
+export interface BeneficioBackendResponse {
+  readonly id: number;
+  readonly nome: string;
+  readonly descricao: string;
+  readonly saldo: number;
+  readonly ativo: boolean;
+  readonly criadoEm: string;
+  readonly atualizadoEm: string;
+}
+
 export enum BeneficioCategoria {
   ALIMENTACAO = 'ALIMENTACAO',
   TRANSPORTE = 'TRANSPORTE',

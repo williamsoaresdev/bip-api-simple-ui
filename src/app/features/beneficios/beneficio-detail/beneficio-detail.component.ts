@@ -18,8 +18,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 // Core Services and Models
-import { BeneficioService } from '@core/services/beneficio.service';
-import { Beneficio } from '@core/models/beneficio.model';
+import { BeneficioService } from '../../../core/services/beneficio.service';
+import { Beneficio, BENEFICIO_CATEGORIA_LABELS } from '../../../core/models/beneficio.model';
+import { BrlCurrencyPipe } from '../../../core/pipes/currency.pipe';
+import { BipDateFormatPipe } from '../../../core/pipes/date-format.pipe';
+import { CategoriaLabelPipe } from '../../../core/pipes/categoria-label.pipe';
 
 @Component({
   selector: 'bip-beneficio-detail',
@@ -29,7 +32,9 @@ import { Beneficio } from '@core/models/beneficio.model';
     RouterLink,
     MatCardModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    BrlCurrencyPipe,
+    BipDateFormatPipe
   ],
   templateUrl: './beneficio-detail.component.html',
   styleUrl: './beneficio-detail.component.scss',

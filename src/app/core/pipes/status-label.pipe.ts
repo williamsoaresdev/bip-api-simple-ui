@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { TransferenciaStatus, TRANSFERENCIA_STATUS_LABELS } from '@core/models/transferencia.model';
+import { TransferenciaStatus, TRANSFERENCIA_STATUS_LABELS } from '../models/transferencia.model';
 
 @Pipe({
   name: 'statusLabel',
