@@ -1,124 +1,364 @@
-# 🚀 BIP API Simple UI# 🚀 BIP API Simple UI
+# 🚀 BIP API Simple UI# 🚀 BIP API Simple UI# 🚀 BIP API Simple UI# 🚀 BIP API Simple UI
 
 
 
-**Sistema de Gestão de Benefícios e Transferências** - Interface Angular moderna para consumir a API BIP Java.**Sistema de Gestão de Benefícios e Transferências** - Interface Angular moderna para consumir a API BIP Java.
+**Sistema de Gestão de Benefícios e Transferências** - Interface Angular moderna e responsiva.
 
 
 
-## 📋 Sobre o Projeto## 📋 Sobre o Projeto
+## 📋 Sobre o Projeto**Sistema de Gestão de Benefícios e Transferências** - Interface Angular moderna para consumir a API BIP Java.
 
 
 
-Aplicação frontend desenvolvida em **Angular 20** que oferece uma interface completa para gerenciamento de benefícios e transferências, integrada com a API REST BIP Java.Aplicação frontend desenvolvida em Angular 20 que oferece uma interface completa para gerenciamento de benefícios e transferências, integrada com a API REST BIP Java.
+Aplicação frontend desenvolvida em **Angular 20** que oferece uma interface completa para gerenciamento de benefícios e transferências, integrada com API REST.
 
 
 
-## ✨ Principais Características### ✨ Principais Características
+## ✨ Características Principais## 📋 Sobre o Projeto**Sistema de Gestão de Benefícios e Transferências** - Interface Angular moderna para consumir a API BIP Java.**Sistema de Gestão de Benefícios e Transferências** - Interface Angular moderna para consumir a API BIP Java.
 
 
 
-- 🎯 **Angular 20** com Standalone Components- 🎯 **Angular 20** com Standalone Components
+- 🎯 **Angular 20** com Standalone Components
 
-- 🎨 **Angular Material** para design profissional- 🎨 **Angular Material** para design profissional
+- 🎨 **Angular Material** para design profissional
 
-- 📱 **Responsive Design** para todos os dispositivos- 📱 **Responsive Design** para todos os dispositivos
+- 📱 **Responsive Design** para todos os dispositivosAplicação frontend desenvolvida em **Angular 20** que oferece uma interface completa para gerenciamento de benefícios e transferências, integrada com a API REST BIP Java.
 
-- ⚡ **Performance otimizada** com lazy loading- ⚡ **Performance otimizada** com lazy loading
+- ⚡ **Performance otimizada** com lazy loading
 
-- 🔒 **TypeScript** com tipagem estrita- 🔒 **TypeScript** com tipagem estrita
+- 🔒 **TypeScript** com tipagem estrita
 
-- 🔄 **RxJS** para programação reativa- 🔄 **RxJS** para programação reativa
+- 🔄 **RxJS** para programação reativa
 
-- 🎪 **Interceptors** para loading e error handling- 🎪 **Interceptors** para loading e error handling
+## ✨ Características Principais## 📋 Sobre o Projeto## 📋 Sobre o Projeto
 
-
-
-## 🎯 Funcionalidades## 🏗️ Arquitetura
+## 🎯 Funcionalidades
 
 
 
-### Benefícios```
+### Benefícios
 
-- ✅ Listagem com filtros e ordenaçãosrc/
+- ✅ Listagem com filtros e ordenação- 🎯 **Angular 20** com Standalone Components
 
-- ✅ Criação e edição de benefícios├── app/
+- ✅ Criação e edição de benefícios
 
-- ✅ Visualização de detalhes│   ├── core/                     # Funcionalidades centrais
+- ✅ Visualização de detalhes- 🎨 **Angular Material** para design profissional
 
-- ✅ Ativação/desativação│   │   ├── models/              # Interfaces e tipos TypeScript
+- ✅ Ativação/desativação
 
-│   │   └── services/            # Services com HttpClient
+- 📱 **Responsive Design** para todos os dispositivosAplicação frontend desenvolvida em **Angular 20** que oferece uma interface completa para gerenciamento de benefícios e transferências, integrada com a API REST BIP Java.Aplicação frontend desenvolvida em Angular 20 que oferece uma interface completa para gerenciamento de benefícios e transferências, integrada com a API REST BIP Java.
 
-### Transferências│   ├── shared/                  # Componentes reutilizáveis
+### Transferências
 
-- ✅ Execução de transferências entre benefícios│   │   └── components/          # Loading, Error, Dialog
+- ✅ Execução de transferências entre benefícios- ⚡ **Performance otimizada** com lazy loading
 
-- ✅ Validação de saldos│   ├── features/                # Módulos de funcionalidades
+- ✅ Validação de saldos e regras de negócio
 
-- ✅ Histórico completo│   │   ├── beneficios/         # Gestão de benefícios
+- ✅ Histórico completo de transações- 🔒 **TypeScript** com tipagem estrita
 
-- ✅ Formulários reativos com validação│   │   ├── transferencias/     # Sistema de transferências
+- ✅ Formulários reativos com validação
 
-│   │   └── dashboard/          # Dashboard principal
+- 🔄 **RxJS** para programação reativa
 
-### Dashboard│   ├── app.component.ts        # Componente raiz
+### Dashboard
 
-- ✅ Visão geral do sistema│   ├── app.config.ts          # Configuração da aplicação
+- ✅ Visão geral do sistema## ✨ Principais Características### ✨ Principais Características
 
-- ✅ Estatísticas em tempo real│   └── app.routes.ts          # Roteamento com lazy loading
+- ✅ Estatísticas em tempo real
 
-- ✅ Navegação rápida└── environments/               # Configurações de ambiente
+- ✅ Navegação rápida entre módulos## 🎯 Funcionalidades
+
+
+
+## 🛠️ Stack Tecnológica
+
+
+
+| Tecnologia | Versão | Propósito |### Benefícios
+
+|------------|--------|-----------|
+
+| **Angular** | 20.x | Framework frontend |- ✅ Listagem com filtros e ordenação- 🎯 **Angular 20** com Standalone Components- 🎯 **Angular 20** com Standalone Components
+
+| **Angular Material** | 20.x | Componentes UI |
+
+| **TypeScript** | 5.9+ | Linguagem principal |- ✅ Criação e edição de benefícios
+
+| **RxJS** | 7.8+ | Programação reativa |
+
+| **SCSS** | - | Estilos |- ✅ Visualização de detalhes- 🎨 **Angular Material** para design profissional- 🎨 **Angular Material** para design profissional
+
+
+
+## 🚀 Como Executar- ✅ Ativação/desativação
+
+
+
+### Pré-requisitos- 📱 **Responsive Design** para todos os dispositivos- 📱 **Responsive Design** para todos os dispositivos
+
+- Node.js 18+
+
+- npm 9+### Transferências
+
+- Angular CLI
+
+- ✅ Execução de transferências entre benefícios- ⚡ **Performance otimizada** com lazy loading- ⚡ **Performance otimizada** com lazy loading
+
+### Instalação
+
+- ✅ Validação de saldos e regras de negócio
+
+```bash
+
+# Clone o repositório- ✅ Histórico completo de transações- 🔒 **TypeScript** com tipagem estrita- 🔒 **TypeScript** com tipagem estrita
+
+git clone <repository-url>
+
+cd bip-api-simple-ui- ✅ Formulários reativos com validação
+
+
+
+# Instale as dependências- 🔄 **RxJS** para programação reativa- 🔄 **RxJS** para programação reativa
+
+npm install
+
+### Dashboard
+
+# Execute o projeto
+
+npm start- ✅ Visão geral do sistema- 🎪 **Interceptors** para loading e error handling- 🎪 **Interceptors** para loading e error handling
+
+
+
+# Acesse http://localhost:4200- ✅ Estatísticas em tempo real
 
 ```
 
-## 🛠️ Tecnologias
+- ✅ Navegação rápida entre módulos
 
-## ⚡ Features Implementadas
+### Scripts Disponíveis
 
-| Tecnologia | Versão | Uso |
 
-|------------|--------|-----|### 🏠 **Layout Principal**
 
-| **Angular** | 20.x | Framework principal |- ✅ Sidenav responsivo com Angular Material
+```bash
 
-| **Angular Material** | 20.x | Componentes UI |- ✅ Toolbar com navegação
+npm start           # Desenvolvimento## 🛠️ Stack Tecnológica## 🎯 Funcionalidades## 🏗️ Arquitetura
 
-| **TypeScript** | 5.9+ | Linguagem |- ✅ Breakpoint observer para mobile/desktop
+npm run build       # Build produção
 
-| **RxJS** | 7.8+ | Programação reativa |- ✅ Design consistente com tema personalizado
+npm test            # Testes unitários
 
-| **SCSS** | - | Estilos |
+npm run lint        # Verificação código
 
-### 💰 **Gestão de Benefícios**
+```| Tecnologia | Versão | Propósito |
 
-## 🚀 Como Executar- ✅ Listagem com tabela responsiva
 
-- ✅ Criação de novos benefícios
 
-### Pré-requisitos- ✅ Edição com validações
+## 🔗 Integração com API|------------|--------|-----------|
+
+
+
+### Endpoints Utilizados| **Angular** | 20.x | Framework frontend |### Benefícios```
+
+- `GET /api/v1/beneficios` - Lista benefícios
+
+- `POST /api/v1/beneficios` - Cria benefício| **Angular Material** | 20.x | Componentes UI |
+
+- `PUT /api/v1/beneficios/{id}` - Atualiza benefício
+
+- `DELETE /api/v1/beneficios/{id}` - Remove benefício| **TypeScript** | 5.9+ | Linguagem principal |- ✅ Listagem com filtros e ordenaçãosrc/
+
+- `GET /api/v1/transferencias` - Lista transferências
+
+- `POST /api/v1/transferencias` - Executa transferência| **RxJS** | 7.8+ | Programação reativa |
+
+
+
+## 📂 Estrutura| **SCSS** | - | Estilos |- ✅ Criação e edição de benefícios├── app/
+
+
+
+```
+
+src/app/
+
+├── core/                   # Serviços, modelos, interceptors## 🚀 Como Executar- ✅ Visualização de detalhes│   ├── core/                     # Funcionalidades centrais
+
+├── features/               # Módulos funcionais
+
+│   ├── beneficios/        # Gestão de benefícios
+
+│   ├── transferencias/    # Sistema de transferências
+
+│   └── dashboard/         # Dashboard principal### Pré-requisitos- ✅ Ativação/desativação│   │   ├── models/              # Interfaces e tipos TypeScript
+
+├── shared/                # Componentes compartilhados
+
+└── styles/                # Estilos globais- Node.js 18+
+
+```
+
+- npm 9+│   │   └── services/            # Services com HttpClient
+
+## 📋 Status do Projeto
+
+- Angular CLI
+
+- ✅ Frontend completo e funcional
+
+- ✅ Integração com API testada### Transferências│   ├── shared/                  # Componentes reutilizáveis
+
+- ✅ Design responsivo implementado
+
+- ✅ Validações de formulário### Instalação
+
+- ✅ Error handling robusto
+
+- ✅ Performance otimizada- ✅ Execução de transferências entre benefícios│   │   └── components/          # Loading, Error, Dialog
+
+
+
+## 🤝 Contribuindo```bash
+
+
+
+1. Fork o projeto# Clone o repositório- ✅ Validação de saldos│   ├── features/                # Módulos de funcionalidades
+
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+
+3. Commit suas mudanças (`git commit -m 'feat: nova funcionalidade'`)git clone <repository-url>
+
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+
+5. Abra um Pull Requestcd bip-api-simple-ui- ✅ Histórico completo│   │   ├── beneficios/         # Gestão de benefícios
+
+
+
+---
+
+
+
+**Desenvolvido com ❤️ em Angular 20**# Instale as dependências- ✅ Formulários reativos com validação│   │   ├── transferencias/     # Sistema de transferências
+
+npm install
+
+│   │   └── dashboard/          # Dashboard principal
+
+# Execute o projeto
+
+npm start### Dashboard│   ├── app.component.ts        # Componente raiz
+
+
+
+# Acesse http://localhost:4200- ✅ Visão geral do sistema│   ├── app.config.ts          # Configuração da aplicação
+
+```
+
+- ✅ Estatísticas em tempo real│   └── app.routes.ts          # Roteamento com lazy loading
+
+### Scripts Disponíveis
+
+- ✅ Navegação rápida└── environments/               # Configurações de ambiente
+
+```bash
+
+npm start           # Desenvolvimento```
+
+npm run build       # Build produção
+
+npm test            # Testes unitários## 🛠️ Tecnologias
+
+npm run lint        # Verificação código
+
+```## ⚡ Features Implementadas
+
+
+
+## 🔗 Integração com API| Tecnologia | Versão | Uso |
+
+
+
+### Endpoints Utilizados|------------|--------|-----|### 🏠 **Layout Principal**
+
+- `GET /api/v1/beneficios` - Lista benefícios
+
+- `POST /api/v1/beneficios` - Cria benefício| **Angular** | 20.x | Framework principal |- ✅ Sidenav responsivo com Angular Material
+
+- `PUT /api/v1/beneficios/{id}` - Atualiza benefício
+
+- `DELETE /api/v1/beneficios/{id}` - Remove benefício| **Angular Material** | 20.x | Componentes UI |- ✅ Toolbar com navegação
+
+- `GET /api/v1/transferencias` - Lista transferências
+
+- `POST /api/v1/transferencias` - Executa transferência| **TypeScript** | 5.9+ | Linguagem |- ✅ Breakpoint observer para mobile/desktop
+
+
+
+## 📂 Estrutura| **RxJS** | 7.8+ | Programação reativa |- ✅ Design consistente com tema personalizado
+
+
+
+```| **SCSS** | - | Estilos |
+
+src/app/
+
+├── core/                   # Serviços, modelos, interceptors### 💰 **Gestão de Benefícios**
+
+├── features/               # Módulos funcionais
+
+│   ├── beneficios/        # Gestão de benefícios## 🚀 Como Executar- ✅ Listagem com tabela responsiva
+
+│   ├── transferencias/    # Sistema de transferências
+
+│   └── dashboard/         # Dashboard principal- ✅ Criação de novos benefícios
+
+├── shared/                # Componentes compartilhados
+
+└── styles/                # Estilos globais### Pré-requisitos- ✅ Edição com validações
+
+```
 
 - Node.js 18+- ✅ Visualização de detalhes
 
+## 📋 Status do Projeto
+
 - npm 9+- ✅ Remoção com confirmação
 
-- Angular CLI- ✅ Status ativo/inativo
+- ✅ Frontend completo e funcional
+
+- ✅ Integração com API testada- Angular CLI- ✅ Status ativo/inativo
+
+- ✅ Design responsivo implementado
+
+- ✅ Validações de formulário
+
+- ✅ Error handling robusto
+
+- ✅ Performance otimizada### Instalação e Execução### 🔄 **Sistema de Transferências**
 
 
 
-### Instalação e Execução### 🔄 **Sistema de Transferências**
-
-- ✅ Execução de transferências
-
-```bash- ✅ Validação prévia
-
-# 1. Clone o repositório- ✅ Cálculo de taxas
-
-git clone <repository-url>- ✅ Histórico local
-
-cd bip-api-simple-ui- ✅ Formulários reativos
+## 🤝 Contribuindo- ✅ Execução de transferências
 
 
+
+1. Fork o projeto```bash- ✅ Validação prévia
+
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+
+3. Commit suas mudanças (`git commit -m 'feat: nova funcionalidade'`)# 1. Clone o repositório- ✅ Cálculo de taxas
+
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+
+5. Abra um Pull Requestgit clone <repository-url>- ✅ Histórico local
+
+
+
+---cd bip-api-simple-ui- ✅ Formulários reativos
+
+
+
+**Desenvolvido com ❤️ em Angular 20**
 
 # 2. Instale dependências### 📊 **Dashboard**
 
