@@ -101,31 +101,79 @@ $radius-xl: 16px;
         font-size: 1.125rem;
         color: $text-secondary;
         margin: 0;
-        font-weight: 400;
+        line-height: 1.6;
+
+        @media (max-width: 768px) {
+          font-size: 1rem;
+        }
       }
     }
 
-    .create-btn {
-      height: 48px;
-      padding: 0 32px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: $radius-lg;
-      box-shadow: $shadow-md;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: $shadow-lg;
-      }
-
-      mat-icon {
-        margin-right: 8px;
-      }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-shrink: 0;
 
       @media (max-width: 768px) {
         width: 100%;
-        justify-content: center;
+        justify-content: stretch;
+        gap: 8px;
+        
+        .refresh-btn,
+        .create-btn {
+          flex: 1;
+        }
+      }
+
+      .refresh-btn {
+        height: 44px;
+        padding: 0 20px;
+        border-radius: $radius-lg;
+        font-weight: 500;
+        border: 2px solid $primary-color;
+        color: $primary-color;
+        background: transparent;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: $primary-color;
+          color: white;
+          transform: translateY(-1px);
+          box-shadow: $shadow-md;
+        }
+
+        mat-icon {
+          margin-right: 8px;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .create-btn {
+        height: 48px;
+        padding: 0 24px;
+        border-radius: $radius-lg;
+        font-weight: 600;
+        font-size: 1rem;
+        background: $primary-color;
+        color: white;
+        box-shadow: $shadow-md;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          background: $primary-dark;
+          transform: translateY(-2px);
+          box-shadow: $shadow-lg;
+        }
+
+        mat-icon {
+          margin-right: 8px;
+          font-size: 22px;
+          width: 22px;
+          height: 22px;
+        }
       }
     }
   }

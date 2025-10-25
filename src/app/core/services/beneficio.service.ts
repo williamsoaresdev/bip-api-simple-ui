@@ -115,11 +115,14 @@ export class BeneficioService {
   }
 
   loadBeneficios(): Observable<PaginatedResponse<Beneficio>> {
+    console.log('🔄 Service: Carregando benefícios da API...');
     this._loading.set('loading');
     this._error.set(null);
 
+    // O cache-busting agora é feito pelo interceptor
     return this.http.get<BeneficioBackendResponse[]>(this.baseUrl).pipe(
       map(backendResponse => {
+        console.log('🔄 Service: Resposta da API recebida:', backendResponse.length, 'benefícios');
         // Mapeia a resposta do backend para o formato esperado pelo frontend
         const beneficios = backendResponse.map(item => this.mapBackendResponseToFrontend(item));
         
@@ -208,18 +211,23 @@ export class BeneficioService {
   }
 
   getBeneficioById(id: string): Observable<ApiResponse<Beneficio | null>> {
+    console.log('🔍 Service: Buscando benefício por ID:', id);
     this._loading.set('loading');
     this._error.set(null);
 
     return this.http.get<BeneficioBackendResponse>(`${this.baseUrl}/${id}`).pipe(
-      map(backendResponse => ({
-        data: this.mapBackendResponseToFrontend(backendResponse),
-        success: true,
-        message: 'Benefício encontrado'
-      } as ApiResponse<Beneficio>)),
+      map(backendResponse => {
+        const beneficio = this.mapBackendResponseToFrontend(backendResponse);
+        return {
+          data: beneficio,
+          success: true,
+          message: 'Benefício encontrado'
+        } as ApiResponse<Beneficio>;
+      }),
       tap(response => {
         this._selectedBeneficio.set(response.data);
         this._loading.set('success');
+        console.log('Benefício encontrado:', response.data);
       }),
       catchError(error => {
         console.error('Erro ao buscar benefício:', error);
@@ -235,29 +243,32 @@ export class BeneficioService {
     );
   }
 
-  createBeneficio(request: CreateBeneficioRequest): Observable<ApiResponse<Beneficio | null>> {
+  createBeneficio(beneficio: CreateBeneficioRequest): Observable<ApiResponse<Beneficio>> {
+    console.log('✨ Service: Criando novo benefício:', beneficio);
     this._loading.set('loading');
     this._error.set(null);
 
-    // Mapear request do frontend para o formato do backend
     const backendRequest: CreateBeneficioBackendRequest = {
-      nome: request.nome,
-      descricao: request.descricao || '',
-      valorInicial: request.valor
+      nome: beneficio.nome || '',
+      descricao: beneficio.descricao || '',
+      valorInicial: beneficio.valor || 0
     };
 
     return this.http.post<BeneficioBackendResponse>(this.baseUrl, backendRequest).pipe(
-      map(backendResponse => ({
-        data: this.mapBackendResponseToFrontend(backendResponse),
-        success: true,
-        message: 'Benefício criado com sucesso'
-      } as ApiResponse<Beneficio>)),
+      map(backendResponse => {
+        const novoBeneficio = this.mapBackendResponseToFrontend(backendResponse);
+        return {
+          data: novoBeneficio,
+          success: true,
+          message: 'Benefício criado com sucesso'
+        } as ApiResponse<Beneficio>;
+      }),
       tap(response => {
-        if (response.data) {
-          const currentBeneficios = this._beneficios();
-          this._beneficios.set([...currentBeneficios, response.data]);
-        }
+        // Adicionar o novo benefício à lista local
+        const currentBeneficios = this._beneficios();
+        this._beneficios.set([...currentBeneficios, response.data]);
         this._loading.set('success');
+        console.log('Benefício criado:', response.data);
       }),
       catchError(error => {
         console.error('Erro ao criar benefício:', error);
@@ -265,41 +276,49 @@ export class BeneficioService {
         this._loading.set('error');
         
         return of({
-          data: null,
+          data: {} as Beneficio,
           success: false,
           message: 'Erro ao criar benefício'
-        } as ApiResponse<Beneficio | null>);
+        } as ApiResponse<Beneficio>);
       })
     );
   }
 
-  updateBeneficio(id: string, request: UpdateBeneficioRequest): Observable<ApiResponse<Beneficio | null>> {
+  updateBeneficio(id: string, beneficio: UpdateBeneficioRequest): Observable<ApiResponse<Beneficio>> {
+    console.log('🔧 Service: Atualizando benefício ID:', id, 'Dados:', beneficio);
     this._loading.set('loading');
     this._error.set(null);
 
-    // Mapear request do frontend para o formato do backend
     const backendRequest: UpdateBeneficioBackendRequest = {
-      nome: request.nome || '',
-      descricao: request.descricao || '',
-      valorInicial: request.valor || 0
+      nome: beneficio.nome || '',
+      descricao: beneficio.descricao || '',
+      valorInicial: beneficio.valor || 0
     };
 
     return this.http.put<BeneficioBackendResponse>(`${this.baseUrl}/${id}`, backendRequest).pipe(
-      map(backendResponse => ({
-        data: this.mapBackendResponseToFrontend(backendResponse),
-        success: true,
-        message: 'Benefício atualizado com sucesso'
-      } as ApiResponse<Beneficio>)),
+      map(backendResponse => {
+        const beneficioAtualizado = this.mapBackendResponseToFrontend(backendResponse);
+        return {
+          data: beneficioAtualizado,
+          success: true,
+          message: 'Benefício atualizado com sucesso'
+        } as ApiResponse<Beneficio>;
+      }),
       tap(response => {
-        if (response.data) {
-          const currentBeneficios = this._beneficios();
-          const updatedBeneficios = currentBeneficios.map(b =>
-            b.id === id ? response.data! : b
-          );
-          this._beneficios.set(updatedBeneficios);
+        // Atualizar o benefício na lista local
+        const currentBeneficios = this._beneficios();
+        const updatedBeneficios = currentBeneficios.map(b => 
+          b.id === id ? response.data : b
+        );
+        this._beneficios.set(updatedBeneficios);
+        
+        // Atualizar benefício selecionado se for o mesmo
+        if (this._selectedBeneficio()?.id === id) {
           this._selectedBeneficio.set(response.data);
         }
+        
         this._loading.set('success');
+        console.log('Benefício atualizado:', response.data);
       }),
       catchError(error => {
         console.error('Erro ao atualizar benefício:', error);
@@ -307,37 +326,47 @@ export class BeneficioService {
         this._loading.set('error');
         
         return of({
-          data: null,
+          data: {} as Beneficio,
           success: false,
           message: 'Erro ao atualizar benefício'
-        } as ApiResponse<Beneficio | null>);
+        } as ApiResponse<Beneficio>);
       })
     );
   }
 
   deleteBeneficio(id: string): Observable<ApiResponse<boolean>> {
+    console.log('🔧 Service: Deletando benefício ID:', id);
+    console.log('🔧 Service: URL completa:', `${this.baseUrl}/${id}`);
     this._loading.set('loading');
     this._error.set(null);
 
     return this.http.delete<DeleteBeneficioResponse>(`${this.baseUrl}/${id}`).pipe(
-      map(response => ({
-        data: true,
-        success: true,
-        message: response.mensagem
-      } as ApiResponse<boolean>)),
+      map(response => {
+        console.log('🔧 Service: Resposta da API:', response);
+        return {
+          data: true,
+          success: true,
+          message: response.mensagem
+        } as ApiResponse<boolean>;
+      }),
       tap(() => {
-        const currentBeneficios = this._beneficios();
-        const filteredBeneficios = currentBeneficios.filter(b => b.id !== id);
-        this._beneficios.set(filteredBeneficios);
+        console.log('🗑️ Service: Delete realizado com sucesso');
         
+        // Remover localmente primeiro para feedback imediato
+        const currentBeneficios = this._beneficios();
+        const updatedBeneficios = currentBeneficios.filter(b => b.id !== id);
+        this._beneficios.set(updatedBeneficios);
+        
+        // Limpar benefício selecionado se for o deletado
         if (this._selectedBeneficio()?.id === id) {
           this._selectedBeneficio.set(null);
         }
         
         this._loading.set('success');
+        console.log('✅ Service: Benefício removido da lista local');
       }),
       catchError(error => {
-        console.error('Erro ao excluir benefício:', error);
+        console.error('🔧 Service: Erro ao deletar benefício:', error);
         this._error.set('Erro ao excluir benefício');
         this._loading.set('error');
         
@@ -348,6 +377,32 @@ export class BeneficioService {
         } as ApiResponse<boolean>);
       })
     );
+  }
+
+  /**
+   * Limpa o cache local e recarrega da API
+   */
+  clearCacheAndReload(): Observable<PaginatedResponse<Beneficio>> {
+    console.log('🧹 Service: Limpando cache e recarregando...');
+    
+    // Limpar cache local
+    this._beneficios.set([]);
+    this._selectedBeneficio.set(null);
+    this._error.set(null);
+    
+    // Limpar cache do browser (se suportado)
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => {
+          if (name.includes('api') || name.includes('beneficios')) {
+            caches.delete(name);
+            console.log('🧹 Cache do browser limpo:', name);
+          }
+        });
+      });
+    }
+    
+    return this.loadBeneficios();
   }
 
   getEstatisticas(): Observable<ApiResponse<BeneficioEstatisticas | null>> {
@@ -369,17 +424,14 @@ export class BeneficioService {
     );
   }
 
-  // Método para limpar erros
   clearError(): void {
     this._error.set(null);
   }
 
-  // Método para recarregar dados
   refresh(): void {
     this.loadBeneficios().subscribe();
   }
 
-  // Método para definir benefício selecionado
   setSelectedBeneficio(beneficio: Beneficio | null): void {
     this._selectedBeneficio.set(beneficio);
   }

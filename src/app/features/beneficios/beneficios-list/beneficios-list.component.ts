@@ -18,6 +18,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog } from '@angular/material/dialog';
 
 // Core Services and Models
 import { BeneficioService } from '../../../core/services/beneficio.service';
@@ -25,6 +26,9 @@ import { Beneficio, BeneficioCategoria } from '../../../core/models/beneficio.mo
 import { BrlCurrencyPipe } from '../../../core/pipes/currency.pipe';
 import { BipDateFormatPipe } from '../../../core/pipes/date-format.pipe';
 import { CategoriaLabelPipe } from '../../../core/pipes/categoria-label.pipe';
+
+// Shared Components
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'bip-beneficios-list',
@@ -59,6 +63,7 @@ import { CategoriaLabelPipe } from '../../../core/pipes/categoria-label.pipe';
 export class BeneficiosListComponent implements OnInit {
   protected readonly beneficioService = inject(BeneficioService);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   ngOnInit(): void {
     // Carregar benefícios ao inicializar o componente
@@ -138,6 +143,21 @@ export class BeneficiosListComponent implements OnInit {
     this.statusFilter.set('TODOS');
   }
 
+  /**
+   * Limpa o cache e recarrega os dados
+   */
+  clearCache(): void {
+    console.log('🧹 Component: Limpando cache...');
+    this.beneficioService.clearCacheAndReload().subscribe({
+      next: (response) => {
+        console.log('✅ Cache limpo e dados recarregados:', response);
+      },
+      error: (error) => {
+        console.error('❌ Erro ao limpar cache:', error);
+      }
+    });
+  }
+
   navigateToCreate(): void {
     console.log('🎯 Navegando para criar benefício');
     this.router.navigate(['/beneficios/novo']);
@@ -154,22 +174,63 @@ export class BeneficiosListComponent implements OnInit {
   }
 
   deleteBeneficio(id: string): void {
-    const beneficio = this.beneficioService.beneficios().find(b => b.id === id);
-    if (!beneficio) return;
-
-    if (confirm(`Tem certeza que deseja excluir o benefício "${beneficio.nome}"?`)) {
-      this.beneficioService.deleteBeneficio(id).subscribe({
-        next: (result) => {
-          if (result.success) {
-            console.log('Benefício excluído com sucesso');
-            // Os dados já são atualizados automaticamente pelo service
-          }
-        },
-        error: (error) => {
-          console.error('Erro ao excluir benefício:', error);
-        }
-      });
+    console.log('🗑️ Iniciando delete do benefício ID:', id, 'tipo:', typeof id);
+    
+    // Buscar o benefício considerando possíveis tipos diferentes
+    const beneficio = this.beneficioService.beneficios().find(b => 
+      b.id === id || b.id === id.toString() || b.id.toString() === id
+    );
+    
+    console.log('🔍 Benefício encontrado:', beneficio);
+    console.log('📋 Todos os benefícios disponíveis:', this.beneficioService.beneficios().map(b => ({ id: b.id, nome: b.nome, tipo: typeof b.id })));
+    
+    if (!beneficio) {
+      console.error('❌ Benefício não encontrado para ID:', id);
+      return;
     }
+
+    const dialogData: ConfirmationDialogData = {
+      title: 'Confirmar Exclusão',
+      message: `Tem certeza que deseja excluir o benefício "${beneficio.nome}"? Esta ação não pode ser desfeita.`,
+      confirmText: 'Excluir',
+      cancelText: 'Cancelar',
+      type: 'danger',
+      icon: 'delete_forever'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '500px',
+      maxWidth: '90vw',
+      data: dialogData,
+      disableClose: true,
+      panelClass: ['modern-dialog'],
+      backdropClass: 'modern-backdrop',
+      hasBackdrop: true
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      console.log('🔔 Modal fechada, confirmado:', confirmed);
+      if (confirmed) {
+        console.log('✅ Usuário confirmou, deletando benefício ID:', id);
+        this.beneficioService.deleteBeneficio(id).subscribe({
+          next: (result) => {
+            console.log('📝 Resultado da API:', result);
+            if (result.success) {
+              console.log('✅ Benefício excluído com sucesso');
+              // O service já remove o item da lista localmente
+              // Não precisamos fazer reload extra aqui
+            }
+          },
+          error: (error) => {
+            console.error('❌ Erro ao excluir benefício:', error);
+            // Em caso de erro, recarregar para manter consistência
+            this.beneficioService.loadBeneficios().subscribe();
+          }
+        });
+      } else {
+        console.log('🚫 Usuário cancelou a exclusão');
+      }
+    });
   }
 
   getCategoryLabel(category: string): string {

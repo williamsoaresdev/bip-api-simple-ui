@@ -37,3 +37,19 @@
     @apply animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-primary-600;
   }
 }
+
+// Custom Dialog Styles
+.modern-dialog {
+  .mat-mdc-dialog-container {
+    border-radius: 20px !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  }
+}
+
+.modern-backdrop {
+  background: rgba(0, 0, 0, 0.4) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  backdrop-filter: blur(4px) !important;
+}

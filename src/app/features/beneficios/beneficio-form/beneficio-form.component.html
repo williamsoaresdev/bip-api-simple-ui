@@ -139,7 +139,8 @@
                 </label>
                 <select 
                   class="field-select"
-                  formControlName="categoria">
+                  formControlName="categoria"
+                  title="Selecione uma categoria para o benefício">
                   <option value="">Selecione uma categoria</option>
                   @for (categoria of categorias; track categoria) {
                     <option [value]="categoria">

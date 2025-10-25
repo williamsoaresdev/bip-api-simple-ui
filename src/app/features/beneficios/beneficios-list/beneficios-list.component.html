@@ -9,14 +9,26 @@
         </h1>
         <p class="page-subtitle">Gerencie todos os benefícios do sistema de forma moderna e intuitiva</p>
       </div>
-      <button 
-        mat-raised-button 
-        color="primary" 
-        class="create-btn"
-        (click)="navigateToCreate()">
-        <mat-icon>add</mat-icon>
-        Novo Benefício
-      </button>
+      <div class="header-actions">
+        <button 
+          mat-stroked-button 
+          color="accent" 
+          class="refresh-btn"
+          (click)="clearCache()"
+          matTooltip="Limpar cache e recarregar dados">
+          <mat-icon>refresh</mat-icon>
+          Atualizar
+        </button>
+        
+        <button 
+          mat-raised-button 
+          color="primary" 
+          class="create-btn"
+          (click)="navigateToCreate()">
+          <mat-icon>add</mat-icon>
+          Novo Benefício
+        </button>
+      </div>
     </div>
   </div>
 
