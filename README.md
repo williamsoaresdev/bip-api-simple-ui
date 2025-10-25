@@ -1,154 +1,308 @@
-# 🚀 BIP API Angular UI
+# 🚀 BIP API Simple UI# 🚀 BIP API Simple UI
 
-**Sistema de Gestão de Benefícios** - Interface moderna em Angular para consumir a API BIP.
 
-## 📋 Visão Geral
 
-Esta é uma aplicação Angular moderna e profissional desenvolvida para consumir a **BIP API**. A aplicação segue as melhores práticas de desenvolvimento frontend, incluindo:
+**Sistema de Gestão de Benefícios e Transferências** - Interface Angular moderna para consumir a API BIP Java.**Sistema de Gestão de Benefícios e Transferências** - Interface Angular moderna para consumir a API BIP Java.
 
-- ✅ **Arquitetura moderna** com Angular 17+
-- ✅ **Standalone Components** para melhor performance
-- ✅ **Lazy Loading** para otimização de bundle
-- ✅ **Observables e RxJS** para programação reativa
-- ✅ **Angular Material** para UI/UX consistente
-- ✅ **TypeScript** com tipagem forte
-- ✅ **Responsive Design** para mobile e desktop
 
-## 🏗️ Arquitetura
 
-```
-src/
-├── app/
-│   ├── core/                     # Funcionalidades centrais
-│   │   ├── models/              # Interfaces e tipos TypeScript
+## 📋 Sobre o Projeto## 📋 Sobre o Projeto
+
+
+
+Aplicação frontend desenvolvida em **Angular 20** que oferece uma interface completa para gerenciamento de benefícios e transferências, integrada com a API REST BIP Java.Aplicação frontend desenvolvida em Angular 20 que oferece uma interface completa para gerenciamento de benefícios e transferências, integrada com a API REST BIP Java.
+
+
+
+## ✨ Principais Características### ✨ Principais Características
+
+
+
+- 🎯 **Angular 20** com Standalone Components- 🎯 **Angular 20** com Standalone Components
+
+- 🎨 **Angular Material** para design profissional- 🎨 **Angular Material** para design profissional
+
+- 📱 **Responsive Design** para todos os dispositivos- 📱 **Responsive Design** para todos os dispositivos
+
+- ⚡ **Performance otimizada** com lazy loading- ⚡ **Performance otimizada** com lazy loading
+
+- 🔒 **TypeScript** com tipagem estrita- 🔒 **TypeScript** com tipagem estrita
+
+- 🔄 **RxJS** para programação reativa- 🔄 **RxJS** para programação reativa
+
+- 🎪 **Interceptors** para loading e error handling- 🎪 **Interceptors** para loading e error handling
+
+
+
+## 🎯 Funcionalidades## 🏗️ Arquitetura
+
+
+
+### Benefícios```
+
+- ✅ Listagem com filtros e ordenaçãosrc/
+
+- ✅ Criação e edição de benefícios├── app/
+
+- ✅ Visualização de detalhes│   ├── core/                     # Funcionalidades centrais
+
+- ✅ Ativação/desativação│   │   ├── models/              # Interfaces e tipos TypeScript
+
 │   │   └── services/            # Services com HttpClient
-│   ├── shared/                  # Componentes reutilizáveis
-│   │   └── components/          # Loading, Error, Dialog
-│   ├── features/                # Módulos de funcionalidades
-│   │   ├── beneficios/         # Gestão de benefícios
-│   │   ├── transferencias/     # Sistema de transferências
+
+### Transferências│   ├── shared/                  # Componentes reutilizáveis
+
+- ✅ Execução de transferências entre benefícios│   │   └── components/          # Loading, Error, Dialog
+
+- ✅ Validação de saldos│   ├── features/                # Módulos de funcionalidades
+
+- ✅ Histórico completo│   │   ├── beneficios/         # Gestão de benefícios
+
+- ✅ Formulários reativos com validação│   │   ├── transferencias/     # Sistema de transferências
+
 │   │   └── dashboard/          # Dashboard principal
-│   ├── app.component.ts        # Componente raiz
-│   ├── app.config.ts          # Configuração da aplicação
-│   └── app.routes.ts          # Roteamento com lazy loading
-└── environments/               # Configurações de ambiente
+
+### Dashboard│   ├── app.component.ts        # Componente raiz
+
+- ✅ Visão geral do sistema│   ├── app.config.ts          # Configuração da aplicação
+
+- ✅ Estatísticas em tempo real│   └── app.routes.ts          # Roteamento com lazy loading
+
+- ✅ Navegação rápida└── environments/               # Configurações de ambiente
+
 ```
+
+## 🛠️ Tecnologias
 
 ## ⚡ Features Implementadas
 
-### 🏠 **Layout Principal**
-- ✅ Sidenav responsivo com Angular Material
-- ✅ Toolbar com navegação
-- ✅ Breakpoint observer para mobile/desktop
-- ✅ Design consistente com tema personalizado
+| Tecnologia | Versão | Uso |
+
+|------------|--------|-----|### 🏠 **Layout Principal**
+
+| **Angular** | 20.x | Framework principal |- ✅ Sidenav responsivo com Angular Material
+
+| **Angular Material** | 20.x | Componentes UI |- ✅ Toolbar com navegação
+
+| **TypeScript** | 5.9+ | Linguagem |- ✅ Breakpoint observer para mobile/desktop
+
+| **RxJS** | 7.8+ | Programação reativa |- ✅ Design consistente com tema personalizado
+
+| **SCSS** | - | Estilos |
 
 ### 💰 **Gestão de Benefícios**
-- ✅ Listagem com tabela responsiva
+
+## 🚀 Como Executar- ✅ Listagem com tabela responsiva
+
 - ✅ Criação de novos benefícios
-- ✅ Edição com validações
-- ✅ Visualização de detalhes
-- ✅ Remoção com confirmação
-- ✅ Status ativo/inativo
 
-### 🔄 **Sistema de Transferências**
+### Pré-requisitos- ✅ Edição com validações
+
+- Node.js 18+- ✅ Visualização de detalhes
+
+- npm 9+- ✅ Remoção com confirmação
+
+- Angular CLI- ✅ Status ativo/inativo
+
+
+
+### Instalação e Execução### 🔄 **Sistema de Transferências**
+
 - ✅ Execução de transferências
-- ✅ Validação prévia
-- ✅ Cálculo de taxas
-- ✅ Histórico local
-- ✅ Formulários reativos
 
-### 📊 **Dashboard**
-- ✅ Estatísticas dos benefícios
+```bash- ✅ Validação prévia
+
+# 1. Clone o repositório- ✅ Cálculo de taxas
+
+git clone <repository-url>- ✅ Histórico local
+
+cd bip-api-simple-ui- ✅ Formulários reativos
+
+
+
+# 2. Instale dependências### 📊 **Dashboard**
+
+npm install- ✅ Estatísticas dos benefícios
+
 - ✅ Resumo do sistema
-- ✅ Status da API
+
+# 3. Configure a API (se necessário)- ✅ Status da API
+
+# Edite proxy.conf.json ou src/environments/environment.ts
 
 ## 🛠️ Tecnologias Utilizadas
 
-| Tecnologia | Versão | Descrição |
+# 4. Execute o projeto
+
+npm start| Tecnologia | Versão | Descrição |
+
 |------------|--------|-----------|
-| **Angular** | 17.x | Framework principal |
-| **Angular Material** | 17.x | Componentes UI |
+
+# 5. Acesse http://localhost:4200| **Angular** | 17.x | Framework principal |
+
+```| **Angular Material** | 17.x | Componentes UI |
+
 | **RxJS** | 7.8+ | Programação reativa |
-| **TypeScript** | 5.2+ | Linguagem tipada |
+
+### Scripts Disponíveis| **TypeScript** | 5.2+ | Linguagem tipada |
+
 | **SCSS** | - | Preprocessador CSS |
 
-## 🚀 Como Executar
+```bash
 
-### **Pré-requisitos**
-- Node.js 18+
-- npm ou yarn
+npm start           # Desenvolvimento com proxy## 🚀 Como Executar
+
+npm run build       # Build de produção
+
+npm test            # Testes unitários### **Pré-requisitos**
+
+npm run lint        # Verificação de código- Node.js 18+
+
+```- npm ou yarn
+
 - Angular CLI 17+
 
+## 📱 Recursos Implementados
+
 ### **1. Instalação**
-```bash
-# Clone o repositório
-git clone <repository-url>
-cd bip-api-simple-ui
+
+### Design e UX```bash
+
+- 🎨 **Material Design** com tema customizado# Clone o repositório
+
+- 📱 **Responsive** para mobile e desktopgit clone <repository-url>
+
+- ♿ **Acessibilidade** com ARIA labelscd bip-api-simple-ui
+
+- 🔄 **Loading states** e feedback visual
 
 # Instale as dependências
-npm install
 
-# ou usando yarn
-yarn install
-```
+### Performancenpm install
 
-### **2. Configuração**
-```bash
-# Configure a URL da API em src/environments/environment.ts
-export const environment = {
-  production: false,
+- ⚡ **Lazy loading** de módulos
+
+- 🎯 **OnPush** change detection# ou usando yarn
+
+- 📦 **Bundle otimizado** (~200KB gzipped)yarn install
+
+- 🔄 **Observable caching** com shareReplay```
+
+
+
+### Qualidade de Código### **2. Configuração**
+
+- 📝 **TypeScript strict mode**```bash
+
+- 🧪 **Testes unitários** configurados# Configure a URL da API em src/environments/environment.ts
+
+- 📏 **ESLint** para qualidadeexport const environment = {
+
+- 🎯 **Standalone components**  production: false,
+
   apiUrl: 'http://localhost:8080/api/v1',  # URL da sua API BIP
-  apiTimeout: 30000,
+
+## 🔗 Integração com API  apiTimeout: 30000,
+
   enableDevTools: true
-};
-```
 
-### **3. Executar em Desenvolvimento**
-```bash
+A aplicação consome a **BIP API Java** através de:};
+
+- ✅ **Proxy configurado** para desenvolvimento```
+
+- ✅ **HttpClient** com interceptors
+
+- ✅ **Error handling** centralizado### **3. Executar em Desenvolvimento**
+
+- ✅ **Loading indicators** automáticos```bash
+
 # Inicie o servidor de desenvolvimento
-ng serve
 
-# ou com porta específica
-ng serve --port 4200
+### Endpoints Utilizadosng serve
 
-# Acesse http://localhost:4200
-```
+- `GET /api/v1/beneficios` - Lista benefícios
 
-### **4. Build para Produção**
+- `POST /api/v1/beneficios` - Cria benefício# ou com porta específica
+
+- `PUT /api/v1/beneficios/{id}` - Atualiza benefíciong serve --port 4200
+
+- `DELETE /api/v1/beneficios/{id}` - Remove benefício
+
+- `GET /api/v1/transferencias` - Lista transferências# Acesse http://localhost:4200
+
+- `POST /api/v1/transferencias` - Executa transferência```
+
+
+
+## 📂 Estrutura do Projeto### **4. Build para Produção**
+
 ```bash
-# Build otimizado para produção
-ng build --configuration=production
 
-# Os arquivos estarão em dist/bip-api-angular-ui/
-```
+```# Build otimizado para produção
 
-## 📱 Responsividade
+src/ng build --configuration=production
 
-A aplicação é totalmente responsiva:
+├── app/
 
-- 📱 **Mobile** (< 768px): Sidenav overlay, layout compacto
-- 💻 **Tablet** (768px - 1024px): Layout intermediário
+│   ├── core/                   # Serviços, modelos, interceptors# Os arquivos estarão em dist/bip-api-angular-ui/
+
+│   ├── features/               # Módulos funcionais```
+
+│   │   ├── beneficios/        # Gestão de benefícios
+
+│   │   ├── transferencias/    # Sistema de transferências## 📱 Responsividade
+
+│   │   └── dashboard/         # Dashboard principal
+
+│   ├── shared/                # Componentes compartilhadosA aplicação é totalmente responsiva:
+
+│   └── styles/                # Estilos globais
+
+└── environments/              # Configurações- 📱 **Mobile** (< 768px): Sidenav overlay, layout compacto
+
+```- 💻 **Tablet** (768px - 1024px): Layout intermediário
+
 - 🖥️ **Desktop** (> 1024px): Sidenav fixa, layout completo
+
+## 📋 Status do Projeto
 
 ## 🎨 Design System
 
-### **Cores Principais**
-- 🟣 **Primary**: #667eea (Gradiente roxo/azul)
-- 🟢 **Accent**: #4caf50 (Verde)
-- 🔴 **Warn**: #f44336 (Vermelho)
+- ✅ **Frontend completo** e funcional
+
+- ✅ **Integração com API** testada### **Cores Principais**
+
+- ✅ **Design responsivo** implementado- 🟣 **Primary**: #667eea (Gradiente roxo/azul)
+
+- ✅ **Validações** de formulário- 🟢 **Accent**: #4caf50 (Verde)
+
+- ✅ **Error handling** robusto- 🔴 **Warn**: #f44336 (Vermelho)
+
+- ✅ **Performance otimizada**
 
 ### **Tipografia**
-- **Font**: Roboto (Material Design)
+
+## 🤝 Contribuindo- **Font**: Roboto (Material Design)
+
 - **Tamanhos**: 12px, 14px, 16px, 18px, 24px
 
-### **Componentes Reutilizáveis**
+1. Fork o projeto
 
-#### **Loading Component**
-```html
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)### **Componentes Reutilizáveis**
+
+3. Commit suas mudanças (`git commit -m 'feat: nova funcionalidade'`)
+
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)#### **Loading Component**
+
+5. Abra um Pull Request```html
+
 <bip-loading 
-  message="Carregando dados..."
+
+---  message="Carregando dados..."
+
   [size]="40"
-  [overlay]="false"
+
+**Desenvolvido com ❤️ em Angular 20**  [overlay]="false"
   [showCard]="true">
 </bip-loading>
 ```
