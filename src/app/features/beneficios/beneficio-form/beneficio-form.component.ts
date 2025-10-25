@@ -13,7 +13,6 @@ import {
   Validators
 } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -25,6 +24,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Core Services and Models
 import { BeneficioService } from '../../../core/services/beneficio.service';
@@ -53,7 +54,9 @@ type FormMode = 'create' | 'edit' | 'view';
     MatButtonModule,
     MatSelectModule,
     MatSlideToggleModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './beneficio-form.component.html',
   styleUrl: './beneficio-form.component.scss',
@@ -84,7 +87,7 @@ export class BeneficioFormComponent implements OnInit {
     descricao: this.fb.control('', [
       Validators.maxLength(500)
     ]),
-    valor: this.fb.control(0, [
+    valor: this.fb.control(1, [
       Validators.required,
       Validators.min(0.01)
     ]),
@@ -142,27 +145,35 @@ export class BeneficioFormComponent implements OnInit {
     );
   });
 
+  readonly currentCategoriaLabel = computed(() => {
+    const categoria = this.beneficioForm.get('categoria')?.value;
+    return categoria ? this.categoriasLabels[categoria] : 'Outros';
+  });
+
   constructor() {
     this.setupFormValidation();
   }
 
   ngOnInit(): void {
+    console.log('🎯 BeneficioForm ngOnInit executado');
+    console.log('🔧 Form inicial:', this.beneficioForm.value);
+    console.log('🔧 Form válido:', this.beneficioForm.valid);
+    console.log('🔧 Form errors:', this.getFormErrors());
     this.initializeForm();
   }
 
   private initializeForm(): void {
-    this.route.params
-      .pipe(takeUntilDestroyed())
-      .subscribe(params => {
-        const id = params['id'];
-        if (id) {
-          this.beneficioId.set(id);
-          this.mode.set('edit');
-          this.loadBeneficio(id);
-        } else {
-          this.mode.set('create');
-        }
-      });
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      if (id) {
+        this.beneficioId.set(id);
+        this.mode.set('edit');
+        this.loadBeneficio(id);
+      } else {
+        this.mode.set('create');
+        console.log('🎯 Modo CREATE ativado');
+      }
+    });
   }
 
   private loadBeneficio(id: string): void {
@@ -175,8 +186,7 @@ export class BeneficioFormComponent implements OnInit {
           this.error.set('Erro ao carregar benefício: ' + error.message);
           return of(null);
         }),
-        finalize(() => this.loading.set(false)),
-        takeUntilDestroyed()
+        finalize(() => this.loading.set(false))
       )
       .subscribe(response => {
         if (response?.data) {
@@ -195,11 +205,15 @@ export class BeneficioFormComponent implements OnInit {
 
   private setupFormValidation(): void {
     // Setup real-time validation
-    this.beneficioForm.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => {
-        this.error.set(null);
-      });
+    this.beneficioForm.valueChanges.subscribe((value) => {
+      this.error.set(null);
+      console.log('🔄 Form value changed:', value);
+      console.log('🔄 Form valid:', this.beneficioForm.valid);
+      this.logFormState();
+    });
+
+    // Log initial form state
+    setTimeout(() => this.logFormState(), 100);
   }
 
   onSubmit(): void {
@@ -220,8 +234,7 @@ export class BeneficioFormComponent implements OnInit {
           this.error.set('Erro ao salvar benefício: ' + error.message);
           return of(null);
         }),
-        finalize(() => this.submitting.set(false)),
-        takeUntilDestroyed()
+        finalize(() => this.submitting.set(false))
       )
       .subscribe(result => {
         if (result) {
@@ -267,5 +280,30 @@ export class BeneficioFormComponent implements OnInit {
     if (errors['min']) return `Valor deve ser maior que ${errors['min'].min}`;
     
     return 'Campo inválido';
+  }
+
+  getFormErrors(): any {
+    const formErrors: any = {};
+    Object.keys(this.beneficioForm.controls).forEach(key => {
+      const controlErrors = this.beneficioForm.get(key)?.errors;
+      if (controlErrors) {
+        formErrors[key] = controlErrors;
+      }
+    });
+    return formErrors;
+  }
+
+  // Debug method to track form changes
+  private logFormState(): void {
+    console.log('📊 Form State Debug:', {
+      valid: this.beneficioForm.valid,
+      value: this.beneficioForm.value,
+      errors: this.getFormErrors(),
+      touched: {
+        nome: this.beneficioForm.get('nome')?.touched,
+        valor: this.beneficioForm.get('valor')?.touched,
+        categoria: this.beneficioForm.get('categoria')?.touched
+      }
+    });
   }
 }
