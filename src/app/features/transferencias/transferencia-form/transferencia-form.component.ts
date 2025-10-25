@@ -1,293 +1,223 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { 
+  Component, 
+  OnInit, 
+  ChangeDetectionStrategy, 
+  signal, 
+  computed, 
+  inject,
+  OnDestroy
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of, catchError, Observable, tap } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-// Material Design Imports
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 
-// Models and Services
-import { Transferencia, CreateTransferenciaRequest } from '@core/models/transferencia.model';
-import { Beneficio } from '@core/models/beneficio.model';
-import { TransferenciaService } from '@core/services/transferencia.service';
-import { BeneficioService } from '@core/services/beneficio.service';
-import { NotificationService } from '@core/services/notification.service';
-
-interface FormErrors {
-  beneficioId?: string;
-  destinatario?: string;
-  valor?: string;
-  observacoes?: string;
-}
+import { TransferenciaService } from '../../../core/services/transferencia.service';
+import { BeneficioService } from '../../../core/services/beneficio.service';
+import { 
+  CreateTransferenciaRequest, 
+  ValidarTransferenciaRequest,
+  ValidarTransferenciaResponse 
+} from '../../../core/models/transferencia.model';
 
 @Component({
   selector: 'bip-transferencia-form',
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     ReactiveFormsModule,
     MatCardModule,
+    MatButtonModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
     MatSelectModule,
-    MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatStepperModule,
+    MatTooltipModule,
+    MatChipsModule
   ],
   templateUrl: './transferencia-form.component.html',
-  styleUrls: ['./transferencia-form.component.scss']
+  styleUrl: './transferencia-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransferenciaFormComponent implements OnInit {
+export class TransferenciaFormComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly transferenciaService = inject(TransferenciaService);
   private readonly beneficioService = inject(BeneficioService);
-  private readonly notificationService = inject(NotificationService);
+  private readonly destroy$ = new Subject<void>();
 
-  // Form signals
-  readonly transferencia = signal<Transferencia | null>(null);
-  readonly transferencias = signal<Transferencia[]>([]);
-  readonly beneficios = signal<Beneficio[]>([]);
   readonly loading = signal(false);
-  readonly loadingBeneficios = signal(false);
   readonly submitting = signal(false);
+  readonly validating = signal(false);
   readonly error = signal<string | null>(null);
-  readonly formErrors = signal<FormErrors>({});
+  readonly validationResult = signal<ValidarTransferenciaResponse | null>(null);
 
-  // Form group
-  transferForm: FormGroup;
+  readonly beneficios = this.beneficioService.beneficios;
+  readonly beneficiosLoading = this.beneficioService.loading;
 
-  // Computed properties
-  readonly canSubmit = computed(() => 
-    this.transferForm?.valid && !this.submitting() && !this.loading()
-  );
-
-  readonly hasErrors = computed(() => 
-    Object.keys(this.formErrors()).length > 0
-  );
-
-  readonly totalValue = computed(() => {
-    const valor = this.transferForm?.get('valor')?.value;
-    return valor ? parseFloat(valor) : 0;
+  readonly form = this.fb.group({
+    beneficioOrigemId: ['', [Validators.required]],
+    beneficioDestinoId: ['', [Validators.required]],
+    valor: [0, [Validators.required, Validators.min(0.01)]],
+    observacoes: ['']
   });
 
-  readonly selectedBeneficio = computed(() => {
-    const beneficioId = this.transferForm?.get('beneficioId')?.value;
-    return this.beneficios().find(b => b.id === beneficioId) || null;
+  readonly isValidForm = computed(() => {
+    return this.form.valid && !this.hasValidationErrors();
   });
 
-  readonly formattedTotalValue = computed(() => {
-    const total = this.totalValue();
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(total);
+  readonly hasValidationErrors = computed(() => {
+    const result = this.validationResult();
+    return result && !result.valida;
   });
 
-  readonly todayDate = computed(() => {
-    return new Date().toISOString().split('T')[0];
+  readonly canSubmit = computed(() => {
+    return this.isValidForm() && 
+           !this.submitting() && 
+           !this.validating() &&
+           this.validationResult()?.valida === true;
   });
-
-  constructor() {
-    this.transferForm = this.createForm();
-    this.setupFormValidation();
-  }
 
   ngOnInit(): void {
     this.loadBeneficios();
-    this.setupFormEffects();
+    this.setupValidation();
   }
 
-  private createForm(): FormGroup {
-    return this.fb.group({
-      beneficioId: ['', [
-        Validators.required
-      ]],
-      destinatario: ['', [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(100)
-      ]],
-      valor: ['', [
-        Validators.required,
-        Validators.min(0.01),
-        Validators.max(999999.99)
-      ]],
-      observacoes: ['', [
-        Validators.maxLength(500)
-      ]]
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  private setupFormValidation(): void {
-    effect(() => {
-      if (this.transferForm) {
-        this.validateForm();
-      }
-    });
+  private loadBeneficios(): void {
+    this.beneficioService.refresh();
   }
 
-  private setupFormEffects(): void {
-    // Form value changes effect
-    effect(() => {
-      if (this.transferForm) {
-        this.transferForm.valueChanges.subscribe(() => {
-          this.validateForm();
-        });
-      }
-    });
-
-    // Error handling effect
-    effect(() => {
-      const error = this.error();
-      if (error) {
-        this.notificationService.showError(error);
-      }
-    });
+  private setupValidation(): void {
+    // Validação automática quando os campos necessários mudarem
+    this.form.valueChanges
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        switchMap((formValue) => {
+          if (formValue.beneficioOrigemId && 
+              formValue.beneficioDestinoId && 
+              formValue.valor && formValue.valor > 0) {
+            return this.validateTransferencia();
+          }
+          return of(null);
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
-  private validateForm(): void {
-    const errors: FormErrors = {};
-
-    // Validate beneficioId
-    const beneficioIdControl = this.transferForm.get('beneficioId');
-    if (beneficioIdControl?.invalid && beneficioIdControl?.touched) {
-      if (beneficioIdControl.errors?.['required']) {
-        errors.beneficioId = 'Benefício é obrigatório';
-      }
+  private validateTransferencia(): Observable<ValidarTransferenciaResponse | null> {
+    const formValue = this.form.value;
+    
+    if (!formValue.beneficioOrigemId || !formValue.beneficioDestinoId || !formValue.valor) {
+      return of(null);
     }
 
-    // Validate destinatario
-    const destinatarioControl = this.transferForm.get('destinatario');
-    if (destinatarioControl?.invalid && destinatarioControl?.touched) {
-      if (destinatarioControl.errors?.['required']) {
-        errors.destinatario = 'Destinatário é obrigatório';
-      } else if (destinatarioControl.errors?.['minlength']) {
-        errors.destinatario = 'Destinatário deve ter pelo menos 2 caracteres';
-      } else if (destinatarioControl.errors?.['maxlength']) {
-        errors.destinatario = 'Destinatário não pode exceder 100 caracteres';
-      }
-    }
+    const request: ValidarTransferenciaRequest = {
+      beneficioOrigemId: Number(formValue.beneficioOrigemId),
+      beneficioDestinoId: Number(formValue.beneficioDestinoId),
+      valor: formValue.valor,
+      descricao: formValue.observacoes || 'Transferência'
+    };
 
-    // Validate valor
-    const valorControl = this.transferForm.get('valor');
-    if (valorControl?.invalid && valorControl?.touched) {
-      if (valorControl.errors?.['required']) {
-        errors.valor = 'Valor é obrigatório';
-      } else if (valorControl.errors?.['min']) {
-        errors.valor = 'Valor deve ser maior que R$ 0,00';
-      } else if (valorControl.errors?.['max']) {
-        errors.valor = 'Valor não pode exceder R$ 999.999,99';
-      }
-    }
+    this.validating.set(true);
+    this.error.set(null);
 
-    // Validate observacoes
-    const observacoesControl = this.transferForm.get('observacoes');
-    if (observacoesControl?.invalid && observacoesControl?.touched) {
-      if (observacoesControl.errors?.['maxlength']) {
-        errors.observacoes = 'Observações não podem exceder 500 caracteres';
-      }
-    }
-
-    this.formErrors.set(errors);
+    return this.transferenciaService.validarTransferencia(request)
+      .pipe(
+        tap(result => {
+          this.validating.set(false);
+          if (result) {
+            this.validationResult.set(result);
+            
+            if (!result.valida && result.mensagem) {
+              this.error.set(result.mensagem);
+            }
+          }
+        }),
+        catchError(error => {
+          console.error('Erro na validação:', error);
+          this.error.set('Erro ao validar transferência');
+          this.validationResult.set(null);
+          this.validating.set(false);
+          return of(null);
+        }),
+        takeUntil(this.destroy$)
+      );
   }
 
-  private async loadBeneficios(): Promise<void> {
-    try {
-      this.loadingBeneficios.set(true);
-      this.error.set(null);
-
-      // Usando o método que existe no serviço
-      this.beneficioService.loadBeneficios().subscribe({
-        next: (response) => {
-          this.beneficios.set(response.data);
-        },
-        error: (error) => {
-          console.error('Erro ao carregar benefícios:', error);
-          this.error.set('Erro ao carregar lista de benefícios');
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro ao carregar benefícios:', error);
-      this.error.set('Erro ao carregar lista de benefícios');
-    } finally {
-      this.loadingBeneficios.set(false);
+  onValidateNow(): void {
+    if (this.form.valid) {
+      this.validateTransferencia().subscribe();
     }
   }
 
-  async onSubmit(): Promise<void> {
-    if (!this.transferForm.valid) {
-      this.markFormGroupTouched();
+  onSubmit(): void {
+    if (!this.canSubmit()) {
       return;
     }
 
-    try {
-      this.submitting.set(true);
-      this.error.set(null);
+    const formValue = this.form.value;
+    const request: CreateTransferenciaRequest = {
+      beneficioOrigemId: Number(formValue.beneficioOrigemId!),
+      beneficioDestinoId: Number(formValue.beneficioDestinoId!),
+      valor: formValue.valor!,
+      descricao: formValue.observacoes || 'Transferência'
+    };
 
-      const formValue = this.transferForm.value;
-      const createRequest: CreateTransferenciaRequest = {
-        beneficioId: formValue.beneficioId,
-        destinatario: formValue.destinatario,
-        valor: parseFloat(formValue.valor),
-        observacoes: formValue.observacoes || undefined
-      };
+    this.submitting.set(true);
+    this.error.set(null);
 
-      this.transferenciaService.createTransferencia(createRequest).subscribe({
+    this.transferenciaService.createTransferencia(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (response) => {
-          this.notificationService.showSuccess('Transferência criada com sucesso!');
+          this.submitting.set(false);
+          this.snackBar.open('Transferência criada com sucesso!', 'Fechar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          
+          // Navegar para a lista de transferências
           this.router.navigate(['/transferencias']);
         },
         error: (error) => {
-          console.error('Erro ao criar transferência:', error);
-          this.error.set('Erro ao criar transferência. Tente novamente.');
+          this.submitting.set(false);
+          const errorMessage = error.error?.message || error.message || 'Erro ao criar transferência';
+          this.error.set(errorMessage);
+          this.snackBar.open(errorMessage, 'Fechar', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
-
-    } catch (error) {
-      console.error('Erro ao criar transferência:', error);
-      this.error.set('Erro ao criar transferência. Tente novamente.');
-    } finally {
-      this.submitting.set(false);
-    }
   }
 
   onCancel(): void {
     this.router.navigate(['/transferencias']);
-  }
-
-  onRefreshBeneficios(): void {
-    this.loadBeneficios();
-  }
-
-  private markFormGroupTouched(): void {
-    Object.keys(this.transferForm.controls).forEach(key => {
-      this.transferForm.get(key)?.markAsTouched();
-    });
-    this.validateForm();
-  }
-
-  // Helper methods for template
-  getFieldError(fieldName: string): string | null {
-    const errors = this.formErrors();
-    return errors[fieldName as keyof FormErrors] || null;
-  }
-
-  isFieldInvalid(fieldName: string): boolean {
-    const control = this.transferForm.get(fieldName);
-    return !!(control?.invalid && control?.touched);
-  }
-
-  isFieldValid(fieldName: string): boolean {
-    const control = this.transferForm.get(fieldName);
-    return !!(control?.valid && control?.touched);
   }
 
   formatCurrency(value: number): string {
@@ -297,20 +227,23 @@ export class TransferenciaFormComponent implements OnInit {
     }).format(value);
   }
 
-  formatDate(date: Date): string {
-    return new Intl.DateTimeFormat('pt-BR').format(date);
+  getBeneficioDisplay(beneficioId: string): string {
+    const beneficios = this.beneficios();
+    const beneficio = beneficios.find(b => b.id === beneficioId);
+    return beneficio ? `${beneficio.nome} (ID: ${beneficio.id})` : beneficioId;
   }
 
-  getBeneficiarioInitials(nome: string): string {
-    return nome
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-  }
-
-  getBeneficioInitials(nome: string): string {
-    return this.getBeneficiarioInitials(nome);
+  // Validação de campos específicos
+  getFieldError(fieldName: string): string | null {
+    const field = this.form.get(fieldName);
+    if (field && field.touched && field.errors) {
+      if (field.errors['required']) {
+        return 'Este campo é obrigatório';
+      }
+      if (field.errors['min']) {
+        return 'Valor deve ser maior que zero';
+      }
+    }
+    return null;
   }
 }

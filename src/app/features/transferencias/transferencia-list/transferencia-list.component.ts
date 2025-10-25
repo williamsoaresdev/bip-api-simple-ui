@@ -4,33 +4,20 @@ import {
   ChangeDetectionStrategy, 
   signal, 
   computed, 
-  inject 
+  inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
-
-// Material Design Imports
+import { RouterModule } from '@angular/router';
+import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 
-// Core Services and Models
-import { TransferenciaService } from '@core/services/transferencia.service';
-import { Transferencia, TransferenciaStatus } from '@core/models/transferencia.model';
+import { TransferenciaService } from '../../../core/services/transferencia.service';
+import { Transferencia, TRANSFERENCIA_STATUS_LABELS } from '../../../core/models/transferencia.model';
 
 @Component({
   selector: 'bip-transferencia-list',
@@ -38,207 +25,102 @@ import { Transferencia, TransferenciaStatus } from '@core/models/transferencia.m
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule,
+    MatTableModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatTableModule,
-    MatChipsModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatPaginatorModule,
-    MatSortModule,
+    MatProgressSpinnerModule,
     MatTooltipModule,
-    MatMenuModule,
-    MatProgressSpinnerModule
+    MatChipsModule
   ],
   templateUrl: './transferencia-list.component.html',
   styleUrl: './transferencia-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransferenciaListComponent implements OnInit {
-  private readonly router = inject(Router);
-  protected readonly transferenciaService = inject(TransferenciaService);
+  private readonly transferenciaService = inject(TransferenciaService);
 
-  // Filtros e busca
-  readonly searchTerm = signal<string>('');
-  readonly selectedStatus = signal<TransferenciaStatus | 'TODOS'>('TODOS');
-  readonly dateFilter = signal<'TODOS' | 'HOJE' | 'SEMANA' | 'MES'>('TODOS');
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly transferencias = this.transferenciaService.transferencias;
+  readonly loading = this.transferenciaService.loading;
+  readonly error = this.transferenciaService.error;
+  readonly isLoading = this.transferenciaService.isLoading;
+  readonly hasError = this.transferenciaService.hasError;
 
-  readonly displayedColumns: string[] = ['destinatario', 'valor', 'status', 'data', 'observacoes', 'actions'];
+  readonly statusLabels = TRANSFERENCIA_STATUS_LABELS;
+  readonly displayedColumns = signal<string[]>([
+    'id',
+    'origem',
+    'destino', 
+    'valor',
+    'taxa',
+    'status',
+    'dataExecucao',
+    'actions'
+  ]);
 
-  readonly statusOptions = [
-    'TODOS',
-    TransferenciaStatus.PENDENTE,
-    TransferenciaStatus.PROCESSANDO,
-    TransferenciaStatus.CONCLUIDA,
-    TransferenciaStatus.CANCELADA,
-    TransferenciaStatus.REJEITADA
-  ];
-
-  // Computed properties com filtros
-  readonly filteredTransferencias = computed(() => {
-    const transferencias = this.transferenciaService.transferencias() || [];
-    const searchTerm = this.searchTerm().toLowerCase();
-    const status = this.selectedStatus();
-    const dateFilter = this.dateFilter();
-
-    return transferencias.filter(transferencia => {
-      const matchesSearch = !searchTerm || 
-        transferencia.destinatario.toLowerCase().includes(searchTerm) ||
-        transferencia.observacoes?.toLowerCase().includes(searchTerm);
-      
-      const matchesStatus = status === 'TODOS' || transferencia.status === status;
-      
-      const matchesDate = this.matchesDateFilter(transferencia, dateFilter);
-
-      return matchesSearch && matchesStatus && matchesDate;
-    });
+  readonly isEmpty = computed(() => {
+    const transferencias = this.transferencias();
+    return !this.isLoading() && !this.hasError() && transferencias.length === 0;
   });
 
-  readonly totalTransferencias = computed(() => 
-    this.filteredTransferencias().length
-  );
+  readonly totalTransferencias = computed(() => {
+    return this.transferencias().length;
+  });
 
-  readonly transferenciasComSucesso = computed(() => 
-    this.filteredTransferencias()
-      .filter(t => t.status === TransferenciaStatus.CONCLUIDA).length
-  );
-
-  readonly transferenciasPendentes = computed(() => 
-    this.filteredTransferencias()
-      .filter(t => t.status === TransferenciaStatus.PENDENTE).length
-  );
-
-  readonly transferenciasFalhas = computed(() => 
-    this.filteredTransferencias()
-      .filter(t => t.status === TransferenciaStatus.REJEITADA).length
-  );
-
-  readonly valorTotalTransferido = computed(() => 
-    this.filteredTransferencias()
-      .filter(t => t.status === TransferenciaStatus.CONCLUIDA)
-      .reduce((total, t) => total + t.valor, 0)
-  );
-
-  readonly hasFilters = computed(() => 
-    this.searchTerm() !== '' || 
-    this.selectedStatus() !== 'TODOS' || 
-    this.dateFilter() !== 'TODOS'
-  );
-
-  readonly recentTransferencias = computed(() => 
-    this.filteredTransferencias()
-      .slice()
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 10)
-  );
+  readonly valorTotal = computed(() => {
+    return this.transferencias().reduce((total, t) => total + t.valor, 0);
+  });
 
   ngOnInit(): void {
     this.loadTransferencias();
   }
 
-  private loadTransferencias(): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.transferenciaService.loadTransferencias()
-      .pipe(
-        catchError(error => {
-          this.error.set('Erro ao carregar transferências: ' + error.message);
-          return of(null);
-        }),
-        finalize(() => this.loading.set(false)),
-        takeUntilDestroyed()
-      )
-      .subscribe();
+  loadTransferencias(): void {
+    this.transferenciaService.refresh();
   }
 
-  private matchesDateFilter(transferencia: Transferencia, filter: string): boolean {
-    if (filter === 'TODOS') return true;
-    
-    const now = new Date();
-    const transferenciaDate = new Date(transferencia.createdAt);
-    
-    switch (filter) {
-      case 'HOJE':
-        return transferenciaDate.toDateString() === now.toDateString();
-      case 'SEMANA':
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        return transferenciaDate >= weekAgo;
-      case 'MES':
-        const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-        return transferenciaDate >= monthAgo;
+  viewTransferencia(transferencia: Transferencia): void {
+    this.transferenciaService.setSelectedTransferencia(transferencia);
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'CONCLUIDA':
+        return 'status-success';
+      case 'PENDENTE':
+        return 'status-warning';
+      case 'CANCELADA':
+        return 'status-cancelled';
+      case 'ERRO':
+        return 'status-error';
       default:
-        return true;
+        return 'status-default';
     }
   }
 
-  clearFilters(): void {
-    this.searchTerm.set('');
-    this.selectedStatus.set('TODOS');
-    this.dateFilter.set('TODOS');
+  formatCurrency(value: number): string {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
   }
 
-  onRefresh(): void {
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  }
+
+  getStatusLabel(status: string): string {
+    return this.statusLabels[status as keyof typeof this.statusLabels] || status;
+  }
+
+  onRetry(): void {
     this.loadTransferencias();
-  }
-
-  navigateToCreate(): void {
-    this.router.navigate(['/transferencias/nova']);
-  }
-
-  viewTransferencia(id: string): void {
-    this.router.navigate(['/transferencias', id]);
-  }
-
-  trackByTransferencia(index: number, transferencia: Transferencia): string {
-    return transferencia.id;
-  }
-
-  getStatusColor(status: TransferenciaStatus): string {
-    const colors: Record<TransferenciaStatus, string> = {
-      [TransferenciaStatus.PENDENTE]: 'warn',
-      [TransferenciaStatus.PROCESSANDO]: 'primary',
-      [TransferenciaStatus.CONCLUIDA]: 'accent',
-      [TransferenciaStatus.CANCELADA]: '',
-      [TransferenciaStatus.REJEITADA]: 'warn'
-    };
-    return colors[status] || '';
-  }
-
-  getStatusLabel(status: TransferenciaStatus): string {
-    const labels: Record<TransferenciaStatus, string> = {
-      [TransferenciaStatus.PENDENTE]: 'Pendente',
-      [TransferenciaStatus.PROCESSANDO]: 'Processando',
-      [TransferenciaStatus.CONCLUIDA]: 'Concluída',
-      [TransferenciaStatus.CANCELADA]: 'Cancelada',
-      [TransferenciaStatus.REJEITADA]: 'Rejeitada'
-    };
-    return labels[status] || status;
-  }
-
-  getStatusIcon(status: TransferenciaStatus): string {
-    const icons: Record<TransferenciaStatus, string> = {
-      [TransferenciaStatus.PENDENTE]: 'schedule',
-      [TransferenciaStatus.PROCESSANDO]: 'sync',
-      [TransferenciaStatus.CONCLUIDA]: 'check_circle',
-      [TransferenciaStatus.CANCELADA]: 'cancel',
-      [TransferenciaStatus.REJEITADA]: 'error'
-    };
-    return icons[status] || 'help';
-  }
-
-  getDateFilterLabel(filter: string): string {
-    const labels: Record<string, string> = {
-      'TODOS': 'Todos os períodos',
-      'HOJE': 'Hoje',
-      'SEMANA': 'Última semana',
-      'MES': 'Último mês'
-    };
-    return labels[filter] || filter;
   }
 }

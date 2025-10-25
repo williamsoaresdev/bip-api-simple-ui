@@ -216,7 +216,7 @@
               @for (transferencia of recentTransferencias(); track trackById($index, transferencia)) {
                 <mat-list-item>
                   <div class="item-info">
-                    <h3>{{ transferencia.destinatario }}</h3>
+                    <h3>{{ transferencia.beneficioDestinoNome }}</h3>
                     <p>{{ transferencia.valor | brlCurrency }}</p>
                   </div>
                   <div class="item-meta">

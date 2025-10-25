@@ -41,6 +41,10 @@ export const routes: Routes = [
       {
         path: 'nova',
         loadComponent: () => import('./features/transferencias/transferencia-form/transferencia-form.component').then(c => c.TransferenciaFormComponent)
+      },
+      {
+        path: 'visualizar/:id',
+        loadComponent: () => import('./features/transferencias/transferencia-detail/transferencia-detail.component').then(c => c.TransferenciaDetailComponent)
       }
     ]
   },

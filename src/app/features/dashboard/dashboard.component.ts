@@ -14,6 +14,9 @@ import { MatChipsModule } from '@angular/material/chips';
 // Core Services
 import { BeneficioService } from '../../core/services/beneficio.service';
 import { TransferenciaService } from '../../core/services/transferencia.service';
+
+// Models
+import { ApiResponse } from '../../core/models/common.model';
 import { LoadingService } from '../../core/services/loading.service';
 import { Beneficio } from '../../core/models/beneficio.model';
 import { Transferencia } from '../../core/models/transferencia.model';
@@ -152,7 +155,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.transferenciaService.loadTransferencias()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response: PaginatedResponse<Transferencia>) => {
+        next: (response: ApiResponse<Transferencia[]>) => {
           console.log('✅ Dashboard: Transferências carregadas com sucesso:', response);
         },
         error: (error: any) => {
