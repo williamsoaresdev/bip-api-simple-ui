@@ -1,190 +1,219 @@
-<div class="transferencia-list-container">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1 class="page-title">Transferências</h1>
-      <p class="page-subtitle">Gerencie as transferências entre benefícios</p>
+@let lista = transferencias();
+
+<section class="transferencias">
+  <header class="transferencias__header">
+    <div class="transferencias__heading">
+      <span class="transferencias__heading-icon" aria-hidden="true">
+        <mat-icon>sync_alt</mat-icon>
+      </span>
+      <div>
+        <h1>Transferências</h1>
+        <p>Movimentações financeiras entre benefícios corporativos com rastreabilidade completa.</p>
+      </div>
     </div>
-    <div class="header-actions">
-      <button 
-        mat-raised-button 
-        color="primary" 
-        routerLink="/transferencias/nova"
-        class="create-button">
+
+    <div class="transferencias__actions">
+      <button mat-stroked-button type="button" (click)="loadTransferencias()">
+        <mat-icon>refresh</mat-icon>
+        Atualizar lista
+      </button>
+      <button mat-flat-button color="primary" type="button" routerLink="/transferencias/nova">
         <mat-icon>add</mat-icon>
-        Nova Transferência
+        Nova transferência
       </button>
     </div>
-  </div>
+  </header>
 
-  <!-- Stats Cards -->
-  <div class="stats-grid">
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon total">list_alt</mat-icon>
-          <div class="stat-info">
-            <span class="stat-value">{{ totalTransferencias() }}</span>
-            <span class="stat-label">Total</span>
+  @if (!isLoading() && !hasError()) {
+    <section class="transferencias__analytics" aria-label="Resumo das transferências">
+      <mat-card class="transferencias__metric">
+        <mat-card-content>
+          <div class="transferencias__metric-icon" aria-hidden="true">
+            <mat-icon>leaderboard</mat-icon>
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon value">payments</mat-icon>
-          <div class="stat-info">
-            <span class="stat-value">{{ formatCurrency(valorTotal()) }}</span>
-            <span class="stat-label">Valor Total</span>
+          <div class="transferencias__metric-copy">
+            <span class="transferencias__metric-label">Transferências registradas</span>
+            <span class="transferencias__metric-value">{{ totalTransferencias() }}</span>
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+        </mat-card-content>
+      </mat-card>
 
-  <!-- Loading State -->
+      <mat-card class="transferencias__metric">
+        <mat-card-content>
+          <div class="transferencias__metric-icon transferencias__metric-icon--value" aria-hidden="true">
+            <mat-icon>payments</mat-icon>
+          </div>
+          <div class="transferencias__metric-copy">
+            <span class="transferencias__metric-label">Valor total movimentado</span>
+            <span class="transferencias__metric-value">{{ formatCurrency(valorTotal()) }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencias__metric">
+        <mat-card-content>
+          <div class="transferencias__metric-icon transferencias__metric-icon--pending" aria-hidden="true">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="transferencias__metric-copy">
+            <span class="transferencias__metric-label">Pendentes</span>
+            <span class="transferencias__metric-value">{{ pendentesCount() }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencias__metric">
+        <mat-card-content>
+          <div class="transferencias__metric-icon transferencias__metric-icon--success" aria-hidden="true">
+            <mat-icon>task_alt</mat-icon>
+          </div>
+          <div class="transferencias__metric-copy">
+            <span class="transferencias__metric-label">Concluídas</span>
+            <span class="transferencias__metric-value">{{ concluidasCount() }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  }
+
   @if (isLoading()) {
-    <mat-card class="loading-card">
-      <mat-card-content>
-        <div class="loading-content">
-          <mat-progress-spinner diameter="50" mode="indeterminate"></mat-progress-spinner>
-          <p>Carregando transferências...</p>
+    <section class="transferencias__state transferencias__state--loading" aria-live="polite" aria-busy="true">
+      <mat-card>
+        <mat-card-content>
+          <mat-progress-spinner diameter="48" mode="indeterminate" aria-hidden="true"></mat-progress-spinner>
+          <div>
+            <h2>Carregando transferências</h2>
+            <p>Buscando movimentações financeiras na API.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  } @else if (hasError()) {
+    <section class="transferencias__state transferencias__state--error" role="alert">
+      <mat-card>
+        <mat-card-content>
+          <mat-icon color="warn" aria-hidden="true">error_outline</mat-icon>
+          <div>
+            <h2>Não foi possível carregar as transferências</h2>
+            <p>{{ error() }}</p>
+            <div class="transferencias__state-actions">
+              <button mat-raised-button color="primary" type="button" (click)="onRetry()">
+                <mat-icon>refresh</mat-icon>
+                Tentar novamente
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  } @else if (isEmpty()) {
+    <section class="transferencias__state transferencias__state--empty" aria-live="polite">
+      <mat-card>
+        <mat-card-content>
+          <mat-icon aria-hidden="true">transfer_within_a_station</mat-icon>
+          <div>
+            <h2>Você ainda não possui transferências</h2>
+            <p>Cadastre a primeira movimentação para acompanhar o fluxo entre benefícios.</p>
+            <div class="transferencias__state-actions">
+              <button mat-raised-button color="primary" type="button" routerLink="/transferencias/nova">
+                <mat-icon>add</mat-icon>
+                Criar transferência
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  } @else {
+    <section class="transferencias__table" aria-live="polite">
+      <header class="transferencias__table-header">
+        <div>
+          <h2>Lista de transferências</h2>
+          <p>{{ lista.length }} movimentaç{{ lista.length === 1 ? 'ão' : 'ões' }} registradas</p>
         </div>
-      </mat-card-content>
-    </mat-card>
-  }
+        <button mat-icon-button type="button" matTooltip="Atualizar dados" (click)="loadTransferencias()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </header>
 
-  <!-- Error State -->
-  @else if (hasError()) {
-    <mat-card class="error-card">
-      <mat-card-content>
-        <div class="error-content">
-          <mat-icon class="error-icon">error</mat-icon>
-          <h3>Erro ao carregar transferências</h3>
-          <p>{{ error() }}</p>
-          <button mat-raised-button color="primary" (click)="onRetry()">
-            <mat-icon>refresh</mat-icon>
-            Tentar Novamente
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
-
-  <!-- Empty State -->
-  @else if (isEmpty()) {
-    <mat-card class="empty-card">
-      <mat-card-content>
-        <div class="empty-content">
-          <mat-icon class="empty-icon">transfer_within_a_station</mat-icon>
-          <h3>Nenhuma transferência encontrada</h3>
-          <p>Ainda não existem transferências cadastradas no sistema.</p>
-          <button mat-raised-button color="primary" routerLink="/transferencias/nova">
-            <mat-icon>add</mat-icon>
-            Criar Primeira Transferência
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
-
-  <!-- Data Table -->
-  @else {
-    <mat-card class="table-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>list</mat-icon>
-          Lista de Transferências
-        </mat-card-title>
-        <div class="card-actions">
-          <button 
-            mat-icon-button 
-            matTooltip="Atualizar lista"
-            (click)="loadTransferencias()">
-            <mat-icon>refresh</mat-icon>
-          </button>
-        </div>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="table-container">
-          <table mat-table [dataSource]="transferencias()" class="transferencias-table">
-            
-            <!-- ID Column -->
+      <mat-card class="transferencias__table-card">
+        <div class="transferencias__table-wrapper">
+          <table mat-table [dataSource]="lista" class="transferencias__mat-table">
             <ng-container matColumnDef="id">
               <th mat-header-cell *matHeaderCellDef>ID</th>
               <td mat-cell *matCellDef="let transferencia">
-                <span class="id-badge">{{ transferencia.id }}</span>
+                <span class="transferencias__id">#{{ transferencia.id }}</span>
               </td>
             </ng-container>
 
-            <!-- Origem Column -->
             <ng-container matColumnDef="origem">
-              <th mat-header-cell *matHeaderCellDef>Benefício Origem</th>
+              <th mat-header-cell *matHeaderCellDef>Origem</th>
               <td mat-cell *matCellDef="let transferencia">
-                <div class="beneficio-info">
-                  <span class="beneficio-id">ID: {{ transferencia.beneficioOrigemId }}</span>
+                <div class="transferencias__beneficio">
+                  <mat-icon aria-hidden="true">outbound</mat-icon>
+                  <div>
+                    <span class="transferencias__beneficio-name">{{ transferencia.beneficioOrigemNome }}</span>
+                    <span class="transferencias__beneficio-id">ID {{ transferencia.beneficioOrigemId }}</span>
+                  </div>
                 </div>
               </td>
             </ng-container>
 
-            <!-- Destino Column -->
             <ng-container matColumnDef="destino">
-              <th mat-header-cell *matHeaderCellDef>Benefício Destino</th>
+              <th mat-header-cell *matHeaderCellDef>Destino</th>
               <td mat-cell *matCellDef="let transferencia">
-                <div class="beneficio-info">
-                  <span class="beneficio-id">ID: {{ transferencia.beneficioDestinoId }}</span>
+                <div class="transferencias__beneficio">
+                  <mat-icon aria-hidden="true">inbound</mat-icon>
+                  <div>
+                    <span class="transferencias__beneficio-name">{{ transferencia.beneficioDestinoNome }}</span>
+                    <span class="transferencias__beneficio-id">ID {{ transferencia.beneficioDestinoId }}</span>
+                  </div>
                 </div>
               </td>
             </ng-container>
 
-            <!-- Valor Column -->
             <ng-container matColumnDef="valor">
               <th mat-header-cell *matHeaderCellDef>Valor</th>
               <td mat-cell *matCellDef="let transferencia">
-                <span class="valor">{{ formatCurrency(transferencia.valor) }}</span>
+                <span class="transferencias__value">{{ formatCurrency(transferencia.valor) }}</span>
               </td>
             </ng-container>
 
-            <!-- Taxa Column -->
             <ng-container matColumnDef="taxa">
               <th mat-header-cell *matHeaderCellDef>Taxa</th>
               <td mat-cell *matCellDef="let transferencia">
-                <span class="taxa">{{ formatCurrency(transferencia.taxa) }}</span>
+                <span class="transferencias__fee">{{ formatCurrency(transferencia.taxa) }}</span>
               </td>
             </ng-container>
 
-            <!-- Status Column -->
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef>Status</th>
               <td mat-cell *matCellDef="let transferencia">
-                <mat-chip [class]="getStatusClass(transferencia.status)">
+                <mat-chip class="transferencias__chip" [ngClass]="getStatusClass(transferencia.status)">
+                  <mat-icon aria-hidden="true">{{ transferencia.status === 'CONCLUIDA' ? 'check_circle' : transferencia.status === 'PENDENTE' ? 'schedule' : transferencia.status === 'CANCELADA' ? 'cancel' : 'priority_high' }}</mat-icon>
                   {{ getStatusLabel(transferencia.status) }}
                 </mat-chip>
               </td>
             </ng-container>
 
-            <!-- Data Execução Column -->
             <ng-container matColumnDef="dataExecucao">
-              <th mat-header-cell *matHeaderCellDef>Data Execução</th>
+              <th mat-header-cell *matHeaderCellDef>Execução</th>
               <td mat-cell *matCellDef="let transferencia">
                 @if (transferencia.dataExecucao) {
-                  <span class="data">{{ formatDate(transferencia.dataExecucao) }}</span>
+                  <span class="transferencias__date">{{ formatDate(transferencia.dataExecucao) }}</span>
                 } @else {
-                  <span class="data-empty">-</span>
+                  <span class="transferencias__date transferencias__date--empty">Não executada</span>
                 }
               </td>
             </ng-container>
 
-            <!-- Actions Column -->
             <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Ações</th>
+              <th mat-header-cell *matHeaderCellDef aria-label="Ações">Ações</th>
               <td mat-cell *matCellDef="let transferencia">
-                <div class="action-buttons">
-                  <button 
-                    mat-icon-button 
+                <div class="transferencias__actions-inline">
+                  <button
+                    mat-icon-button
+                    type="button"
                     [routerLink]="['/transferencias', transferencia.id]"
                     matTooltip="Visualizar detalhes"
                     (click)="viewTransferencia(transferencia)">
@@ -198,7 +227,7 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
           </table>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </mat-card>
+    </section>
   }
-</div>
+</section>

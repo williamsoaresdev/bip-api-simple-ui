@@ -1,261 +1,234 @@
-<div class="transferencia-detail-container">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1 class="page-title">Detalhes da Transferência</h1>
-      <p class="page-subtitle">Visualizar informações completas da transferência</p>
-    </div>
-    <div class="header-actions">
-      <button 
-        mat-stroked-button 
-        (click)="onBack()"
-        class="back-button">
-        <mat-icon>arrow_back</mat-icon>
-        Voltar à Lista
-      </button>
-      <button 
-        mat-icon-button 
-        matTooltip="Atualizar dados"
-        (click)="onRefresh()"
-        [disabled]="isLoading()">
-        <mat-icon>refresh</mat-icon>
-      </button>
-    </div>
-  </div>
-
-  <!-- Loading State -->
+<section class="transferencia-detail">
   @if (isLoading()) {
-    <mat-card class="loading-card">
-      <mat-card-content>
-        <div class="loading-content">
-          <mat-progress-spinner diameter="50" mode="indeterminate"></mat-progress-spinner>
-          <p>Carregando transferência...</p>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
-
-  <!-- Error State -->
-  @else if (hasError()) {
-    <mat-card class="error-card">
-      <mat-card-content>
-        <div class="error-content">
-          <mat-icon class="error-icon">error</mat-icon>
-          <h3>Erro ao carregar transferência</h3>
-          <p>{{ error() }}</p>
-          <button mat-raised-button color="primary" (click)="onRefresh()">
-            <mat-icon>refresh</mat-icon>
-            Tentar Novamente
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
-
-  <!-- Transfer Details -->
-  @else if (hasData()) {
-    <div class="details-grid">
-      
-      <!-- Main Information Card -->
-      <mat-card class="main-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>swap_horiz</mat-icon>
-            Informações Gerais
-          </mat-card-title>
-        </mat-card-header>
-
+    <div class="transferencia-detail__state" aria-live="polite" aria-busy="true">
+      <mat-card>
         <mat-card-content>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">ID da Transferência</span>
-              <span class="value id-value">{{ transferencia()!.id }}</span>
-            </div>
-
-            <div class="info-item">
-              <span class="label">Status</span>
-              <mat-chip [class]="getStatusClass(transferencia()!.status)">
-                {{ statusLabels[transferencia()!.status] || transferencia()!.status }}
-              </mat-chip>
-            </div>
-
-            <div class="info-item">
-              <span class="label">Valor</span>
-              <span class="value currency">{{ formatCurrency(transferencia()!.valor) }}</span>
-            </div>
-
-            <div class="info-item">
-              <span class="label">Taxa</span>
-              <span class="value currency">{{ formatCurrency(transferencia()!.taxa) }}</span>
-            </div>
-
-            <div class="info-item">
-              <span class="label">Data de Criação</span>
-                  <span class="value">{{ formatDate(transferencia()!.createdAt) }}</span>
-            </div>
-
-            @if (transferencia()!.dataExecucao) {
-              <div class="info-item">
-                <span class="label">Data de Execução</span>
-                <span class="value">{{ formatDate(transferencia()!.dataExecucao) }}</span>
-              </div>
-            }
+          <mat-progress-spinner diameter="44" mode="indeterminate" aria-hidden="true"></mat-progress-spinner>
+          <div>
+            <h2>Carregando transferência</h2>
+            <p>Aguarde enquanto buscamos os dados desta movimentação.</p>
           </div>
         </mat-card-content>
       </mat-card>
-
-      <!-- Origin Benefit Card -->
-      <mat-card class="benefit-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>account_balance_wallet</mat-icon>
-            Benefício de Origem
-          </mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="benefit-info">
-            <div class="benefit-detail">
-              <span class="benefit-label">ID do Benefício</span>
-              <span class="benefit-value">{{ transferencia()!.beneficioOrigemId }}</span>
-            </div>
-
-            @if (beneficioOrigem()) {
-              <div class="benefit-detail">
-                <span class="benefit-label">Nome</span>
-                <span class="benefit-value">{{ beneficioOrigem()!.nome }}</span>
-              </div>
-
-              <div class="benefit-detail">
-                <span class="benefit-label">Descrição</span>
-                <span class="benefit-value">{{ beneficioOrigem()!.descricao || 'N/A' }}</span>
-              </div>
-
-              <div class="benefit-detail">
-                <span class="benefit-label">Valor do Benefício</span>
-                <span class="benefit-value currency">{{ formatCurrency(beneficioOrigem()!.valor) }}</span>
-              </div>
-            } @else {
-              <div class="benefit-loading">
-                <mat-icon>info</mat-icon>
-                <span>Dados do benefício não encontrados</span>
-              </div>
-            }
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Destination Benefit Card -->
-      <mat-card class="benefit-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>account_balance</mat-icon>
-            Benefício de Destino
-          </mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="benefit-info">
-            <div class="benefit-detail">
-              <span class="benefit-label">ID do Benefício</span>
-              <span class="benefit-value">{{ transferencia()!.beneficioDestinoId }}</span>
-            </div>
-
-            @if (beneficioDestino()) {
-              <div class="benefit-detail">
-                <span class="benefit-label">Nome</span>
-                <span class="benefit-value">{{ beneficioDestino()!.nome }}</span>
-              </div>
-
-              <div class="benefit-detail">
-                <span class="benefit-label">Descrição</span>
-                <span class="benefit-value">{{ beneficioDestino()!.descricao || 'N/A' }}</span>
-              </div>
-
-              <div class="benefit-detail">
-                <span class="benefit-label">Valor do Benefício</span>
-                <span class="benefit-value currency">{{ formatCurrency(beneficioDestino()!.valor) }}</span>
-              </div>
-            } @else {
-              <div class="benefit-loading">
-                <mat-icon>info</mat-icon>
-                <span>Dados do benefício não encontrados</span>
-              </div>
-            }
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Timeline Card -->
-      <mat-card class="timeline-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>schedule</mat-icon>
-            Histórico da Transferência
-          </mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="timeline">
-            <div class="timeline-item active">
-              <div class="timeline-marker"></div>
-              <div class="timeline-content">
-                <h4>Transferência Criada</h4>
-                <p>{{ formatDate(transferencia()!.createdAt) }}</p>
-              </div>
-            </div>
-
-            @if (transferencia()!.dataExecucao) {
-              <div class="timeline-item active">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content">
-                  <h4>Transferência Executada</h4>
-                  <p>{{ formatDate(transferencia()!.dataExecucao) }}</p>
-                </div>
-              </div>
-            }
-
-            <div class="timeline-item" [class.active]="transferencia()!.status === 'CONCLUIDA'">
-              <div class="timeline-marker"></div>
-              <div class="timeline-content">
-                <h4>Status Atual</h4>
-                <p>{{ statusLabels[transferencia()!.status] || transferencia()!.status }}</p>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Summary Card -->
-      <mat-card class="summary-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>summarize</mat-icon>
-            Resumo Financeiro
-          </mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="financial-summary">
-            <div class="summary-row">
-              <span class="summary-label">Valor da Transferência</span>
-              <span class="summary-value primary">{{ formatCurrency(transferencia()!.valor) }}</span>
-            </div>
-
-            <div class="summary-row">
-              <span class="summary-label">Taxa</span>
-              <span class="summary-value">{{ formatCurrency(transferencia()!.taxa) }}</span>
-            </div>
-
-            <mat-divider></mat-divider>
-
-            <div class="summary-row total">
-              <span class="summary-label">Total Processado</span>
-              <span class="summary-value">{{ formatCurrency(transferencia()!.valor + transferencia()!.taxa) }}</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
     </div>
+  } @else if (hasError()) {
+    <div class="transferencia-detail__state transferencia-detail__state--error" role="alert">
+      <mat-card>
+        <mat-card-content>
+          <mat-icon color="warn" aria-hidden="true">error_outline</mat-icon>
+          <div>
+            <h2>Não foi possível carregar a transferência</h2>
+            <p>{{ error() }}</p>
+            <div class="transferencia-detail__state-actions">
+              <button mat-flat-button color="primary" type="button" (click)="onRefresh()">
+                <mat-icon>refresh</mat-icon>
+                Tentar novamente
+              </button>
+              <button mat-stroked-button type="button" (click)="onBack()">
+                <mat-icon>arrow_back</mat-icon>
+                Voltar para lista
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else if (hasData()) {
+    @let item = transferencia()!;
+
+    <header class="transferencia-detail__hero">
+      <div class="transferencia-detail__hero-heading">
+        <button mat-icon-button type="button" aria-label="Voltar para lista" (click)="onBack()" class="transferencia-detail__hero-back">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="transferencia-detail__hero-text">
+          <span class="transferencia-detail__hero-label">Transferência</span>
+          <h1>{{ item.beneficioOrigemNome }} → {{ item.beneficioDestinoNome }}</h1>
+          <p>Visualize o status financeiro, detalhes dos benefícios e todo o histórico desta movimentação.</p>
+        </div>
+      </div>
+      <div class="transferencia-detail__hero-tags">
+        <mat-chip-set aria-label="Identificadores da transferência">
+          <mat-chip selected class="transferencia-detail__chip transferencia-detail__chip--id">
+            <mat-icon aria-hidden="true">tag</mat-icon>
+            ID #{{ item.id }}
+          </mat-chip>
+          <mat-chip selected class="transferencia-detail__chip" [ngClass]="getStatusClass(item.status)">
+            <mat-icon aria-hidden="true">{{ getStatusIcon(item.status) }}</mat-icon>
+            {{ statusLabels[item.status] || item.status }}
+          </mat-chip>
+          <mat-chip selected class="transferencia-detail__chip transferencia-detail__chip--created">
+            <mat-icon aria-hidden="true">event</mat-icon>
+            Criada em {{ formatDate(item.createdAt) }}
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+      <div class="transferencia-detail__hero-actions">
+        <button mat-icon-button matTooltip="Atualizar dados" type="button" (click)="onRefresh()" [disabled]="isLoading()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <section class="transferencia-detail__summary" aria-label="Resumo financeiro">
+      <mat-card class="transferencia-detail__summary-card transferencia-detail__summary-card--value">
+        <mat-card-content>
+          <div class="transferencia-detail__summary-icon" aria-hidden="true">
+            <mat-icon>payments</mat-icon>
+          </div>
+          <div class="transferencia-detail__summary-content">
+            <span class="transferencia-detail__summary-label">Valor transferido</span>
+            <span class="transferencia-detail__summary-value">{{ formatCurrency(item.valor) }}</span>
+            <span class="transferencia-detail__summary-note">Montante enviado do benefício de origem.</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencia-detail__summary-card">
+        <mat-card-content>
+          <div class="transferencia-detail__summary-icon transferencia-detail__summary-icon--fee" aria-hidden="true">
+            <mat-icon>percent</mat-icon>
+          </div>
+          <div class="transferencia-detail__summary-content">
+            <span class="transferencia-detail__summary-label">Taxa aplicada</span>
+            <span class="transferencia-detail__summary-value">{{ formatCurrency(item.taxa) }}</span>
+            <span class="transferencia-detail__summary-note">Custos operacionais da movimentação.</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencia-detail__summary-card">
+        <mat-card-content>
+          <div class="transferencia-detail__summary-icon transferencia-detail__summary-icon--total" aria-hidden="true">
+            <mat-icon>summarize</mat-icon>
+          </div>
+          <div class="transferencia-detail__summary-content">
+            <span class="transferencia-detail__summary-label">Total processado</span>
+            <span class="transferencia-detail__summary-value">{{ formatCurrency(item.valor + item.taxa) }}</span>
+            <span class="transferencia-detail__summary-note">Valor final contabilizado na operação.</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <section class="transferencia-detail__content">
+      <mat-card class="transferencia-detail__card transferencia-detail__card--info">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            Informações principais
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="transferencia-detail__info-grid">
+            <div class="transferencia-detail__info-item">
+              <span class="transferencia-detail__info-label">Identificador interno</span>
+              <span class="transferencia-detail__info-value transferencia-detail__info-value--id">#{{ item.id }}</span>
+            </div>
+            <div class="transferencia-detail__info-item">
+              <span class="transferencia-detail__info-label">Status atual</span>
+              <span class="transferencia-detail__info-chip" [ngClass]="getStatusClass(item.status)">
+                <mat-icon aria-hidden="true">{{ getStatusIcon(item.status) }}</mat-icon>
+                {{ statusLabels[item.status] || item.status }}
+              </span>
+            </div>
+            <div class="transferencia-detail__info-item">
+              <span class="transferencia-detail__info-label">Criada em</span>
+              <span class="transferencia-detail__info-value">{{ formatDate(item.createdAt) }}</span>
+            </div>
+            <div class="transferencia-detail__info-item">
+              <span class="transferencia-detail__info-label">Data de execução</span>
+              <span class="transferencia-detail__info-value" *ngIf="item.dataExecucao; else naoExecutada">{{ formatDate(item.dataExecucao) }}</span>
+              <ng-template #naoExecutada><span class="transferencia-detail__info-value transferencia-detail__info-value--muted">Não executada</span></ng-template>
+            </div>
+            <div class="transferencia-detail__info-item">
+              <span class="transferencia-detail__info-label">Descrição</span>
+              <span class="transferencia-detail__info-value transferencia-detail__info-value--muted">{{ item.descricao || 'Nenhuma descrição fornecida.' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencia-detail__card transferencia-detail__card--benefit">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>outbound</mat-icon>
+            Benefício de origem
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="transferencia-detail__benefit">
+            <div class="transferencia-detail__benefit-header">
+              <span class="transferencia-detail__benefit-tag">ID {{ item.beneficioOrigemId }}</span>
+              <span class="transferencia-detail__benefit-name">{{ beneficioOrigem()?.nome || item.beneficioOrigemNome }}</span>
+            </div>
+            <p class="transferencia-detail__benefit-description">
+              {{ beneficioOrigem()?.descricao || 'Sem descrição cadastrada para este benefício.' }}
+            </p>
+            <div class="transferencia-detail__benefit-footer">
+              <span>Saldo atual</span>
+              <strong>{{ beneficioOrigem() ? formatCurrency(beneficioOrigem()!.valor) : '—' }}</strong>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencia-detail__card transferencia-detail__card--benefit">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>inbound</mat-icon>
+            Benefício de destino
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="transferencia-detail__benefit">
+            <div class="transferencia-detail__benefit-header">
+              <span class="transferencia-detail__benefit-tag">ID {{ item.beneficioDestinoId }}</span>
+              <span class="transferencia-detail__benefit-name">{{ beneficioDestino()?.nome || item.beneficioDestinoNome }}</span>
+            </div>
+            <p class="transferencia-detail__benefit-description">
+              {{ beneficioDestino()?.descricao || 'Sem descrição cadastrada para este benefício.' }}
+            </p>
+            <div class="transferencia-detail__benefit-footer">
+              <span>Saldo atual</span>
+              <strong>{{ beneficioDestino() ? formatCurrency(beneficioDestino()!.valor) : '—' }}</strong>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencia-detail__card transferencia-detail__card--timeline">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>timeline</mat-icon>
+            Histórico da transferência
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ol class="transferencia-detail__timeline">
+            @for (entry of timelineEntries(); track entry.key) {
+              <li class="transferencia-detail__timeline-item" [ngClass]="'transferencia-detail__timeline-item--' + entry.variant">
+                <div class="transferencia-detail__timeline-marker" [ngClass]="'transferencia-detail__timeline-marker--' + entry.variant"></div>
+                <div class="transferencia-detail__timeline-body">
+                  <span class="transferencia-detail__timeline-title">{{ entry.title }}</span>
+                  <span class="transferencia-detail__timeline-date">{{ entry.description }}</span>
+                </div>
+              </li>
+            }
+          </ol>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <footer class="transferencia-detail__footer">
+      <button mat-stroked-button type="button" (click)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Voltar para transferências
+      </button>
+      <button mat-flat-button color="primary" type="button" (click)="onRefresh()">
+        <mat-icon>refresh</mat-icon>
+        Atualizar dados
+      </button>
+    </footer>
   }
+</section>

@@ -4,8 +4,10 @@ html, body {
   height: 100%;
   font-family: 'Inter', sans-serif;
   margin: 0;
-  background-color: #fafafa;
-  color: #212121;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -22,35 +24,37 @@ html, body {
   }
   
   .mdc-notched-outline {
-    border-color: #e0e0e0;
+    border-color: var(--color-border-light);
   }
   
   .mdc-text-field--focused .mdc-notched-outline {
-    border-color: #1976d2;
+    border-color: var(--color-primary);
     border-width: 2px;
   }
   
   .mdc-text-field:hover .mdc-notched-outline {
-    border-color: #757575;
+    border-color: var(--color-border);
   }
 }
 
 .mat-mdc-card {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  border-radius: 12px;
+  box-shadow: var(--bip-shadow-sm);
+  border-radius: var(--bip-border-radius-lg);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
 }
 
 .mat-mdc-button {
-  border-radius: 8px;
+  border-radius: var(--bip-border-radius-md);
   font-weight: 500;
 }
 
 .mat-mdc-raised-button {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: var(--bip-shadow-sm);
 }
 
 .mat-mdc-outlined-button {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border);
 }
 
 // Custom Dialog Styles
@@ -58,13 +62,14 @@ html, body {
   .mat-mdc-dialog-container {
     border-radius: 20px !important;
     padding: 0 !important;
-    background: #ffffff !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    background: var(--color-surface-elevated) !important;
+    box-shadow: var(--bip-shadow-lg) !important;
+    border: 1px solid var(--color-border);
   }
 }
 
 .modern-backdrop {
-  background: rgba(0, 0, 0, 0.4) !important;
+  background: rgba(2, 6, 23, 0.7) !important;
   -webkit-backdrop-filter: blur(4px) !important;
   backdrop-filter: blur(4px) !important;
 }

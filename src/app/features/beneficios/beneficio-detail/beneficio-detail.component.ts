@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
 
 // Core Services and Models
 import { BeneficioService } from '../../../core/services/beneficio.service';
@@ -29,7 +30,8 @@ import { BipDateFormatPipe } from '../../../core/pipes/date-format.pipe';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+  MatProgressSpinnerModule,
+  MatChipsModule,
     BrlCurrencyPipe,
     BipDateFormatPipe
   ],

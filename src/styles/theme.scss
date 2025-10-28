@@ -1,237 +1,240 @@
-// ===== TEMA PROFISSIONAL BIP =====
+// ===== TEMA PRETO PADRÃO BIP =====
 @use '@angular/material' as mat;
 
-// Definir paleta de cores personalizada
-$bip-primary: mat.define-palette((
-  50: #e8eaf6,
-  100: #c5cae9,
-  200: #9fa8da,
-  300: #7986cb,
-  400: #5c6bc0,
-  500: #3f51b5,
-  600: #3949ab,
-  700: #303f9f,
-  800: #283593,
-  900: #1a237e,
-  A100: #8c9eff,
-  A200: #536dfe,
-  A400: #3d5afe,
-  A700: #304ffe,
-  contrast: (
-    50: rgba(black, 0.87),
-    100: rgba(black, 0.87),
-    200: rgba(black, 0.87),
-    300: white,
-    400: white,
-    500: white,
-    600: white,
-    700: white,
-    800: white,
-    900: white,
-    A100: rgba(black, 0.87),
-    A200: white,
-    A400: white,
-    A700: white,
-  )
-));
+@include mat.core();
 
-$bip-accent: mat.define-palette((
-  50: #e0f2f1,
-  100: #b2dfdb,
-  200: #80cbc4,
-  300: #4db6ac,
-  400: #26a69a,
-  500: #009688,
-  600: #00897b,
-  700: #00796b,
-  800: #00695c,
-  900: #004d40,
-  A100: #a7ffeb,
-  A200: #64ffda,
-  A400: #1de9b6,
-  A700: #00bfa5,
-  contrast: (
-    50: rgba(black, 0.87),
-    100: rgba(black, 0.87),
-    200: rgba(black, 0.87),
-    300: rgba(black, 0.87),
-    400: white,
-    500: white,
-    600: white,
-    700: white,
-    800: white,
-    900: white,
-    A100: rgba(black, 0.87),
-    A200: rgba(black, 0.87),
-    A400: rgba(black, 0.87),
-    A700: rgba(black, 0.87),
-  )
-));
+// Paletas de cor baseadas em tons escuros (APIs M2)
+$bip-primary: mat.m2-define-palette(mat.$m2-blue-grey-palette, 200, 100, 400);
+$bip-accent: mat.m2-define-palette(mat.$m2-cyan-palette, A200, A100, A400);
+$bip-warn: mat.m2-define-palette(mat.$m2-red-palette, 300, 200, 700);
 
-$bip-warn: mat.define-palette((
-  50: #ffebee,
-  100: #ffcdd2,
-  200: #ef9a9a,
-  300: #e57373,
-  400: #ef5350,
-  500: #f44336,
-  600: #e53935,
-  700: #d32f2f,
-  800: #c62828,
-  900: #b71c1c,
-  A100: #ff8a80,
-  A200: #ff5252,
-  A400: #ff1744,
-  A700: #d50000,
-  contrast: (
-    50: rgba(black, 0.87),
-    100: rgba(black, 0.87),
-    200: rgba(black, 0.87),
-    300: rgba(black, 0.87),
-    400: rgba(black, 0.87),
-    500: white,
-    600: white,
-    700: white,
-    800: white,
-    900: white,
-    A100: rgba(black, 0.87),
-    A200: white,
-    A400: white,
-    A700: white,
-  )
-));
-
-// Criar tema
-$bip-theme: mat.define-light-theme((
+// Tema escuro ("black") padrão
+$bip-black-theme: mat.m2-define-dark-theme((
   color: (
     primary: $bip-primary,
     accent: $bip-accent,
     warn: $bip-warn,
   ),
-  typography: mat.define-typography-config(
-    $font-family: '"Roboto", "Helvetica Neue", Arial, sans-serif',
-    $headline-1: mat.define-typography-level(32px, 40px, 300, $letter-spacing: -0.01em),
-    $headline-2: mat.define-typography-level(28px, 36px, 400, $letter-spacing: -0.005em),
-    $headline-3: mat.define-typography-level(24px, 32px, 400),
-    $headline-4: mat.define-typography-level(20px, 28px, 500),
-    $headline-5: mat.define-typography-level(18px, 24px, 500),
-    $headline-6: mat.define-typography-level(16px, 22px, 600),
-    $subtitle-1: mat.define-typography-level(16px, 24px, 400),
-    $subtitle-2: mat.define-typography-level(14px, 20px, 500),
-    $body-1: mat.define-typography-level(16px, 24px, 400),
-    $body-2: mat.define-typography-level(14px, 20px, 400),
-    $caption: mat.define-typography-level(12px, 16px, 400),
-    $button: mat.define-typography-level(14px, 16px, 500),
-    $overline: mat.define-typography-level(10px, 16px, 400),
+  typography: mat.m2-define-typography-config(
+    $font-family: '"Inter", "Roboto", "Helvetica Neue", Arial, sans-serif',
+    $headline-1: mat.m2-define-typography-level(32px, 40px, 300, $letter-spacing: -0.01em),
+    $headline-2: mat.m2-define-typography-level(28px, 36px, 400, $letter-spacing: -0.005em),
+    $headline-3: mat.m2-define-typography-level(24px, 32px, 500),
+    $headline-4: mat.m2-define-typography-level(22px, 30px, 600),
+    $headline-5: mat.m2-define-typography-level(20px, 28px, 600),
+    $headline-6: mat.m2-define-typography-level(18px, 24px, 600),
+    $subtitle-1: mat.m2-define-typography-level(16px, 24px, 500),
+    $subtitle-2: mat.m2-define-typography-level(14px, 20px, 500),
+    $body-1: mat.m2-define-typography-level(16px, 24px, 400),
+    $body-2: mat.m2-define-typography-level(14px, 22px, 400),
+    $caption: mat.m2-define-typography-level(12px, 18px, 400),
+    $button: mat.m2-define-typography-level(14px, 16px, 600),
+    $overline: mat.m2-define-typography-level(11px, 16px, 600, $letter-spacing: 0.08em)
   ),
   density: 0,
 ));
 
-// Aplicar tema
-@include mat.all-component-themes($bip-theme);
+// Aplicar o tema a todos os componentes Angular Material
+@include mat.all-component-themes($bip-black-theme);
 
-// ===== VARIÁVEIS CSS CUSTOMIZADAS =====
+// ===== VARIÁVEIS CSS CUSTOMIZADAS (TONS ESCUROS) =====
 :root {
-  // Cores principais
-  --bip-primary-50: #e8eaf6;
-  --bip-primary-100: #c5cae9;
-  --bip-primary-200: #9fa8da;
-  --bip-primary-300: #7986cb;
-  --bip-primary-400: #5c6bc0;
-  --bip-primary-500: #3f51b5;
-  --bip-primary-600: #3949ab;
-  --bip-primary-700: #303f9f;
-  --bip-primary-800: #283593;
-  --bip-primary-900: #1a237e;
+  // Superfícies e planos de fundo
+  --color-background: #020816;
+  --color-surface: #0b1322;
+  --color-surface-elevated: #111b2c;
+  --color-surface-hover: #1b2536;
+  --color-surface-muted: #1c2535;
+  --color-surface-contrast: #0f172a;
+  --color-surface-overlay: rgba(15, 23, 42, 0.7);
 
-  // Cores de acentuação
-  --bip-accent-50: #e0f2f1;
-  --bip-accent-100: #b2dfdb;
-  --bip-accent-200: #80cbc4;
-  --bip-accent-300: #4db6ac;
-  --bip-accent-400: #26a69a;
-  --bip-accent-500: #009688;
-  --bip-accent-600: #00897b;
-  --bip-accent-700: #00796b;
-
-  // Cores de sucesso
-  --bip-success-50: #e8f5e8;
-  --bip-success-100: #c8e6c9;
-  --bip-success-500: #4caf50;
-  --bip-success-700: #388e3c;
-
-  // Cores de warning
-  --bip-warning-50: #fff8e1;
-  --bip-warning-100: #ffecb3;
-  --bip-warning-500: #ff9800;
-  --bip-warning-700: #f57c00;
-
-  // Cores de erro
-  --bip-error-50: #ffebee;
-  --bip-error-100: #ffcdd2;
-  --bip-error-500: #f44336;
-  --bip-error-700: #d32f2f;
-
-  // Cores neutras
-  --bip-grey-50: #fafafa;
-  --bip-grey-100: #f5f5f5;
-  --bip-grey-200: #eeeeee;
-  --bip-grey-300: #e0e0e0;
-  --bip-grey-400: #bdbdbd;
-  --bip-grey-500: #9e9e9e;
-  --bip-grey-600: #757575;
-  --bip-grey-700: #616161;
-  --bip-grey-800: #424242;
-  --bip-grey-900: #212121;
-
-  // Gradientes
-  --bip-gradient-primary: linear-gradient(135deg, var(--bip-primary-500) 0%, var(--bip-primary-700) 100%);
-  --bip-gradient-accent: linear-gradient(135deg, var(--bip-accent-400) 0%, var(--bip-accent-600) 100%);
-  --bip-gradient-success: linear-gradient(135deg, var(--bip-success-500) 0%, var(--bip-success-700) 100%);
-  --bip-gradient-background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-
-  // Sombras
-  --bip-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --bip-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --bip-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --bip-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --bip-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-  // Bordas
-  --bip-border-radius-sm: 4px;
-  --bip-border-radius-md: 8px;
-  --bip-border-radius-lg: 12px;
-  --bip-border-radius-xl: 16px;
-  --bip-border-radius-full: 9999px;
-
-  // Espaçamentos
-  --bip-spacing-xs: 4px;
-  --bip-spacing-sm: 8px;
-  --bip-spacing-md: 16px;
-  --bip-spacing-lg: 24px;
-  --bip-spacing-xl: 32px;
-  --bip-spacing-2xl: 48px;
-  --bip-spacing-3xl: 64px;
+  // Bordas e divisórias
+  --color-border-light: rgba(148, 163, 184, 0.2);
+  --color-border: rgba(148, 163, 184, 0.28);
+  --color-border-strong: rgba(148, 163, 184, 0.42);
 
   // Tipografia
-  --bip-font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: rgba(226, 232, 240, 0.72);
+  --color-text-tertiary: rgba(226, 232, 240, 0.56);
+  --color-text-muted: rgba(148, 163, 184, 0.7);
+  --color-text-inverse: #0b1220;
+
+  // Paletas principais
+  --color-primary: #b0bec5;
+  --color-primary-strong: #90a4ae;
+  --color-primary-dark: #78909c;
+  --color-primary-soft: rgba(144, 164, 174, 0.22);
+  --color-primary-outline: rgba(176, 190, 197, 0.35);
+  --color-on-primary: #020617;
+
+  --color-accent: #26c6da;
+  --color-accent-soft: rgba(38, 198, 218, 0.25);
+  --color-on-accent: #02131a;
+
+  --color-success: #22c55e;
+  --color-success-light: rgba(34, 197, 94, 0.18);
+  --color-warning: #facc15;
+  --color-warning-light: rgba(250, 204, 21, 0.2);
+  --color-error: #f87171;
+  --color-error-light: rgba(248, 113, 113, 0.2);
+  --color-info: #38bdf8;
+  --color-info-light: rgba(56, 189, 248, 0.22);
+
+  // Gradientes e efeitos
+  --gradient-primary: linear-gradient(135deg, rgba(176, 190, 197, 0.32) 0%, rgba(120, 144, 156, 0.24) 45%, rgba(72, 91, 102, 0.2) 100%);
+  --gradient-surface: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.78) 100%);
+  --gradient-accent: linear-gradient(135deg, rgba(38, 198, 218, 0.18) 0%, rgba(21, 128, 161, 0.26) 100%);
+
+  // Sombra
+  --shadow-xs: 0 6px 12px rgba(2, 6, 23, 0.4);
+  --shadow-sm: 0 16px 30px rgba(2, 6, 23, 0.42);
+  --shadow-md: 0 22px 44px rgba(15, 23, 42, 0.45);
+  --shadow-lg: 0 32px 60px rgba(15, 23, 42, 0.5);
+  --shadow-inner: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  // Raios
+  --border-radius-small: 0.5rem;
+  --border-radius-medium: 0.75rem;
+  --border-radius-large: 1rem;
+  --border-radius-xlarge: 1.5rem;
+  --border-radius-full: 9999px;
+
+  // Espaçamentos (escala de 4px)
+  --spacing-4: 0.25rem;
+  --spacing-6: 0.375rem;
+  --spacing-8: 0.5rem;
+  --spacing-10: 0.625rem;
+  --spacing-12: 0.75rem;
+  --spacing-14: 0.875rem;
+  --spacing-16: 1rem;
+  --spacing-18: 1.125rem;
+  --spacing-20: 1.25rem;
+  --spacing-24: 1.5rem;
+  --spacing-28: 1.75rem;
+  --spacing-32: 2rem;
+  --spacing-36: 2.25rem;
+  --spacing-40: 2.5rem;
+  --spacing-48: 3rem;
+
+  // Layout helpers
+  --layout-padding-small: 1.25rem;
+  --layout-padding-medium: clamp(1.75rem, 4vw, 2.5rem);
+  --layout-padding-large: clamp(2.5rem, 6vw, 4rem);
+  --layout-gutter: clamp(1.75rem, 4.5vw, 3rem);
+  --layout-gutter-narrow: clamp(1.25rem, 3.5vw, 2.25rem);
+  --layout-stack: clamp(1.5rem, 3vw, 2.25rem);
+  --layout-stack-tight: clamp(1.1rem, 2.5vw, 1.6rem);
+  --layout-card-padding: clamp(1.5rem, 3vw, 2.35rem);
+  --layout-card-gap: clamp(1rem, 2.5vw, 1.75rem);
+  --layout-max-width: 1180px;
+  --layout-wide-max: 1280px;
+  --sidenav-width: clamp(240px, 22vw, 280px);
+  --sidenav-width-lg: clamp(260px, 20vw, 320px);
+  --toolbar-height: 68px;
+
+  // Tempos de transição
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Camadas
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  // Compatibilidade com tokens anteriores (bip-*)
+  --bip-primary-50: #e2e8f0;
+  --bip-primary-100: #cbd5f5;
+  --bip-primary-200: #b0bec5;
+  --bip-primary-300: #90a4ae;
+  --bip-primary-400: #78909c;
+  --bip-primary-500: #607d8b;
+  --bip-primary-600: #546e7a;
+  --bip-primary-700: #455a64;
+  --bip-primary-800: #37474f;
+  --bip-primary-900: #263238;
+
+  --bip-accent-50: #ecfeff;
+  --bip-accent-100: #cffafe;
+  --bip-accent-200: #67e8f9;
+  --bip-accent-300: #22d3ee;
+  --bip-accent-400: #06b6d4;
+  --bip-accent-500: #0891b2;
+  --bip-accent-600: #0e7490;
+  --bip-accent-700: #155e75;
+
+  --bip-success-50: #0f2917;
+  --bip-success-100: #14532d;
+  --bip-success-500: #22c55e;
+  --bip-success-700: #15803d;
+
+  --bip-warning-50: #312517;
+  --bip-warning-100: #854d0e;
+  --bip-warning-500: #facc15;
+  --bip-warning-700: #ca8a04;
+
+  --bip-error-50: #2f0f1a;
+  --bip-error-100: #7f1d1d;
+  --bip-error-500: #f87171;
+  --bip-error-700: #b91c1c;
+
+  --bip-grey-50: #0f172a;
+  --bip-grey-100: #111c2f;
+  --bip-grey-200: #1e293b;
+  --bip-grey-300: #27344a;
+  --bip-grey-400: #334155;
+  --bip-grey-500: #475569;
+  --bip-grey-600: #64748b;
+  --bip-grey-700: #94a3b8;
+  --bip-grey-800: #cbd5f5;
+  --bip-grey-900: #e2e8f0;
+
+  --bip-gradient-primary: linear-gradient(135deg, rgba(96, 125, 139, 0.35) 0%, rgba(69, 90, 100, 0.55) 100%);
+  --bip-gradient-accent: linear-gradient(135deg, rgba(8, 145, 178, 0.4) 0%, rgba(6, 182, 212, 0.25) 100%);
+  --bip-gradient-success: linear-gradient(135deg, rgba(34, 197, 94, 0.35) 0%, rgba(13, 148, 136, 0.35) 100%);
+  --bip-gradient-background: linear-gradient(135deg, rgba(2, 6, 23, 0.95) 0%, rgba(17, 24, 39, 0.92) 60%, rgba(30, 41, 59, 0.88) 100%);
+
+  --bip-shadow-xs: var(--shadow-xs);
+  --bip-shadow-sm: var(--shadow-sm);
+  --bip-shadow-md: var(--shadow-md);
+  --bip-shadow-lg: var(--shadow-lg);
+  --bip-shadow-xl: 0 40px 80px rgba(15, 23, 42, 0.55);
+
+  --bip-border-radius-sm: var(--border-radius-small);
+  --bip-border-radius-md: var(--border-radius-medium);
+  --bip-border-radius-lg: var(--border-radius-large);
+  --bip-border-radius-xl: var(--border-radius-xlarge);
+  --bip-border-radius-full: var(--border-radius-full);
+
+  --bip-spacing-xs: var(--spacing-4);
+  --bip-spacing-sm: var(--spacing-8);
+  --bip-spacing-md: var(--spacing-16);
+  --bip-spacing-lg: var(--spacing-24);
+  --bip-spacing-xl: var(--spacing-32);
+  --bip-spacing-2xl: calc(var(--spacing-32) + var(--spacing-16));
+  --bip-spacing-3xl: calc(var(--spacing-32) * 2);
+
+  --bip-font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   --bip-font-weight-light: 300;
   --bip-font-weight-normal: 400;
   --bip-font-weight-medium: 500;
   --bip-font-weight-semibold: 600;
   --bip-font-weight-bold: 700;
 
-  // Transições
-  --bip-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --bip-transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --bip-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --bip-transition-fast: var(--transition-fast);
+  --bip-transition-normal: var(--transition-normal);
+  --bip-transition-slow: var(--transition-slow);
 
-  // Z-index
-  --bip-z-dropdown: 1000;
-  --bip-z-sticky: 1020;
-  --bip-z-fixed: 1030;
-  --bip-z-modal-backdrop: 1040;
-  --bip-z-modal: 1050;
-  --bip-z-popover: 1060;
-  --bip-z-tooltip: 1070;
+  --bip-z-dropdown: var(--z-dropdown);
+  --bip-z-sticky: var(--z-sticky);
+  --bip-z-fixed: var(--z-fixed);
+  --bip-z-modal-backdrop: var(--z-modal-backdrop);
+  --bip-z-modal: var(--z-modal);
+  --bip-z-popover: var(--z-popover);
+  --bip-z-tooltip: var(--z-tooltip);
 }

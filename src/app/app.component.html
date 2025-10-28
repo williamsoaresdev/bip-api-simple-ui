@@ -1,0 +1,100 @@
+@let handset = (isHandset$ | async) ?? false;
+
+<mat-sidenav-container class="shell">
+  <mat-sidenav
+    #drawer
+    class="shell__sidenav"
+    [mode]="handset ? 'over' : 'side'"
+    [opened]="handset ? isMenuOpen : true"
+    (closedStart)="closeMenu()"
+    role="navigation"
+    [fixedInViewport]="handset"
+    [autoFocus]="false">
+    <header class="shell__sidenav-header">
+      <div class="shell__brand">
+        <div class="shell__brand-mark" aria-hidden="true">
+          <mat-icon>payments</mat-icon>
+        </div>
+        <div class="shell__brand-text">
+          <span class="shell__brand-name">BIP</span>
+          <span class="shell__brand-subtitle">Gestão de Benefícios</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        mat-icon-button
+        class="shell__sidenav-close"
+        (click)="closeMenu()"
+        *ngIf="handset"
+        aria-label="Fechar menu">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <mat-nav-list class="shell__nav">
+      <span matSubheader class="shell__nav-heading">Menu principal</span>
+      <a
+        mat-list-item
+        *ngFor="let item of navigationItems; trackBy: trackByRoute"
+        [routerLink]="item.route"
+        routerLinkActive="shell__nav-item--active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+        class="shell__nav-item"
+        (click)="handset ? closeMenu() : null"
+        [attr.aria-label]="item.label">
+        <mat-icon matListIcon aria-hidden="true">{{ item.icon }}</mat-icon>
+        <div matLine class="shell__nav-item-label">{{ item.label }}</div>
+        <div matLine class="shell__nav-item-description">{{ item.description }}</div>
+      </a>
+    </mat-nav-list>
+
+    <mat-divider class="shell__nav-divider"></mat-divider>
+
+    <footer class="shell__sidenav-footer">
+      <div class="shell__profile">
+        <mat-icon aria-hidden="true">account_circle</mat-icon>
+        <div class="shell__profile-copy">
+          <span class="shell__profile-name">Usuário Admin</span>
+          <span class="shell__profile-role">Administrador</span>
+        </div>
+      </div>
+    </footer>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell__content">
+    <mat-toolbar color="primary" class="shell__toolbar" role="banner">
+      <button
+        type="button"
+        mat-icon-button
+        class="shell__menu-trigger"
+        (click)="toggleMenu()"
+        [attr.aria-label]="handset ? 'Abrir menu de navegação' : 'Alternar navegação'"
+        [class.shell__menu-trigger--hidden]="!handset">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <div class="shell__toolbar-meta">
+        <div class="shell__breadcrumb">
+          <h1 class="shell__page-title">{{ currentPageTitle }}</h1>
+          <p class="shell__page-subtitle">{{ currentPageSubtitle }}</p>
+        </div>
+
+        <div class="shell__toolbar-actions" role="group" aria-label="Ações de usuário">
+          <button mat-icon-button type="button" aria-label="Abrir notificações">
+            <mat-icon>notifications</mat-icon>
+          </button>
+          <button mat-stroked-button type="button" class="shell__profile-button">
+            <mat-icon aria-hidden="true">account_circle</mat-icon>
+            <span>Admin</span>
+          </button>
+        </div>
+      </div>
+    </mat-toolbar>
+
+    <main class="shell__main" role="main">
+      <div class="shell__main-inner">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

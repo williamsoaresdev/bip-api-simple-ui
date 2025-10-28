@@ -71,6 +71,14 @@ export class TransferenciaListComponent implements OnInit {
     return this.transferencias().reduce((total, t) => total + t.valor, 0);
   });
 
+  readonly pendentesCount = computed(() =>
+    this.transferencias().filter((transferencia) => transferencia.status === 'PENDENTE').length
+  );
+
+  readonly concluidasCount = computed(() =>
+    this.transferencias().filter((transferencia) => transferencia.status === 'CONCLUIDA').length
+  );
+
   ngOnInit(): void {
     this.loadTransferencias();
   }
@@ -86,15 +94,15 @@ export class TransferenciaListComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status) {
       case 'CONCLUIDA':
-        return 'status-success';
+        return 'transferencias__chip--success';
       case 'PENDENTE':
-        return 'status-warning';
+        return 'transferencias__chip--pending';
       case 'CANCELADA':
-        return 'status-cancelled';
+        return 'transferencias__chip--cancelled';
       case 'ERRO':
-        return 'status-error';
+        return 'transferencias__chip--error';
       default:
-        return 'status-default';
+        return 'transferencias__chip--default';
     }
   }
 

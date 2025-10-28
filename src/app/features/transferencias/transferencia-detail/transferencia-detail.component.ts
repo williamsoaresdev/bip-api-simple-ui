@@ -78,6 +78,40 @@ export class TransferenciaDetailComponent implements OnInit, OnDestroy {
   readonly isLoading = computed(() => this.loading());
   readonly hasData = computed(() => this.transferencia() !== null && !this.loading() && !this.hasError());
 
+  readonly timelineEntries = computed(() => {
+    const item = this.transferencia();
+    if (!item) {
+      return [] as Array<{ key: string; title: string; description: string; variant: string }>;
+    }
+
+    const entries: Array<{ key: string; title: string; description: string; variant: string }> = [
+      {
+        key: 'created',
+        title: 'Transferência criada',
+        description: this.formatDate(item.createdAt),
+        variant: 'created'
+      }
+    ];
+
+    if (item.dataExecucao) {
+      entries.push({
+        key: 'executed',
+        title: 'Transferência executada',
+        description: this.formatDate(item.dataExecucao),
+        variant: 'executed'
+      });
+    }
+
+    entries.push({
+      key: 'status',
+      title: 'Status atual',
+      description: this.statusLabels[item.status as keyof typeof this.statusLabels] || item.status,
+      variant: `status-${item.status.toLowerCase()}`
+    });
+
+    return entries;
+  });
+
   ngOnInit(): void {
     this.loadBeneficios();
     this.loadTransferencia();
@@ -137,15 +171,30 @@ export class TransferenciaDetailComponent implements OnInit, OnDestroy {
   getStatusClass(status: string): string {
     switch (status) {
       case 'CONCLUIDA':
-        return 'status-success';
+        return 'transferencia-detail__chip--success';
       case 'PENDENTE':
-        return 'status-warning';
+        return 'transferencia-detail__chip--pending';
       case 'CANCELADA':
-        return 'status-cancelled';
+        return 'transferencia-detail__chip--cancelled';
       case 'ERRO':
-        return 'status-error';
+        return 'transferencia-detail__chip--error';
       default:
-        return 'status-default';
+        return 'transferencia-detail__chip--default';
+    }
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'CONCLUIDA':
+        return 'check_circle';
+      case 'PENDENTE':
+        return 'schedule';
+      case 'CANCELADA':
+        return 'cancel';
+      case 'ERRO':
+        return 'priority_high';
+      default:
+        return 'info';
     }
   }
 

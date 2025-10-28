@@ -4,82 +4,82 @@
 // Colors - Using CSS Custom Properties defined in styles.scss
 // Primary Colors
 :root {
-  --bip-primary-50: #e3f2fd;
-  --bip-primary-100: #bbdefb;
-  --bip-primary-200: #90caf9;
-  --bip-primary-300: #64b5f6;
-  --bip-primary-400: #42a5f5;
-  --bip-primary-500: #2196f3;
-  --bip-primary-600: #1e88e5;
-  --bip-primary-700: #1976d2;
-  --bip-primary-800: #1565c0;
-  --bip-primary-900: #0d47a1;
+  --bip-primary-50: #e2e8f0;
+  --bip-primary-100: #cbd5f5;
+  --bip-primary-200: #b0bec5;
+  --bip-primary-300: #90a4ae;
+  --bip-primary-400: #78909c;
+  --bip-primary-500: #607d8b;
+  --bip-primary-600: #546e7a;
+  --bip-primary-700: #455a64;
+  --bip-primary-800: #37474f;
+  --bip-primary-900: #263238;
 
   // Success Colors
-  --bip-success-50: #e8f5e8;
-  --bip-success-100: #c8e6c9;
-  --bip-success-200: #a5d6a7;
-  --bip-success-300: #81c784;
-  --bip-success-400: #66bb6a;
-  --bip-success-500: #4caf50;
-  --bip-success-600: #43a047;
-  --bip-success-700: #388e3c;
-  --bip-success-800: #2e7d32;
-  --bip-success-900: #1b5e20;
+  --bip-success-50: #0f2917;
+  --bip-success-100: #14532d;
+  --bip-success-200: #166534;
+  --bip-success-300: #15803d;
+  --bip-success-400: #16a34a;
+  --bip-success-500: #22c55e;
+  --bip-success-600: #16a34a;
+  --bip-success-700: #15803d;
+  --bip-success-800: #166534;
+  --bip-success-900: #052e16;
 
   // Error Colors
-  --bip-error-50: #ffebee;
-  --bip-error-100: #ffcdd2;
-  --bip-error-200: #ef9a9a;
-  --bip-error-300: #e57373;
-  --bip-error-400: #ef5350;
-  --bip-error-500: #f44336;
-  --bip-error-600: #e53935;
-  --bip-error-700: #d32f2f;
-  --bip-error-800: #c62828;
-  --bip-error-900: #b71c1c;
+  --bip-error-50: #2f0f1a;
+  --bip-error-100: #7f1d1d;
+  --bip-error-200: #991b1b;
+  --bip-error-300: #b91c1c;
+  --bip-error-400: #dc2626;
+  --bip-error-500: #f87171;
+  --bip-error-600: #ef4444;
+  --bip-error-700: #dc2626;
+  --bip-error-800: #b91c1c;
+  --bip-error-900: #7f1d1d;
 
   // Warning Colors
-  --bip-warning-50: #fff3e0;
-  --bip-warning-100: #ffe0b2;
-  --bip-warning-200: #ffcc80;
-  --bip-warning-300: #ffb74d;
-  --bip-warning-400: #ffa726;
-  --bip-warning-500: #ff9800;
-  --bip-warning-600: #fb8c00;
-  --bip-warning-700: #f57c00;
-  --bip-warning-800: #ef6c00;
-  --bip-warning-900: #e65100;
+  --bip-warning-50: #312517;
+  --bip-warning-100: #854d0e;
+  --bip-warning-200: #a16207;
+  --bip-warning-300: #ca8a04;
+  --bip-warning-400: #eab308;
+  --bip-warning-500: #facc15;
+  --bip-warning-600: #eab308;
+  --bip-warning-700: #ca8a04;
+  --bip-warning-800: #a16207;
+  --bip-warning-900: #713f12;
 
   // Grey Scale
-  --bip-grey-50: #fafafa;
-  --bip-grey-100: #f5f5f5;
-  --bip-grey-200: #eeeeee;
-  --bip-grey-300: #e0e0e0;
-  --bip-grey-400: #bdbdbd;
-  --bip-grey-500: #9e9e9e;
-  --bip-grey-600: #757575;
-  --bip-grey-700: #616161;
-  --bip-grey-800: #424242;
-  --bip-grey-900: #212121;
+  --bip-grey-50: #0f172a;
+  --bip-grey-100: #111c2f;
+  --bip-grey-200: #1e293b;
+  --bip-grey-300: #27344a;
+  --bip-grey-400: #334155;
+  --bip-grey-500: #475569;
+  --bip-grey-600: #64748b;
+  --bip-grey-700: #94a3b8;
+  --bip-grey-800: #cbd5f5;
+  --bip-grey-900: #e2e8f0;
 
   // Spacing Scale (8px base)
-  --bip-spacing-xs: 0.25rem;   // 4px
-  --bip-spacing-sm: 0.5rem;    // 8px
-  --bip-spacing-md: 1rem;      // 16px
-  --bip-spacing-lg: 1.5rem;    // 24px
-  --bip-spacing-xl: 2rem;      // 32px
-  --bip-spacing-xxl: 3rem;     // 48px
+  --bip-spacing-xs: 0.25rem;
+  --bip-spacing-sm: 0.5rem;
+  --bip-spacing-md: 1rem;
+  --bip-spacing-lg: 1.5rem;
+  --bip-spacing-xl: 2rem;
+  --bip-spacing-xxl: 3rem;
 
   // Border Radius
-  --bip-border-radius-sm: 0.25rem;  // 4px
-  --bip-border-radius-md: 0.5rem;   // 8px
-  --bip-border-radius-lg: 0.75rem;  // 12px
-  --bip-border-radius-xl: 1rem;     // 16px
+  --bip-border-radius-sm: 0.5rem;
+  --bip-border-radius-md: 0.75rem;
+  --bip-border-radius-lg: 1rem;
+  --bip-border-radius-xl: 1.5rem;
 
   // Typography
-  --bip-font-family-primary: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --bip-font-family-monospace: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  --bip-font-family-primary: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --bip-font-family-monospace: 'JetBrains Mono', 'Fira Code', 'Ubuntu Mono', monospace;
 
   --bip-font-weight-light: 300;
   --bip-font-weight-normal: 400;
@@ -87,24 +87,24 @@
   --bip-font-weight-semibold: 600;
   --bip-font-weight-bold: 700;
 
-  --bip-font-size-xs: 0.75rem;     // 12px
-  --bip-font-size-sm: 0.875rem;    // 14px
-  --bip-font-size-base: 1rem;      // 16px
-  --bip-font-size-lg: 1.125rem;    // 18px
-  --bip-font-size-xl: 1.25rem;     // 20px
-  --bip-font-size-2xl: 1.5rem;     // 24px
-  --bip-font-size-3xl: 1.875rem;   // 30px
-  --bip-font-size-4xl: 2.25rem;    // 36px
+  --bip-font-size-xs: 0.75rem;
+  --bip-font-size-sm: 0.875rem;
+  --bip-font-size-base: 1rem;
+  --bip-font-size-lg: 1.125rem;
+  --bip-font-size-xl: 1.25rem;
+  --bip-font-size-2xl: 1.5rem;
+  --bip-font-size-3xl: 1.875rem;
+  --bip-font-size-4xl: 2.25rem;
 
   --bip-line-height-tight: 1.25;
   --bip-line-height-normal: 1.5;
   --bip-line-height-relaxed: 1.75;
 
   // Shadows
-  --bip-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --bip-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --bip-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --bip-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --bip-shadow-sm: 0 16px 30px rgba(2, 6, 23, 0.42);
+  --bip-shadow-md: 0 22px 44px rgba(15, 23, 42, 0.45);
+  --bip-shadow-lg: 0 32px 60px rgba(15, 23, 42, 0.5);
+  --bip-shadow-xl: 0 40px 80px rgba(15, 23, 42, 0.55);
 
   // Transitions
   --bip-transition-fast: 150ms ease-in-out;
@@ -121,9 +121,9 @@
   --bip-z-tooltip: 1070;
 
   // Gradients
-  --bip-gradient-background: linear-gradient(135deg, var(--bip-grey-50) 0%, var(--bip-grey-100) 100%);
-  --bip-gradient-primary: linear-gradient(135deg, var(--bip-primary-500) 0%, var(--bip-primary-600) 100%);
-  --bip-gradient-success: linear-gradient(135deg, var(--bip-success-500) 0%, var(--bip-success-600) 100%);
+  --bip-gradient-background: linear-gradient(135deg, rgba(2, 6, 23, 0.95) 0%, rgba(17, 24, 39, 0.92) 60%, rgba(30, 41, 59, 0.88) 100%);
+  --bip-gradient-primary: linear-gradient(135deg, rgba(96, 125, 139, 0.35) 0%, rgba(69, 90, 100, 0.55) 100%);
+  --bip-gradient-success: linear-gradient(135deg, rgba(34, 197, 94, 0.35) 0%, rgba(13, 148, 136, 0.35) 100%);
 }
 
 // Breakpoints

@@ -1,208 +1,200 @@
-<div class="beneficio-detail-container">
-  <!-- Loading State -->
+<section class="beneficio-detail">
   @if (loading()) {
-    <div class="loading-state">
-      <div class="loading-card">
-        <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
-        <h3>Carregando benefício...</h3>
-        <p>Aguarde enquanto buscamos as informações</p>
-      </div>
+    <div class="beneficio-detail__state" aria-live="polite" aria-busy="true">
+      <mat-card>
+        <mat-card-content>
+          <mat-progress-spinner diameter="44" mode="indeterminate" aria-hidden="true"></mat-progress-spinner>
+          <div>
+            <h2>Carregando benefício</h2>
+            <p>Aguarde enquanto buscamos as informações na API.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   } @else if (error()) {
-    <!-- Error State -->
-    <div class="error-state">
-      <div class="error-card">
-        <div class="error-icon">⚠️</div>
-        <h3>Erro ao carregar benefício</h3>
-        <p>{{ error() }}</p>
-        <div class="error-actions">
-          <button class="btn btn-primary" (click)="retryLoad()">
-            <span class="btn-icon">🔄</span>
-            Tentar Novamente
-          </button>
-          <button class="btn btn-secondary" (click)="onBack()">
-            <span class="btn-icon">⬅️</span>
-            Voltar
-          </button>
-        </div>
-      </div>
+    <div class="beneficio-detail__state beneficio-detail__state--error" role="alert">
+      <mat-card>
+        <mat-card-content>
+          <mat-icon color="warn" aria-hidden="true">error_outline</mat-icon>
+          <div>
+            <h2>Erro ao carregar benefício</h2>
+            <p>{{ error() }}</p>
+            <div class="beneficio-detail__state-actions">
+              <button mat-flat-button color="primary" type="button" (click)="retryLoad()">
+                <mat-icon>refresh</mat-icon>
+                Tentar novamente
+              </button>
+              <button mat-stroked-button type="button" (click)="onBack()">
+                <mat-icon>arrow_back</mat-icon>
+                Voltar à lista
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   } @else if (beneficio()) {
-    <!-- Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="title-section">
-          <button class="back-btn" (click)="onBack()">
-            <span class="back-icon">⬅️</span>
-            Voltar
-          </button>
-          <div class="title-info">
-            <h1 class="page-title">
-              <span class="title-icon">👁️</span>
-              {{ beneficio()?.nome || 'Carregando...' }}
-            </h1>
-            <p class="page-subtitle">Visualização detalhada do benefício</p>
-          </div>
-        </div>
-        <div class="header-actions">
-          <button class="btn btn-secondary" (click)="onEdit()">
-            <span class="btn-icon">✏️</span>
-            Editar
-          </button>
+    @let item = beneficio();
+    <header class="beneficio-detail__hero">
+      <div class="beneficio-detail__hero-heading">
+        <button mat-icon-button type="button" (click)="onBack()" class="beneficio-detail__hero-back" aria-label="Voltar para a lista">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="beneficio-detail__hero-text">
+          <span class="beneficio-detail__hero-label">Benefício</span>
+          <h1>{{ item?.nome }}</h1>
+          <p>Visualize o status financeiro e o histórico completo deste benefício corporativo.</p>
         </div>
       </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="detail-content">
-      <!-- Basic Info Card -->
-      <div class="info-card">
-        <div class="card-header">
-          <h2>
-            <span class="header-icon">📋</span>
-            Informações Básicas
-          </h2>
-        </div>
-        <div class="card-content">
-          <div class="info-grid">
-            <!-- Nome -->
-            <div class="info-item">
-              <label class="info-label">Nome do Benefício</label>
-              <div class="info-value">{{ beneficio()?.nome || 'N/A' }}</div>
-            </div>
-
-            <!-- ID -->
-            <div class="info-item">
-              <label class="info-label">Identificador</label>
-              <div class="info-value">
-                <span class="id-badge">#{{ beneficio()?.id || 'N/A' }}</span>
-              </div>
-            </div>
-
-            <!-- Categoria -->
-            <div class="info-item">
-              <label class="info-label">Categoria</label>
-              <div class="info-value">
-                @if (beneficio()?.categoria) {
-                  <span class="category-badge" [ngClass]="beneficio()!.categoria.toLowerCase()">
-                    {{ getCategoryLabel(beneficio()!.categoria) }}
-                  </span>
-                } @else {
-                  <span class="category-badge outros">N/A</span>
-                }
-              </div>
-            </div>
-
-            <!-- Status -->
-            <div class="info-item">
-              <label class="info-label">Status</label>
-              <div class="info-value">
-                <span class="status-badge" [ngClass]="beneficio()?.ativo ? 'active' : 'inactive'">
-                  <span class="status-icon">{{ beneficio()?.ativo ? '✅' : '⏸️' }}</span>
-                  {{ beneficio()?.ativo ? 'Ativo' : 'Inativo' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="beneficio-detail__hero-tags">
+        <mat-chip-set aria-label="Identificadores do benefício">
+          <mat-chip selected color="primary" class="beneficio-detail__chip">
+            <mat-icon aria-hidden="true">tag</mat-icon>
+            ID #{{ item?.id }}
+          </mat-chip>
+          <mat-chip selected class="beneficio-detail__chip beneficio-detail__chip--categoria">
+            <mat-icon aria-hidden="true">category</mat-icon>
+            {{ getCategoryLabel(item!.categoria) }}
+          </mat-chip>
+          <mat-chip selected [color]="item?.ativo ? 'accent' : 'warn'" class="beneficio-detail__chip beneficio-detail__chip--status">
+            <mat-icon aria-hidden="true">{{ item?.ativo ? 'check_circle' : 'pause_circle' }}</mat-icon>
+            {{ item?.ativo ? 'Ativo' : 'Inativo' }}
+          </mat-chip>
+        </mat-chip-set>
       </div>
-
-      <!-- Financial Info Card -->
-      <div class="info-card valor-card">
-        <div class="card-header">
-          <h2>
-            <span class="header-icon">💰</span>
-            Saldo do Benefício
-          </h2>
-        </div>
-        <div class="card-content">
-          <div class="financial-display">
-            <div class="valor-principal">
-              <div class="valor-amount">{{ beneficio()?.valor | brlCurrency }}</div>
-              <div class="valor-subtitle">Saldo disponível</div>
-            </div>
-          </div>
-        </div>
+      <div class="beneficio-detail__hero-actions">
+        <button mat-flat-button color="primary" type="button" (click)="onEdit()">
+          <mat-icon>edit</mat-icon>
+          Editar benefício
+        </button>
       </div>
+    </header>
 
-      <!-- Description Card (se houver descrição) -->
-      @if (beneficio()?.descricao) {
-        <div class="info-card">
-          <div class="card-header">
-            <h2>
-              <span class="header-icon">📝</span>
-              Descrição
-            </h2>
+    <section class="beneficio-detail__summary" aria-label="Resumo do benefício">
+      <mat-card class="beneficio-detail__summary-card beneficio-detail__summary-card--value">
+        <mat-card-content>
+          <div class="beneficio-detail__summary-icon" aria-hidden="true">
+            <mat-icon>payments</mat-icon>
           </div>
-          <div class="card-content">
-            <div class="description-content">
-              {{ beneficio()!.descricao }}
+          <div class="beneficio-detail__summary-content">
+            <span class="beneficio-detail__summary-label">Saldo disponível</span>
+            <span class="beneficio-detail__summary-value">{{ item?.valor | brlCurrency }}</span>
+            <span class="beneficio-detail__summary-note">Valor atualizado conforme última sincronização.</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="beneficio-detail__summary-card">
+        <mat-card-content>
+          <div class="beneficio-detail__summary-icon" aria-hidden="true">
+            <mat-icon>event</mat-icon>
+          </div>
+          <div class="beneficio-detail__summary-content">
+            <span class="beneficio-detail__summary-label">Criado em</span>
+            <span class="beneficio-detail__summary-value">{{ createdDate() | bipDateFormat:'long' }}</span>
+            <span class="beneficio-detail__summary-note">Registro inicial no sistema.</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="beneficio-detail__summary-card">
+        <mat-card-content>
+          <div class="beneficio-detail__summary-icon" aria-hidden="true">
+            <mat-icon>history</mat-icon>
+          </div>
+          <div class="beneficio-detail__summary-content">
+            <span class="beneficio-detail__summary-label">Última atualização</span>
+            <span class="beneficio-detail__summary-value">{{ updatedDate() | bipDateFormat:'medium' }}</span>
+            <span class="beneficio-detail__summary-note">Sincronização mais recente do benefício.</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <section class="beneficio-detail__content">
+      <mat-card class="beneficio-detail__card beneficio-detail__card--info">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            Informações principais
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="beneficio-detail__info-grid">
+            <div class="beneficio-detail__info-item">
+              <span class="beneficio-detail__info-label">Nome do benefício</span>
+              <span class="beneficio-detail__info-value">{{ item?.nome }}</span>
+            </div>
+            <div class="beneficio-detail__info-item">
+              <span class="beneficio-detail__info-label">Categoria</span>
+              <span class="beneficio-detail__info-value">{{ getCategoryLabel(item!.categoria) }}</span>
+            </div>
+            <div class="beneficio-detail__info-item">
+              <span class="beneficio-detail__info-label">Status operacional</span>
+              <span class="beneficio-detail__info-chip" [class.beneficio-detail__info-chip--inactive]="!item?.ativo">
+                <mat-icon aria-hidden="true">{{ item?.ativo ? 'radar' : 'snooze' }}</mat-icon>
+                {{ item?.ativo ? 'Ativo para colaboradores' : 'Temporariamente inativo' }}
+              </span>
+            </div>
+            <div class="beneficio-detail__info-item">
+              <span class="beneficio-detail__info-label">Identificador interno</span>
+              <span class="beneficio-detail__info-value beneficio-detail__info-value--id">#{{ item?.id }}</span>
             </div>
           </div>
-        </div>
+        </mat-card-content>
+      </mat-card>
+
+      @if (item?.descricao) {
+        <mat-card class="beneficio-detail__card beneficio-detail__card--description">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>article</mat-icon>
+              Descrição do benefício
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{ item?.descricao }}</p>
+          </mat-card-content>
+        </mat-card>
       }
 
-      <!-- Timeline Card -->
-      <div class="info-card">
-        <div class="card-header">
-          <h2>
-            <span class="header-icon">⏰</span>
-            Histórico do Benefício
-          </h2>
-        </div>
-        <div class="card-content">
-          <div class="timeline">
-            @if (createdDate()) {
-              <div class="timeline-item">
-                <div class="timeline-icon created">📅</div>
-                <div class="timeline-content">
-                  <div class="timeline-title">Benefício Criado</div>
-                  <div class="timeline-date">{{ createdDate() | bipDateFormat:'long' }}</div>
-                </div>
+      <mat-card class="beneficio-detail__card beneficio-detail__card--timeline">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>timeline</mat-icon>
+            Histórico de eventos
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ol class="beneficio-detail__timeline">
+            @if (createdDate()) {<li class="beneficio-detail__timeline-item">
+              <div class="beneficio-detail__timeline-marker beneficio-detail__timeline-marker--created"></div>
+              <div class="beneficio-detail__timeline-body">
+                <span class="beneficio-detail__timeline-title">Benefício criado</span>
+                <span class="beneficio-detail__timeline-date">{{ createdDate() | bipDateFormat:'long' }}</span>
               </div>
-            }
-            
-            @if (updatedDate() && updatedDate() !== createdDate()) {
-              <div class="timeline-item">
-                <div class="timeline-icon updated">🔄</div>
-                <div class="timeline-content">
-                  <div class="timeline-title">Última Atualização</div>
-                  <div class="timeline-date">{{ updatedDate() | bipDateFormat:'medium' }}</div>
-                </div>
+            </li>}
+            @if (updatedDate() && updatedDate() !== createdDate()) {<li class="beneficio-detail__timeline-item">
+              <div class="beneficio-detail__timeline-marker beneficio-detail__timeline-marker--updated"></div>
+              <div class="beneficio-detail__timeline-body">
+                <span class="beneficio-detail__timeline-title">Última atualização</span>
+                <span class="beneficio-detail__timeline-date">{{ updatedDate() | bipDateFormat:'medium' }}</span>
               </div>
-            }
-          </div>
-        </div>
-      </div>
+            </li>}
+          </ol>
+        </mat-card-content>
+      </mat-card>
+    </section>
 
-      <!-- Actions Card -->
-      <div class="actions-card">
-        <div class="card-header">
-          <h2>
-            <span class="header-icon">⚡</span>
-            Ações Disponíveis
-          </h2>
-        </div>
-        <div class="card-content">
-          <div class="action-buttons">
-            <button class="btn btn-primary" (click)="onEdit()">
-              <span class="btn-icon">✏️</span>
-              <div class="btn-content">
-                <span class="btn-title">Editar Benefício</span>
-                <span class="btn-subtitle">Modificar informações deste benefício</span>
-              </div>
-            </button>
-
-            <button class="btn btn-outline" (click)="onBack()">
-              <span class="btn-icon">⬅️</span>
-              <div class="btn-content">
-                <span class="btn-title">Voltar à Lista</span>
-                <span class="btn-subtitle">Retornar aos benefícios</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <footer class="beneficio-detail__footer">
+      <button mat-stroked-button type="button" (click)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Voltar para benefícios
+      </button>
+      <button mat-flat-button color="primary" type="button" (click)="onEdit()">
+        <mat-icon>edit</mat-icon>
+        Editar informações
+      </button>
+    </footer>
   }
-</div>
+</section>
