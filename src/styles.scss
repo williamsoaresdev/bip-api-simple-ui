@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   height: 100%;
   font-family: 'Inter', sans-serif;
@@ -10,8 +14,13 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
-* {
-  box-sizing: border-box;
+// Angular Material List Item Fix
+.mat-mdc-list-item {
+  &.shell__nav-item {
+    .mdc-list-item__primary-text {
+      width: 100%;
+    }
+  }
 }
 
 // Angular Material Global Customizations

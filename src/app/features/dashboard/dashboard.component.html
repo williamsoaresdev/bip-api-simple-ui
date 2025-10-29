@@ -216,16 +216,16 @@
               @for (transferencia of recentTransferencias(); track trackById($index, transferencia)) {
                 <mat-list-item>
                   <div class="item-info">
-                    <h3>{{ transferencia.beneficioDestinoNome }}</h3>
-                    <p>{{ transferencia.valor | brlCurrency }}</p>
+                    <h3>{{ transferencia.beneficioDestinoNome || 'Transferência' }}</h3>
+                    <p class="item-value">{{ transferencia.valor | brlCurrency }}</p>
+                    <div class="item-date">
+                      {{ transferencia.updatedAt | date:'dd/MM HH:mm' }}
+                    </div>
                   </div>
                   <div class="item-meta">
                     <mat-chip [class]="getStatusClasses(transferencia.status)">
                       {{ getStatusLabel(transferencia.status) }}
                     </mat-chip>
-                    <div class="item-date">
-                      {{ transferencia.updatedAt | date:'dd/MM HH:mm' }}
-                    </div>
                   </div>
                 </mat-list-item>
               }

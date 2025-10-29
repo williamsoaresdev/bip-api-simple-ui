@@ -58,54 +58,54 @@
     <section class="beneficios__analytics" aria-label="Resumo dos benefícios">
       <mat-card class="beneficios__metric">
         <mat-card-content>
-          <div class="beneficios__metric-icon" aria-hidden="true">
-            <mat-icon>inventory_2</mat-icon>
-          </div>
-          <div class="beneficios__metric-copy">
-            <span class="beneficios__metric-label">Benefícios cadastrados</span>
-            <span class="beneficios__metric-value">{{ beneficiosFiltrados.length }}</span>
-            @if (filtrosAtivos && beneficiosFiltrados.length !== beneficioService.totalBeneficios()) {
-              <span class="beneficios__metric-note">de {{ beneficioService.totalBeneficios() }} no total</span>
-            }
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="beneficios__metric">
-        <mat-card-content>
-          <div class="beneficios__metric-icon beneficios__metric-icon--success" aria-hidden="true">
-            <mat-icon>task_alt</mat-icon>
-          </div>
-          <div class="beneficios__metric-copy">
-            <span class="beneficios__metric-label">Ativos</span>
-            <span class="beneficios__metric-value">{{ beneficiosAtivosCount() }}</span>
-            <span class="beneficios__metric-note">Disponíveis para os colaboradores</span>
+          <div class="beneficios__metric-content">
+            <div class="beneficios__metric-info">
+              <p class="beneficios__metric-label">Benefícios cadastrados</p>
+              <p class="beneficios__metric-value">{{ beneficiosFiltrados.length }}</p>
+              @if (filtrosAtivos && beneficiosFiltrados.length !== beneficioService.totalBeneficios()) {
+                <p class="beneficios__metric-description">de {{ beneficioService.totalBeneficios() }} no total</p>
+              }
+            </div>
+            <mat-icon class="beneficios__metric-icon">inventory_2</mat-icon>
           </div>
         </mat-card-content>
       </mat-card>
 
       <mat-card class="beneficios__metric">
         <mat-card-content>
-          <div class="beneficios__metric-icon beneficios__metric-icon--warning" aria-hidden="true">
-            <mat-icon>pause_circle_filled</mat-icon>
-          </div>
-          <div class="beneficios__metric-copy">
-            <span class="beneficios__metric-label">Inativos</span>
-            <span class="beneficios__metric-value">{{ beneficiosInativosCount() }}</span>
-            <span class="beneficios__metric-note">Em avaliação ou pausa temporária</span>
+          <div class="beneficios__metric-content">
+            <div class="beneficios__metric-info">
+              <p class="beneficios__metric-label">Ativos</p>
+              <p class="beneficios__metric-value">{{ beneficiosAtivosCount() }}</p>
+              <p class="beneficios__metric-description">Disponíveis para os colaboradores</p>
+            </div>
+            <mat-icon class="beneficios__metric-icon">task_alt</mat-icon>
           </div>
         </mat-card-content>
       </mat-card>
 
       <mat-card class="beneficios__metric">
         <mat-card-content>
-          <div class="beneficios__metric-icon beneficios__metric-icon--financial" aria-hidden="true">
-            <mat-icon>payments</mat-icon>
+          <div class="beneficios__metric-content">
+            <div class="beneficios__metric-info">
+              <p class="beneficios__metric-label">Inativos</p>
+              <p class="beneficios__metric-value">{{ beneficiosInativosCount() }}</p>
+              <p class="beneficios__metric-description">Em avaliação ou pausa temporária</p>
+            </div>
+            <mat-icon class="beneficios__metric-icon">pause_circle_filled</mat-icon>
           </div>
-          <div class="beneficios__metric-copy">
-            <span class="beneficios__metric-label">Carteira mensal</span>
-            <span class="beneficios__metric-value">{{ valorTotalBeneficios() | brlCurrency }}</span>
-            <span class="beneficios__metric-note">Somatório dos benefícios ativos</span>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="beneficios__metric">
+        <mat-card-content>
+          <div class="beneficios__metric-content">
+            <div class="beneficios__metric-info">
+              <p class="beneficios__metric-label">Carteira mensal</p>
+              <p class="beneficios__metric-value">{{ valorTotalBeneficios() | brlCurrency }}</p>
+              <p class="beneficios__metric-description">Somatório dos benefícios ativos</p>
+            </div>
+            <mat-icon class="beneficios__metric-icon">payments</mat-icon>
           </div>
         </mat-card-content>
       </mat-card>
@@ -169,7 +169,9 @@
       <header class="beneficios__table-header">
         <div>
           <h2>Lista de benefícios</h2>
-          <p *ngIf="filtrosAtivos">{{ beneficiosFiltrados.length }} resultado(s) após filtragem</p>
+          @if (filtrosAtivos) {
+            <p>{{ beneficiosFiltrados.length }} resultado(s) após filtragem</p>
+          }
         </div>
       </header>
 
@@ -182,7 +184,9 @@
                 <td mat-cell *matCellDef="let beneficio">
                   <div class="beneficios__table-name">
                     <span class="beneficios__table-title">{{ beneficio.nome }}</span>
-                    <span *ngIf="beneficio.descricao" class="beneficios__table-caption">{{ beneficio.descricao }}</span>
+                    @if (beneficio.descricao) {
+                      <span class="beneficios__table-caption">{{ beneficio.descricao }}</span>
+                    }
                   </div>
                 </td>
               </ng-container>
