@@ -179,6 +179,7 @@ export class TransferenciaService {
     return this.http.post<CreateTransferenciaResponse>(this.baseUrl, request).pipe(
       tap(response => {
         if (response.sucesso) {
+          // Força o reload da lista com cache-busting
           this.loadTransferencias().subscribe();
         }
         this._loading.set('success');

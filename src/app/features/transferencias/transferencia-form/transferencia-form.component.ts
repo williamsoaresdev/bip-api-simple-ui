@@ -90,10 +90,17 @@ export class TransferenciaFormComponent implements OnInit, OnDestroy {
   });
 
   readonly canSubmit = computed(() => {
-    return this.isValidForm() && 
+    const hasValidationResult = this.validationResult() !== null;
+    const isValidTransfer = this.validationResult()?.valida === true;
+    
+    // Permite submeter se:
+    // 1. Formulário é válido
+    // 2. Não está submetendo ou validando
+    // 3. Validação retornou sucesso OU ainda não foi validado (primeira tentativa)
+    return this.form.valid && 
            !this.submitting() && 
            !this.validating() &&
-           this.validationResult()?.valida === true;
+           (isValidTransfer || !hasValidationResult);
   });
 
   ngOnInit(): void {
@@ -176,10 +183,38 @@ export class TransferenciaFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (!this.canSubmit()) {
+    if (!this.form.valid) {
+      this.form.markAllAsTouched();
       return;
     }
 
+    // Se não há resultado de validação, valida primeiro
+    if (!this.validationResult()) {
+      this.validateTransferencia()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (result) => {
+            if (result?.valida) {
+              this.submitTransferencia();
+            } else {
+              this.error.set(result?.mensagem || 'Transferência inválida');
+            }
+          }
+        });
+      return;
+    }
+
+    // Se validação falhou, não permite submeter
+    if (!this.validationResult()?.valida) {
+      this.error.set(this.validationResult()?.mensagem || 'Transferência inválida');
+      return;
+    }
+
+    // Validação passou, submete
+    this.submitTransferencia();
+  }
+
+  private submitTransferencia(): void {
     const formValue = this.form.value;
     const request: CreateTransferenciaRequest = {
       beneficioOrigemId: Number(formValue.beneficioOrigemId!),
@@ -201,8 +236,10 @@ export class TransferenciaFormComponent implements OnInit, OnDestroy {
             panelClass: ['success-snackbar']
           });
           
-          // Navegar para a lista de transferências
-          this.router.navigate(['/transferencias']);
+          // Pequeno delay para garantir que o serviço atualize a lista antes de navegar
+          setTimeout(() => {
+            this.router.navigate(['/transferencias']);
+          }, 500);
         },
         error: (error) => {
           this.submitting.set(false);

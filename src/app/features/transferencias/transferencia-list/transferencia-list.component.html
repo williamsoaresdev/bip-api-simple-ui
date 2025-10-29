@@ -11,11 +11,10 @@
         <p>Movimentações financeiras entre benefícios corporativos com rastreabilidade completa.</p>
       </div>
     </div>
-
     <div class="transferencias__actions">
       <button mat-stroked-button type="button" (click)="loadTransferencias()">
         <mat-icon>refresh</mat-icon>
-        Atualizar lista
+        Atualizar dados
       </button>
       <button mat-flat-button color="primary" type="button" routerLink="/transferencias/nova">
         <mat-icon>add</mat-icon>
@@ -24,66 +23,14 @@
     </div>
   </header>
 
-  @if (!isLoading() && !hasError()) {
-    <section class="transferencias__analytics" aria-label="Resumo das transferências">
-      <mat-card class="transferencias__metric">
-        <mat-card-content>
-          <div class="transferencias__metric-icon" aria-hidden="true">
-            <mat-icon>leaderboard</mat-icon>
-          </div>
-          <div class="transferencias__metric-copy">
-            <span class="transferencias__metric-label">Transferências registradas</span>
-            <span class="transferencias__metric-value">{{ totalTransferencias() }}</span>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="transferencias__metric">
-        <mat-card-content>
-          <div class="transferencias__metric-icon transferencias__metric-icon--value" aria-hidden="true">
-            <mat-icon>payments</mat-icon>
-          </div>
-          <div class="transferencias__metric-copy">
-            <span class="transferencias__metric-label">Valor total movimentado</span>
-            <span class="transferencias__metric-value">{{ formatCurrency(valorTotal()) }}</span>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="transferencias__metric">
-        <mat-card-content>
-          <div class="transferencias__metric-icon transferencias__metric-icon--pending" aria-hidden="true">
-            <mat-icon>schedule</mat-icon>
-          </div>
-          <div class="transferencias__metric-copy">
-            <span class="transferencias__metric-label">Pendentes</span>
-            <span class="transferencias__metric-value">{{ pendentesCount() }}</span>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="transferencias__metric">
-        <mat-card-content>
-          <div class="transferencias__metric-icon transferencias__metric-icon--success" aria-hidden="true">
-            <mat-icon>task_alt</mat-icon>
-          </div>
-          <div class="transferencias__metric-copy">
-            <span class="transferencias__metric-label">Concluídas</span>
-            <span class="transferencias__metric-value">{{ concluidasCount() }}</span>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </section>
-  }
-
   @if (isLoading()) {
     <section class="transferencias__state transferencias__state--loading" aria-live="polite" aria-busy="true">
       <mat-card>
         <mat-card-content>
-          <mat-progress-spinner diameter="48" mode="indeterminate" aria-hidden="true"></mat-progress-spinner>
+          <mat-progress-spinner diameter="40" mode="indeterminate" aria-hidden="true"></mat-progress-spinner>
           <div>
             <h2>Carregando transferências</h2>
-            <p>Buscando movimentações financeiras na API.</p>
+            <p>Aguarde enquanto sincronizamos os dados com a API.</p>
           </div>
         </mat-card-content>
       </mat-card>
@@ -94,7 +41,7 @@
         <mat-card-content>
           <mat-icon color="warn" aria-hidden="true">error_outline</mat-icon>
           <div>
-            <h2>Não foi possível carregar as transferências</h2>
+            <h2>Não foi possível carregar os dados</h2>
             <p>{{ error() }}</p>
             <div class="transferencias__state-actions">
               <button mat-raised-button color="primary" type="button" (click)="onRetry()">
@@ -106,39 +53,74 @@
         </mat-card-content>
       </mat-card>
     </section>
-  } @else if (isEmpty()) {
-    <section class="transferencias__state transferencias__state--empty" aria-live="polite">
-      <mat-card>
+  } @else {
+    <section class="transferencias__analytics" aria-label="Resumo das transferências">
+      <mat-card class="transferencias__metric">
         <mat-card-content>
-          <mat-icon aria-hidden="true">transfer_within_a_station</mat-icon>
-          <div>
-            <h2>Você ainda não possui transferências</h2>
-            <p>Cadastre a primeira movimentação para acompanhar o fluxo entre benefícios.</p>
-            <div class="transferencias__state-actions">
-              <button mat-raised-button color="primary" type="button" routerLink="/transferencias/nova">
-                <mat-icon>add</mat-icon>
-                Criar transferência
-              </button>
+          <div class="transferencias__metric-content">
+            <div class="transferencias__metric-info">
+              <p class="transferencias__metric-label">Transferências registradas</p>
+              <p class="transferencias__metric-value">{{ totalTransferencias() }}</p>
+              <p class="transferencias__metric-description">Total de movimentações</p>
+            </div>
+            <mat-icon class="transferencias__metric-icon">leaderboard</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencias__metric">
+        <mat-card-content>
+          <div class="transferencias__metric-content">
+            <div class="transferencias__metric-info">
+              <p class="transferencias__metric-label">Valor movimentado</p>
+              <p class="transferencias__metric-value">{{ formatCurrency(valorTotal()) }}</p>
+              <p class="transferencias__metric-description">Total processado no sistema</p>
             </div>
           </div>
         </mat-card-content>
       </mat-card>
+
+      <mat-card class="transferencias__metric">
+        <mat-card-content>
+          <div class="transferencias__metric-content">
+            <div class="transferencias__metric-info">
+              <p class="transferencias__metric-label">Pendentes</p>
+              <p class="transferencias__metric-value">{{ pendentesCount() }}</p>
+              <p class="transferencias__metric-description">Aguardando processamento</p>
+            </div>
+            <mat-icon class="transferencias__metric-icon">schedule</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="transferencias__metric">
+        <mat-card-content>
+          <div class="transferencias__metric-content">
+            <div class="transferencias__metric-info">
+              <p class="transferencias__metric-label">Concluídas</p>
+              <p class="transferencias__metric-value">{{ concluidasCount() }}</p>
+              <p class="transferencias__metric-description">Finalizadas com sucesso</p>
+            </div>
+            <mat-icon class="transferencias__metric-icon">task_alt</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </section>
-  } @else {
+
     <section class="transferencias__table" aria-live="polite">
       <header class="transferencias__table-header">
         <div>
           <h2>Lista de transferências</h2>
-          <p>{{ lista.length }} movimentaç{{ lista.length === 1 ? 'ão' : 'ões' }} registradas</p>
+          @if (lista.length > 0) {
+            <p>{{ lista.length }} transferência{{ lista.length === 1 ? '' : 's' }} registrada{{ lista.length === 1 ? '' : 's' }}</p>
+          }
         </div>
-        <button mat-icon-button type="button" matTooltip="Atualizar dados" (click)="loadTransferencias()">
-          <mat-icon>refresh</mat-icon>
-        </button>
       </header>
 
-      <mat-card class="transferencias__table-card">
-        <div class="transferencias__table-wrapper">
-          <table mat-table [dataSource]="lista" class="transferencias__mat-table">
+      @if (lista.length > 0) {
+        <mat-card class="transferencias__table-card">
+          <div class="transferencias__table-wrapper">
+            <table mat-table [dataSource]="lista" class="transferencias__mat-table">
             <ng-container matColumnDef="id">
               <th mat-header-cell *matHeaderCellDef>ID</th>
               <td mat-cell *matCellDef="let transferencia">
@@ -228,6 +210,21 @@
           </table>
         </div>
       </mat-card>
+      } @else {
+        <mat-card class="transferencias__empty">
+          <mat-card-content>
+            <mat-icon aria-hidden="true">sync_alt</mat-icon>
+            <h3>Nenhuma transferência encontrada</h3>
+            <p>Comece criando sua primeira movimentação financeira.</p>
+            <div class="transferencias__empty-actions">
+              <button mat-raised-button color="primary" type="button" routerLink="/transferencias/nova">
+                <mat-icon>add</mat-icon>
+                Nova transferência
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
     </section>
   }
 </section>
