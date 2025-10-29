@@ -24,7 +24,7 @@ export class LoadingComponent {
     const base = 'flex items-center';
     const centering = this.center() ? 'justify-center' : '';
     const overlayClass = this.overlay() 
-      ? 'fixed inset-0 bg-white/80 backdrop-blur-sm z-50' 
+      ? 'loading-overlay fixed inset-0 z-50' 
       : '';
     const direction = this.message() ? 'flex-col gap-3' : '';
     
@@ -32,41 +32,41 @@ export class LoadingComponent {
   });
   
   readonly spinnerSize = computed(() => {
-    const sizes = { sm: 24, md: 32, lg: 40, xl: 48 };
+    const sizes = { sm: 24, md: 36, lg: 48, xl: 64 };
     return sizes[this.size()];
   });
   
   readonly strokeWidth = computed(() => {
-    const widths = { sm: 3, md: 4, lg: 4, xl: 5 };
+    const widths = { sm: 3, md: 4, lg: 5, xl: 6 };
     return widths[this.size()];
   });
   
   readonly dotClasses = computed(() => {
-    const baseClasses = 'dot bg-blue-600 rounded-full';
+    const baseClasses = 'dot rounded-full';
     const sizeClasses = {
       sm: 'w-2 h-2',
       md: 'w-3 h-3', 
       lg: 'w-4 h-4',
-      xl: 'w-5 h-5'
+      xl: 'w-6 h-6'
     };
     
     return `${baseClasses} ${sizeClasses[this.size()]}`;
   });
   
   readonly pulseClasses = computed(() => {
-    const baseClasses = 'pulse-ring bg-blue-600 rounded-full';
+    const baseClasses = 'pulse-ring rounded-full';
     const sizeClasses = {
-      sm: 'w-8 h-8',
-      md: 'w-12 h-12',
-      lg: 'w-16 h-16', 
-      xl: 'w-20 h-20'
+      sm: 'w-10 h-10',
+      md: 'w-16 h-16',
+      lg: 'w-20 h-20', 
+      xl: 'w-28 h-28'
     };
     
     return `${baseClasses} ${sizeClasses[this.size()]}`;
   });
   
   readonly messageClasses = computed(() => {
-    const baseClasses = 'text-gray-600 font-medium';
+    const baseClasses = 'loading-message';
     const sizeClasses = {
       sm: 'text-sm',
       md: 'text-base',

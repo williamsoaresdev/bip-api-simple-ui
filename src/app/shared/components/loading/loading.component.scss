@@ -1,25 +1,62 @@
+// Theme Variables (matching dashboard)
+$primary: var(--color-primary);
+$text: var(--color-text-primary);
+$text-secondary: var(--color-text-secondary);
+
 @keyframes bounce {
   0%, 80%, 100% {
     transform: scale(0);
+    opacity: 0.5;
   }
   40% {
     transform: scale(1);
+    opacity: 1;
   }
 }
 
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 
 .dot {
   animation: bounce 1.4s infinite ease-in-out both;
+  background: linear-gradient(135deg, $primary 0%, lighten($primary, 15%) 100%);
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
 }
 
 .pulse-ring {
   animation: pulse 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  background: linear-gradient(135deg, $primary 0%, lighten($primary, 15%) 100%);
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+}
+
+// Loading container overlay
+.loading-overlay {
+  background: rgba(2, 6, 23, 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+// Message styling
+.loading-message {
+  color: $text-secondary;
+  font-weight: var(--bip-font-weight-medium);
+  letter-spacing: 0.02em;
+  animation: pulse 2s ease-in-out infinite;
 }

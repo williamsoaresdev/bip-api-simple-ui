@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-* {
-  box-sizing: border-box;
-}
+
 
 html, body {
   height: 100%;
@@ -12,6 +10,44 @@ html, body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+// Estilização global da barra de rolagem
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.3) rgba(148, 163, 184, 0.05);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(148, 163, 184, 0.5);
+    background-clip: padding-box;
+  }
+
+  &:active {
+    background: rgba(148, 163, 184, 0.7);
+    background-clip: padding-box;
+  }
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 // Angular Material List Item Fix
@@ -69,16 +105,57 @@ html, body {
 // Custom Dialog Styles
 .modern-dialog {
   .mat-mdc-dialog-container {
-    border-radius: 20px !important;
+    border-radius: var(--bip-border-radius-xl) !important;
     padding: 0 !important;
     background: var(--color-surface-elevated) !important;
     box-shadow: var(--bip-shadow-lg) !important;
     border: 1px solid var(--color-border);
+    overflow: hidden !important;
+    max-height: 90vh !important;
+    
+    .mat-mdc-dialog-surface {
+      border-radius: var(--bip-border-radius-xl) !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+    }
+    
+    .mat-mdc-dialog-content {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      max-height: none !important;
+      
+      // Estilização da barra de rolagem no dialog
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba(148, 163, 184, 0.05);
+        border-radius: 10px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.3);
+        border-radius: 10px;
+        
+        &:hover {
+          background: rgba(148, 163, 184, 0.5);
+        }
+      }
+    }
   }
 }
 
 .modern-backdrop {
-  background: rgba(2, 6, 23, 0.7) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
-  backdrop-filter: blur(4px) !important;
+  background: rgba(2, 6, 23, 0.8) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+// Remove scroll do body quando modal estiver aberta
+.cdk-global-scrollblock {
+  overflow: hidden !important;
 }

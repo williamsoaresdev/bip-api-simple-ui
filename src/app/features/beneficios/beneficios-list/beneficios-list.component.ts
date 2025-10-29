@@ -205,7 +205,9 @@ export class BeneficiosListComponent implements OnInit {
       disableClose: true,
       panelClass: ['modern-dialog'],
       backdropClass: 'modern-backdrop',
-      hasBackdrop: true
+      hasBackdrop: true,
+      autoFocus: false,
+      restoreFocus: false
     });
 
     dialogRef.afterClosed().subscribe(confirmed => {

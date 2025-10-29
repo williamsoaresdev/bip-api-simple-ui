@@ -3,6 +3,39 @@
 	padding: var(--layout-gutter);
 	background: var(--color-background);
 	color: var(--color-text-primary);
+
+	// Estilização da barra de rolagem
+	::-webkit-scrollbar {
+		width: 12px;
+		height: 12px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: rgba(148, 163, 184, 0.05);
+		border-radius: 10px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: rgba(148, 163, 184, 0.3);
+		border-radius: 10px;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+		transition: background var(--transition-fast);
+
+		&:hover {
+			background: rgba(148, 163, 184, 0.5);
+			background-clip: padding-box;
+		}
+
+		&:active {
+			background: rgba(148, 163, 184, 0.7);
+			background-clip: padding-box;
+		}
+	}
+
+	::-webkit-scrollbar-corner {
+		background: transparent;
+	}
 }
 
 $surface: var(--color-surface);
@@ -283,22 +316,47 @@ $shadow-lg: var(--shadow-lg);
 .beneficios__table-card {
 	border-radius: var(--bip-border-radius-xl);
 	overflow: hidden;
-	background: $surface-elevated;
-	border: 1px solid $border;
+	background: rgba(15, 23, 42, 0.4);
+	border: 1px solid rgba(148, 163, 184, 0.15);
 	box-shadow: $shadow-sm;
 }
 
 .beneficios__table-wrapper {
 	overflow-x: auto;
+
+	// Barra de rolagem horizontal da tabela
+	&::-webkit-scrollbar {
+		height: 8px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: rgba(148, 163, 184, 0.05);
+		border-radius: 8px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: rgba(148, 163, 184, 0.3);
+		border-radius: 8px;
+		
+		&:hover {
+			background: rgba(148, 163, 184, 0.5);
+		}
+	}
 }
 
 .beneficios__mat-table {
 	width: 100%;
 	background: transparent;
+
+	// Cores mais escuras para melhor contraste
+	.mat-mdc-row:hover {
+		background: rgba(148, 163, 184, 0.08) !important;
+	}
 }
 
 .beneficios__mat-table .mat-mdc-header-row {
-	background: $surface-muted;
+	background: rgba(15, 23, 42, 0.6);
+	border-bottom: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .beneficios__mat-table .mat-mdc-header-cell {
@@ -313,10 +371,11 @@ $shadow-lg: var(--shadow-lg);
 
 .beneficios__mat-table .mat-mdc-row {
 	transition: background var(--transition-fast);
-	border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+	border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+	background: rgba(15, 23, 42, 0.3);
 
 	&:hover {
-		background: rgba(148, 163, 184, 0.06);
+		background: rgba(148, 163, 184, 0.08);
 	}
 
 	&:last-child {

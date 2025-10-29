@@ -1,43 +1,75 @@
+// Theme Variables (matching dashboard)
+$surface: var(--color-surface);
+$surface-elevated: var(--color-surface-elevated);
+$surface-muted: var(--color-surface-muted);
+$primary: var(--color-primary);
+$accent: var(--color-accent);
+$success: var(--color-success);
+$warning: var(--color-warning);
+$error: var(--color-error);
+$info: var(--color-info);
+$text: var(--color-text-primary);
+$text-secondary: var(--color-text-secondary);
+$text-muted: var(--color-text-muted);
+$border: var(--color-border);
+$border-light: var(--color-border-light);
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);
+
+:host {
+  display: block;
+  overflow: hidden;
+}
+
 .confirmation-dialog {
-  padding: 32px 40px;
+  padding: clamp(2rem, 3vw, 2.5rem) clamp(2.5rem, 4vw, 3rem);
   text-align: center;
-  background: #ffffff;
-  border-radius: 20px;
+  background: $surface-elevated;
+  border-radius: var(--bip-border-radius-xl);
   min-width: 420px;
   max-width: 500px;
+  box-shadow: none;
+  color: $text;
+  margin: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .dialog-header {
-  margin-bottom: 32px;
+  margin-bottom: var(--spacing-32);
+  overflow: hidden;
 }
 
 .icon-container {
   width: 72px;
   height: 72px;
-  margin: 0 auto 24px;
+  margin: 0 auto var(--spacing-24);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  flex-shrink: 0;
   
   &.icon-container-danger {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 50%, #fca5a5 100%);
-    box-shadow: 0 8px 25px -8px rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(239, 68, 68, 0.1) 100%);
+    box-shadow: 0 8px 25px -8px rgba(239, 68, 68, 0.3), inset 0 0 0 1px rgba(239, 68, 68, 0.2);
   }
   
   &.icon-container-warning {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
-    box-shadow: 0 8px 25px -8px rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.1) 100%);
+    box-shadow: 0 8px 25px -8px rgba(245, 158, 11, 0.3), inset 0 0 0 1px rgba(251, 191, 36, 0.2);
   }
   
   &.icon-container-info {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
-    box-shadow: 0 8px 25px -8px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.1) 100%);
+    box-shadow: 0 8px 25px -8px rgba(59, 130, 246, 0.3), inset 0 0 0 1px rgba(96, 165, 250, 0.2);
   }
   
   &.icon-container-success {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 50%, #86efac 100%);
-    box-shadow: 0 8px 25px -8px rgba(34, 197, 94, 0.4);
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(74, 222, 128, 0.1) 100%);
+    box-shadow: 0 8px 25px -8px rgba(34, 197, 94, 0.3), inset 0 0 0 1px rgba(74, 222, 128, 0.2);
   }
 }
 
@@ -47,68 +79,70 @@
   font-size: 36px;
   
   &.icon-danger {
-    color: #dc2626;
+    color: #ef4444;
   }
   
   &.icon-warning {
-    color: #d97706;
+    color: #f59e0b;
   }
   
   &.icon-info {
-    color: #2563eb;
+    color: #3b82f6;
   }
   
   &.icon-success {
-    color: #16a34a;
+    color: #22c55e;
   }
 }
 
 .dialog-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 16px 0;
+  font-size: clamp(1.5rem, 2vw, 1.75rem);
+  font-weight: var(--bip-font-weight-bold);
+  color: $text;
+  margin: 0 0 var(--spacing-16) 0;
   line-height: 1.2;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  letter-spacing: -0.01em;
 }
 
 .dialog-message {
-  font-size: 16px;
+  font-size: clamp(0.95rem, 1.2vw, 1rem);
   line-height: 1.6;
-  color: #6b7280;
+  color: $text-secondary;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .dialog-actions {
   display: flex;
-  gap: 16px;
+  gap: var(--spacing-16);
   justify-content: center;
-  margin-top: 40px;
+  margin-top: var(--spacing-40);
 }
 
 .cancel-button {
   min-width: 120px;
   height: 48px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 15px;
+  border-radius: var(--bip-border-radius-full);
+  font-weight: var(--bip-font-weight-semibold);
+  font-size: 0.95rem;
   text-transform: none;
-  color: #6b7280;
-  border: 2px solid #e5e7eb;
-  background: #ffffff;
-  transition: all 0.2s ease;
+  color: $text-secondary;
+  border: 1px solid $border;
+  background: rgba(148, 163, 184, 0.05);
+  transition: all var(--transition-fast);
   
   &:hover:not(:disabled) {
-    background: #f9fafb;
-    border-color: #d1d5db;
-    color: #374151;
+    background: rgba(148, 163, 184, 0.1);
+    border-color: $border-light;
+    color: $text;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-sm;
   }
   
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 }
@@ -116,20 +150,20 @@
 .confirm-button {
   min-width: 120px;
   height: 48px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 15px;
+  border-radius: var(--bip-border-radius-full);
+  font-weight: var(--bip-font-weight-semibold);
+  font-size: 0.95rem;
   text-transform: none;
-  transition: all 0.2s ease;
-  box-shadow: 0 6px 20px -6px rgba(239, 68, 68, 0.4);
+  transition: all var(--transition-fast);
+  box-shadow: $shadow-md;
   
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px -8px rgba(239, 68, 68, 0.6);
+    box-shadow: $shadow-lg;
   }
   
   &:disabled {
-    opacity: 0.8;
+    opacity: 0.7;
     cursor: not-allowed;
     transform: none;
   }
@@ -138,7 +172,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: var(--spacing-8);
     
     &::after {
       content: '';
@@ -147,7 +181,7 @@
       border: 2px solid transparent;
       border-top: 2px solid currentColor;
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      animation: spin 0.8s linear infinite;
     }
   }
 }
@@ -155,4 +189,21 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+// Responsive
+@media (max-width: 540px) {
+  .confirmation-dialog {
+    min-width: auto;
+    padding: var(--spacing-24);
+  }
+  
+  .dialog-actions {
+    flex-direction: column;
+    gap: var(--spacing-12);
+    
+    button {
+      width: 100%;
+    }
+  }
 }

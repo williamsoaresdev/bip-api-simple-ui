@@ -1,313 +1,252 @@
-<!-- VERSÃO PROFISSIONAL COM HTML BÁSICO -->
-<div class="professional-form-container">
-  
-  <!-- Header profissional -->
-  <div class="form-header">
-    <div class="header-content">
-      <div class="title-section">
-        <h1>
-          <span class="title-icon">{{ isEditMode() ? '✏️' : '➕' }}</span>
-          {{ isEditMode() ? 'Editar Benefício' : 'Novo Benefício' }}
-        </h1>
-        <p>{{ isEditMode() ? 'Atualize as informações do benefício' : 'Preencha os dados para criar um novo benefício' }}</p>
-      </div>
-      <button 
-        type="button"
-        class="back-button"
-        (click)="onCancel()"
-        [disabled]="submitting()">
-        ← Voltar
-      </button>
-    </div>
-  </div>
-
+<div class="form-container">
   <!-- Loading State -->
   @if (loading()) {
-    <div class="main-form-card">
-      <div class="form-content loading-content">
-        <h3>⏳ Carregando...</h3>
-        <p>{{ isEditMode() ? 'Carregando dados do benefício...' : 'Preparando formulário...' }}</p>
-      </div>
+    <div class="loading-state">
+      <mat-card>
+        <mat-card-content>
+          <div class="loading-content">
+            <mat-icon>hourglass_empty</mat-icon>
+            <p>{{ isEditMode() ? 'Carregando dados do benefício...' : 'Preparando formulário...' }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   }
 
   <!-- Error State -->
   @if (error()) {
     <div class="error-state">
-      <span class="error-icon">⚠️</span>
-      <div class="error-content">
-        <h4>Erro no formulário</h4>
-        <p>{{ error() }}</p>
-      </div>
-      <button 
-        type="button" 
-        class="retry-button"
-        (click)="error.set(null)">
-        🔄 Tentar Novamente
-      </button>
+      <mat-card>
+        <mat-card-content>
+          <div class="error-content">
+            <mat-icon color="warn">error</mat-icon>
+            <div class="error-text">
+              <h3>Erro no formulário</h3>
+              <p>{{ error() }}</p>
+              <button mat-raised-button color="primary" (click)="error.set(null)">
+                <mat-icon>refresh</mat-icon>
+                Tentar Novamente
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   }
 
-  <!-- Formulário principal -->
+  <!-- Form Content -->
   @if (!loading()) {
-    <div class="main-form-card">
-      <div class="form-content">
-        
-        <h2 class="section-title">
-          <span class="section-icon">📋</span>
-          Informações do Benefício
-        </h2>
+    <div class="form-content">
+      <!-- Header -->
+      <div class="header-section">
+        <div class="header-info">
+          <h1>
+            <mat-icon>{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
+            {{ formTitle() }}
+          </h1>
+          <p>{{ formSubtitle() }}</p>
+        </div>
+        <button 
+          mat-stroked-button
+          type="button"
+          (click)="onCancel()"
+          [disabled]="submitting()">
+          <mat-icon>arrow_back</mat-icon>
+          Voltar
+        </button>
+      </div>
 
-        <form [formGroup]="beneficioForm" (ngSubmit)="onSubmit()">
+      <div class="form-layout">
+        <!-- Main Form Card -->
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>assignment</mat-icon>
+              Informações do Benefício
+            </mat-card-title>
+          </mat-card-header>
           
-          <div class="form-grid">
-            
-            <!-- Nome do Benefício -->
-            <div class="form-row single-column">
-              <div class="field-group">
-                <label class="field-label">
-                  <span class="field-icon">🎁</span>
-                  Nome do Benefício
-                  <span class="required-asterisk">*</span>
-                </label>
-                <input 
-                  type="text"
-                  class="field-input"
-                  formControlName="nome"
-                  placeholder="Ex: Vale Alimentação, Auxílio Transporte"
-                  maxlength="100">
-                
-                @if (beneficioForm.get('nome')?.hasError('required') && beneficioForm.get('nome')?.touched) {
-                  <div class="error-message">
-                    <span class="error-icon">❌</span>
-                    Nome é obrigatório
-                  </div>
-                }
-                @if (beneficioForm.get('nome')?.hasError('minlength')) {
-                  <div class="error-message">
-                    <span class="error-icon">❌</span>
-                    Nome deve ter pelo menos 3 caracteres
-                  </div>
-                }
-                @if (beneficioForm.get('nome')?.hasError('maxlength')) {
-                  <div class="error-message">
-                    <span class="error-icon">❌</span>
-                    Nome não pode ter mais que 100 caracteres
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Valor e Categoria -->
-            <div class="form-row two-columns">
-              
-              <!-- Valor -->
-              <div class="field-group">
-                <label class="field-label">
-                  <span class="field-icon">💰</span>
-                  Valor (R$)
-                  <span class="required-asterisk">*</span>
-                </label>
-                <input 
-                  type="number"
-                  class="field-input"
-                  formControlName="valor"
-                  placeholder="0,00"
-                  step="0.01"
-                  min="0.01">
-                
-                @if (beneficioForm.get('valor')?.hasError('required') && beneficioForm.get('valor')?.touched) {
-                  <div class="error-message">
-                    <span class="error-icon">❌</span>
-                    Valor é obrigatório
-                  </div>
-                }
-                @if (beneficioForm.get('valor')?.hasError('min')) {
-                  <div class="error-message">
-                    <span class="error-icon">❌</span>
-                    Valor deve ser maior que zero
-                  </div>
-                }
-              </div>
-
-              <!-- Categoria -->
-              <div class="field-group">
-                <label class="field-label">
-                  <span class="field-icon">📂</span>
-                  Categoria
-                  <span class="required-asterisk">*</span>
-                </label>
-                <select 
-                  class="field-select"
-                  formControlName="categoria"
-                  title="Selecione uma categoria para o benefício">
-                  <option value="">Selecione uma categoria</option>
-                  @for (categoria of categorias; track categoria) {
-                    <option [value]="categoria">
-                      {{ categoriasLabels[categoria] }}
-                    </option>
+          <mat-card-content>
+            <form [formGroup]="beneficioForm" (ngSubmit)="onSubmit()">
+              <div class="form-fields">
+                <!-- Nome -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Nome do Benefício</mat-label>
+                  <input 
+                    matInput
+                    formControlName="nome"
+                    placeholder="Ex: Vale Alimentação"
+                    maxlength="100"
+                    required>
+                  <mat-icon matPrefix>card_giftcard</mat-icon>
+                  @if (beneficioForm.get('nome')?.hasError('required') && beneficioForm.get('nome')?.touched) {
+                    <mat-error>Nome é obrigatório</mat-error>
                   }
-                </select>
-                
-                @if (beneficioForm.get('categoria')?.hasError('required') && beneficioForm.get('categoria')?.touched) {
-                  <div class="error-message">
-                    <span class="error-icon">❌</span>
-                    Categoria é obrigatória
-                  </div>
-                }
-              </div>
-            </div>
+                  @if (beneficioForm.get('nome')?.hasError('minlength')) {
+                    <mat-error>Nome deve ter pelo menos 3 caracteres</mat-error>
+                  }
+                </mat-form-field>
 
-            <!-- Descrição -->
-            <div class="form-row single-column">
-              <div class="field-group">
-                <label class="field-label">
-                  <span class="field-icon">📝</span>
-                  Descrição (Opcional)
-                </label>
-                <textarea 
-                  class="field-textarea"
-                  formControlName="descricao"
-                  placeholder="Descreva o benefício..."
-                  maxlength="500">
-                </textarea>
-                
-                @if (beneficioForm.get('descricao')?.hasError('maxlength')) {
-                  <div class="error-message">
-                    <span class="error-icon">❌</span>
-                    Descrição não pode ter mais que 500 caracteres
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Status -->
-            <div class="form-row single-column">
-              <div class="field-group">
-                <div class="status-field">
-                  <div class="status-toggle">
+                <!-- Valor e Categoria -->
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Valor (R$)</mat-label>
                     <input 
-                      type="checkbox"
-                      class="toggle-checkbox"
-                      formControlName="ativo"
-                      id="statusToggle">
-                    <label 
-                      for="statusToggle" 
-                      class="toggle-label"
-                      [class.active]="beneficioForm.get('ativo')?.value"
-                      [class.inactive]="!beneficioForm.get('ativo')?.value">
-                      <span class="status-icon">{{ beneficioForm.get('ativo')?.value ? '✅' : '❌' }}</span>
+                      matInput
+                      type="number"
+                      formControlName="valor"
+                      placeholder="0,00"
+                      step="0.01"
+                      min="0.01"
+                      required>
+                    <mat-icon matPrefix>attach_money</mat-icon>
+                    @if (beneficioForm.get('valor')?.hasError('required') && beneficioForm.get('valor')?.touched) {
+                      <mat-error>Valor é obrigatório</mat-error>
+                    }
+                    @if (beneficioForm.get('valor')?.hasError('min')) {
+                      <mat-error>Valor deve ser maior que zero</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Categoria</mat-label>
+                    <mat-select 
+                      formControlName="categoria" 
+                      required
+                      [compareWith]="compareCategorias">
+                      @for (categoria of categorias; track categoria) {
+                        <mat-option [value]="categoria">
+                          {{ categoriasLabels[categoria] }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matPrefix>category</mat-icon>
+                    @if (beneficioForm.get('categoria')?.hasError('required') && beneficioForm.get('categoria')?.touched) {
+                      <mat-error>Categoria é obrigatória</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <!-- Descrição -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Descrição (Opcional)</mat-label>
+                  <textarea 
+                    matInput
+                    formControlName="descricao"
+                    placeholder="Descreva o benefício..."
+                    rows="4"
+                    maxlength="500">
+                  </textarea>
+                  <mat-icon matPrefix>description</mat-icon>
+                  @if (beneficioForm.get('descricao')?.hasError('maxlength')) {
+                    <mat-error>Descrição não pode ter mais que 500 caracteres</mat-error>
+                  }
+                </mat-form-field>
+
+                <!-- Status Toggle -->
+                <div class="status-field">
+                  <mat-slide-toggle formControlName="ativo" color="primary">
+                    <span class="toggle-label">
+                      <mat-icon>{{ beneficioForm.get('ativo')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
                       Benefício {{ beneficioForm.get('ativo')?.value ? 'Ativo' : 'Inativo' }}
-                    </label>
-                  </div>
-                  <div class="status-description">
-                    Define se o benefício está disponível para uso pelos funcionários
-                  </div>
+                    </span>
+                  </mat-slide-toggle>
+                  <p class="status-description">Define se o benefício está disponível para uso</p>
                 </div>
               </div>
-            </div>
+            </form>
+          </mat-card-content>
 
-          </div>
-        </form>
-      </div>
-
-      <!-- Botões de ação -->
-      <div class="form-actions">
-        <div class="action-buttons">
-          <button 
-            type="button"
-            class="btn btn-secondary"
-            (click)="onCancel()"
-            [disabled]="submitting()">
-            <span class="btn-icon">❌</span>
-            Cancelar
-          </button>
-          
-          <button 
-            type="button"
-            class="btn btn-warning"
-            (click)="onReset()"
-            [disabled]="submitting()">
-            <span class="btn-icon">🔄</span>
-            Limpar
-          </button>
-          
-          <button 
-            type="submit"
-            class="btn btn-primary"
-            (click)="onSubmit()"
-            [disabled]="!beneficioForm.valid || submitting()">
-            @if (submitting()) {
-              <span class="btn-icon">⏳</span>
+          <!-- Form Actions -->
+          <mat-card-actions class="form-actions">
+            <button 
+              mat-stroked-button
+              type="button"
+              (click)="onReset()"
+              [disabled]="submitting()">
+              <mat-icon>refresh</mat-icon>
+              Limpar
+            </button>
+            
+            <button 
+              mat-raised-button
+              color="primary"
+              type="submit"
+              (click)="onSubmit()"
+              [disabled]="!canSubmit()">
+              @if (submitting()) {
+                <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+              } @else {
+                <mat-icon>{{ isEditMode() ? 'save' : 'add' }}</mat-icon>
+              }
               <span>{{ submitButtonText() }}</span>
-            } @else {
-              <span class="btn-icon">{{ isEditMode() ? '💾' : '➕' }}</span>
-              <span>{{ submitButtonText() }}</span>
-            }
-          </button>
-        </div>
-      </div>
-    </div>
+            </button>
+          </mat-card-actions>
+        </mat-card>
 
-    <!-- Pré-visualização -->
-    <div class="preview-section">
-      <div class="preview-card">
-        <div class="preview-header">
-          <h3>
-            <span class="preview-icon">👁️</span>
-            Pré-visualização
-          </h3>
-        </div>
-        
-        <div class="preview-content">
-          <div class="preview-grid">
-            
-            <div class="preview-item name-preview">
-              <div class="preview-label">Nome</div>
-              <div class="preview-value">{{ beneficioForm.get('nome')?.value || 'Nome do benefício' }}</div>
-            </div>
-            
-            <div class="preview-item value-preview">
-              <div class="preview-label">Valor</div>
-              <div class="preview-value">{{ beneficioForm.get('valor')?.value | currency:'BRL':'symbol':'1.2-2' }}</div>
-            </div>
-            
-            <div class="preview-item category-preview">
-              <div class="preview-label">Categoria</div>
-              <div class="preview-value">{{ currentCategoriaLabel() }}</div>
-            </div>
-            
-            <div class="preview-item status-preview" 
-                 [class.active]="beneficioForm.get('ativo')?.value">
-              <div class="preview-label">Status</div>
-              <div class="preview-value">{{ beneficioForm.get('ativo')?.value ? 'Ativo' : 'Inativo' }}</div>
+        <!-- Preview Card -->
+        <mat-card class="preview-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>visibility</mat-icon>
+              Pré-visualização
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="preview-content">
+              <div class="preview-item">
+                <mat-icon class="preview-icon">card_giftcard</mat-icon>
+                <div class="preview-text">
+                  <label>Nome</label>
+                  <p>{{ beneficioForm.get('nome')?.value || 'Nome do benefício' }}</p>
+                </div>
+              </div>
+
+              <div class="preview-item">
+                <mat-icon class="preview-icon">attach_money</mat-icon>
+                <div class="preview-text">
+                  <label>Valor</label>
+                  <p>{{ beneficioForm.get('valor')?.value | currency:'BRL':'symbol':'1.2-2' }}</p>
+                </div>
+              </div>
+
+              <div class="preview-item">
+                <mat-icon class="preview-icon">category</mat-icon>
+                <div class="preview-text">
+                  <label>Categoria</label>
+                  <p>{{ currentCategoriaLabel() }}</p>
+                </div>
+              </div>
+
+              <div class="preview-item" [class.active]="beneficioForm.get('ativo')?.value">
+                <mat-icon class="preview-icon">
+                  {{ beneficioForm.get('ativo')?.value ? 'check_circle' : 'cancel' }}
+                </mat-icon>
+                <div class="preview-text">
+                  <label>Status</label>
+                  <p>{{ beneficioForm.get('ativo')?.value ? 'Ativo' : 'Inativo' }}</p>
+                </div>
+              </div>
+
+              @if (beneficioForm.get('descricao')?.value) {
+                <div class="preview-item description">
+                  <mat-icon class="preview-icon">description</mat-icon>
+                  <div class="preview-text">
+                    <label>Descrição</label>
+                    <p>{{ beneficioForm.get('descricao')?.value }}</p>
+                  </div>
+                </div>
+              }
             </div>
 
-          </div>
-
-          @if (beneficioForm.get('descricao')?.value) {
-            <div class="description-preview">
-              <div class="preview-label">Descrição</div>
-              <div class="preview-value">{{ beneficioForm.get('descricao')?.value }}</div>
+            <div class="preview-note">
+              <mat-icon>info</mat-icon>
+              <small>Confira as informações antes de {{ isEditMode() ? 'atualizar' : 'criar' }}</small>
             </div>
-          }
-
-          <div class="preview-note">
-            Confira as informações antes de {{ isEditMode() ? 'atualizar' : 'criar' }} o benefício
-          </div>
-        </div>
+          </mat-card-content>
+        </mat-card>
       </div>
     </div>
   }
-
-  <!-- Loading overlay -->
-  @if (submitting()) {
-    <div class="loading-overlay">
-      <div class="loading-content">
-        <h3>⏳ Processando...</h3>
-        <p>{{ submitButtonText() }}</p>
-      </div>
-    </div>
-  }
-
 </div>

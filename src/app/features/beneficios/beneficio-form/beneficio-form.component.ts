@@ -74,27 +74,26 @@ export class BeneficioFormComponent implements OnInit {
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
   readonly originalBeneficio = signal<Beneficio | null>(null);
+  readonly formValid = signal(false); // 👈 Novo signal para rastrear validade
 
   readonly categorias = Object.values(BeneficioCategoria);
   readonly categoriasLabels = BENEFICIO_CATEGORIA_LABELS;
 
   readonly beneficioForm = this.fb.group({
-    nome: this.fb.control('', [
+    nome: ['', [
       Validators.required,
       Validators.minLength(3),
       Validators.maxLength(100)
-    ]),
-    descricao: this.fb.control('', [
-      Validators.maxLength(500)
-    ]),
-    valor: this.fb.control(1, [
+    ]],
+    descricao: [''],
+    valor: [null as number | null, [
       Validators.required,
       Validators.min(0.01)
-    ]),
-    categoria: this.fb.control<BeneficioCategoria>(BeneficioCategoria.OUTROS, [
+    ]],
+    categoria: [BeneficioCategoria.OUTROS, [
       Validators.required
-    ]),
-    ativo: this.fb.control(true)
+    ]],
+    ativo: [true]
   });
 
   readonly isEditMode = computed(() => this.mode() === 'edit');
@@ -126,9 +125,22 @@ export class BeneficioFormComponent implements OnInit {
     return this.isEditMode() ? 'Atualizar Benefício' : 'Criar Benefício';
   });
 
-  readonly canSubmit = computed(() => 
-    this.beneficioForm.valid && !this.submitting() && !this.loading()
-  );
+  readonly canSubmit = computed(() => {
+    const isValid = this.formValid(); // 👈 Usa o signal em vez de beneficioForm.valid
+    const notSubmitting = !this.submitting();
+    const notLoading = !this.loading();
+    
+    console.log('=== VALIDAÇÃO DO FORMULÁRIO ===');
+    console.log('Form Valid:', isValid);
+    console.log('Not Submitting:', notSubmitting);
+    console.log('Not Loading:', notLoading);
+    console.log('Form Value:', this.beneficioForm.value);
+    console.log('Form Errors:', this.getFormErrors());
+    console.log('Can Submit:', isValid && notSubmitting && notLoading);
+    console.log('================================');
+    
+    return isValid && notSubmitting && notLoading;
+  });
 
   readonly hasChanges = computed(() => {
     if (this.isCreateMode()) return true;
@@ -147,7 +159,10 @@ export class BeneficioFormComponent implements OnInit {
 
   readonly currentCategoriaLabel = computed(() => {
     const categoria = this.beneficioForm.get('categoria')?.value;
-    return categoria ? this.categoriasLabels[categoria] : 'Outros';
+    if (!categoria || categoria === BeneficioCategoria.OUTROS) {
+      return 'Outros';
+    }
+    return this.categoriasLabels[categoria];
   });
 
   constructor() {
@@ -155,96 +170,86 @@ export class BeneficioFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🎯 BeneficioForm ngOnInit executado');
-    console.log('🔧 Form inicial:', this.beneficioForm.value);
-    console.log('🔧 Form válido:', this.beneficioForm.valid);
-    console.log('🔧 Form errors:', this.getFormErrors());
-    console.log('🔧 URL atual:', this.router.url);
-    console.log('🔧 Route snapshot params:', this.route.snapshot.params);
-    
-    // Teste direto da API
-    console.log('🧪 Teste direto da API...');
-    this.beneficioService.getBeneficioById('12').subscribe({
-      next: (response) => console.log('🧪 Resposta API direta:', response),
-      error: (error) => console.error('🧪 Erro API direta:', error)
-    });
-    
     this.initializeForm();
   }
 
   private initializeForm(): void {
-    console.log('🚀 Inicializando formulário...');
     this.route.params.subscribe(params => {
-      console.log('📍 Route params recebidos:', params);
       const id = params['id'];
       if (id) {
-        console.log('✏️ Modo EDIT detectado, ID:', id);
         this.beneficioId.set(id);
         this.mode.set('edit');
         this.loadBeneficio(id);
       } else {
         this.mode.set('create');
-        console.log('🎯 Modo CREATE ativado');
       }
     });
   }
 
   private loadBeneficio(id: string): void {
-    console.log('📥 Carregando benefício ID:', id);
     this.loading.set(true);
     this.error.set(null);
 
     this.beneficioService.getBeneficioById(id)
       .pipe(
         catchError(error => {
-          console.error('❌ Erro ao carregar benefício:', error);
           this.error.set('Erro ao carregar benefício: ' + error.message);
           return of(null);
         }),
-        finalize(() => {
-          console.log('🏁 Finalizando carregamento...');
-          this.loading.set(false);
-        })
+        finalize(() => this.loading.set(false))
       )
       .subscribe(response => {
-        console.log('📦 Resposta recebida:', response);
         if (response?.data) {
           const beneficio = response.data;
-          console.log('✅ Benefício encontrado:', beneficio);
           this.originalBeneficio.set(beneficio);
           
-          const formData = {
+          this.beneficioForm.patchValue({
             nome: beneficio.nome,
             descricao: beneficio.descricao,
             valor: beneficio.valor,
             categoria: beneficio.categoria,
             ativo: beneficio.ativo
-          };
-          
-          console.log('🔄 Aplicando dados ao formulário:', formData);
-          this.beneficioForm.patchValue(formData);
-          console.log('📊 Estado do formulário após patch:', this.beneficioForm.value);
-        } else {
-          console.log('⚠️ Nenhum dado retornado na resposta');
+          });
         }
       });
   }
 
   private setupFormValidation(): void {
-    // Setup real-time validation
-    this.beneficioForm.valueChanges.subscribe((value) => {
+    this.beneficioForm.valueChanges.subscribe(() => {
       this.error.set(null);
-      console.log('🔄 Form value changed:', value);
-      console.log('🔄 Form valid:', this.beneficioForm.valid);
-      this.logFormState();
+      // 👇 Atualiza o signal de validação sempre que o form muda
+      this.formValid.set(this.beneficioForm.valid);
     });
 
-    // Log initial form state
-    setTimeout(() => this.logFormState(), 100);
+    // 👇 Atualiza validação inicial
+    this.formValid.set(this.beneficioForm.valid);
+
+    // Debug específico para categoria
+    this.beneficioForm.get('categoria')?.valueChanges.subscribe(value => {
+      console.log('🔵 Categoria changed:', value);
+      console.log('🔵 Categoria type:', typeof value);
+      console.log('🔵 Form valid after categoria change:', this.beneficioForm.valid);
+      console.log('🔵 All form values:', this.beneficioForm.value);
+    });
   }
 
   onSubmit(): void {
-    if (!this.canSubmit()) return;
+    // Marca todos os campos como touched para mostrar erros
+    Object.keys(this.beneficioForm.controls).forEach(key => {
+      this.beneficioForm.get(key)?.markAsTouched();
+    });
+
+    console.log('=== TENTATIVA DE SUBMIT ===');
+    console.log('Can Submit:', this.canSubmit());
+    console.log('Form Valid:', this.beneficioForm.valid);
+    console.log('Form Value:', this.beneficioForm.value);
+    console.log('Form Errors:', this.getFormErrors());
+    console.log('==========================');
+
+    if (!this.canSubmit()) {
+      console.warn('Formulário inválido, submit bloqueado');
+      return;
+    }
 
     this.submitting.set(true);
     this.error.set(null);
@@ -320,17 +325,7 @@ export class BeneficioFormComponent implements OnInit {
     return formErrors;
   }
 
-  // Debug method to track form changes
-  private logFormState(): void {
-    console.log('📊 Form State Debug:', {
-      valid: this.beneficioForm.valid,
-      value: this.beneficioForm.value,
-      errors: this.getFormErrors(),
-      touched: {
-        nome: this.beneficioForm.get('nome')?.touched,
-        valor: this.beneficioForm.get('valor')?.touched,
-        categoria: this.beneficioForm.get('categoria')?.touched
-      }
-    });
+  compareCategorias(c1: BeneficioCategoria, c2: BeneficioCategoria): boolean {
+    return c1 === c2;
   }
 }

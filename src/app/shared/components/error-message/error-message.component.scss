@@ -1,120 +1,154 @@
+// Theme Variables (matching dashboard)
+$surface: var(--color-surface);
+$surface-elevated: var(--color-surface-elevated);
+$surface-muted: var(--color-surface-muted);
+$primary: var(--color-primary);
+$accent: var(--color-accent);
+$success: var(--color-success);
+$warning: var(--color-warning);
+$error: var(--color-error);
+$info: var(--color-info);
+$text: var(--color-text-primary);
+$text-secondary: var(--color-text-secondary);
+$text-muted: var(--color-text-muted);
+$border: var(--color-border);
+$border-light: var(--color-border-light);
+$shadow-sm: var(--shadow-sm);
+
 // Error Container Variants
 .error-container {
+  border-radius: var(--bip-border-radius-lg);
+  transition: all var(--transition-fast);
+
   &.error-filled {
     &.error-error {
-      background-color: #fef2f2;
-      border: 1px solid #fecaca;
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
     }
     &.error-warning {
-      background-color: #fffbeb;
-      border: 1px solid #fed7aa;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      color: #fcd34d;
     }
     &.error-info {
-      background-color: #eff6ff;
-      border: 1px solid #bfdbfe;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      color: #93c5fd;
     }
     &.error-success {
-      background-color: #f0fdf4;
-      border: 1px solid #bbf7d0;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      color: #86efac;
     }
   }
 
   &.error-outlined {
-    background-color: white;
+    background: rgba(148, 163, 184, 0.03);
     &.error-error {
-      border: 2px solid #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
     }
     &.error-warning {
-      border: 2px solid #fcd34d;
+      border: 1px solid rgba(251, 191, 36, 0.4);
     }
     &.error-info {
-      border: 2px solid #93c5fd;
+      border: 1px solid rgba(96, 165, 250, 0.4);
     }
     &.error-success {
-      border: 2px solid #86efac;
+      border: 1px solid rgba(74, 222, 128, 0.4);
     }
   }
 
   &.error-minimal {
+    background: rgba(148, 163, 184, 0.02);
     &.error-error {
-      border-left: 4px solid #ef4444;
-      background-color: rgba(254, 242, 242, 0.3);
+      border-left: 3px solid #ef4444;
     }
     &.error-warning {
-      border-left: 4px solid #f59e0b;
-      background-color: rgba(255, 251, 235, 0.3);
+      border-left: 3px solid #f59e0b;
     }
     &.error-info {
-      border-left: 4px solid #3b82f6;
-      background-color: rgba(239, 246, 255, 0.3);
+      border-left: 3px solid #3b82f6;
     }
     &.error-success {
-      border-left: 4px solid #10b981;
-      background-color: rgba(240, 253, 244, 0.3);
+      border-left: 3px solid #22c55e;
     }
+  }
+
+  &:hover {
+    box-shadow: $shadow-sm;
+    transform: translateY(-1px);
   }
 }
 
 // Icon Colors
 .icon {
+  opacity: 0.9;
+  
   &.icon-error {
-    color: #dc2626;
+    color: #ef4444;
   }
   &.icon-warning {
-    color: #d97706;
+    color: #f59e0b;
   }
   &.icon-info {
-    color: #2563eb;
+    color: #3b82f6;
   }
   &.icon-success {
-    color: #059669;
+    color: #22c55e;
   }
 }
 
 // Title Colors
 .title {
+  font-weight: var(--bip-font-weight-semibold);
+  letter-spacing: -0.01em;
+  
   &.title-error {
-    color: #991b1b;
+    color: #fca5a5;
   }
   &.title-warning {
-    color: #92400e;
+    color: #fcd34d;
   }
   &.title-info {
-    color: #1e40af;
+    color: #93c5fd;
   }
   &.title-success {
-    color: #065f46;
+    color: #86efac;
   }
 }
 
 // Message Colors
 .message {
   &.message-error {
-    color: #b91c1c;
+    color: rgba(252, 165, 165, 0.85);
   }
   &.message-warning {
-    color: #b45309;
+    color: rgba(252, 211, 77, 0.85);
   }
   &.message-info {
-    color: #1d4ed8;
+    color: rgba(147, 197, 253, 0.85);
   }
   &.message-success {
-    color: #047857;
+    color: rgba(134, 239, 172, 0.85);
   }
 }
 
 // Details Colors
 .details {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  
   &.details-error {
-    color: #dc2626;
+    color: rgba(252, 165, 165, 0.7);
   }
   &.details-warning {
-    color: #d97706;
+    color: rgba(252, 211, 77, 0.7);
   }
   &.details-info {
-    color: #2563eb;
+    color: rgba(147, 197, 253, 0.7);
   }
   &.details-success {
-    color: #059669;
+    color: rgba(134, 239, 172, 0.7);
   }
 }
